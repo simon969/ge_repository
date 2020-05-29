@@ -1,0 +1,117 @@
+@page
+@model ge_repository.Pages.Group.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Group Index</h2>
+
+<p>
+    <a asp-page="Create">Create New Group</a>
+</p>
+
+<!-- <form asp-page="./Index" method="get">
+  <div class="form-actions no-color">
+  <input type="hidden" asp-for="pageSort">
+  <input type="hidden" asp-for="pageSize">
+  <input type="hidden" asp-for="groupId">
+  <input type="hidden" asp-for="projectId">   
+        <p>
+            Search: <input type="text" name="pageFilter" value="@(Model.pageFilter)" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-page="./Index">Full Group List</a>
+        </p>
+    </div>
+</form> -->
+
+<partial name="_PagingHeaderPartial" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locPostcode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].manager)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locMapReference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locEast)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].locNorth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.groups[0].createdDT)
+            </th>
+            <th>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.groups) {
+        <tr>
+            <td>
+            <a asp-page="./Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.name)</a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locPostcode)
+            </td>
+            <td>
+                @if (@item.manager!=null) {
+                    @item.manager.FullName();
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locMapReference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locEast)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.locNorth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.createdDT)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="../Project/Index" asp-route-groupId="@item.Id">Projects(
+                    @if ( @item.projects!=null)   {
+                        @item.projects.Count();
+                    })
+                </a> |
+                <a asp-page="../Data/Index" asp-route-groupId="@item.Id">Data</a> |
+                <a asp-page="../UserOperations/Index" asp-route-groupId="@item.Id">Users</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<partial name="_PagingFooterPartial" />
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

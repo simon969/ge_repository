@@ -1,0 +1,86 @@
+@model ge_repository.Models.ge_transform
+            <div class="form-group">
+                <label asp-for="name" class="control-label"></label>
+                <input asp-for="name" class="form-control" />
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="description" class="control-label"></label>
+                <input asp-for="description" class="form-control" />
+                <span asp-validation-for="description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="dataId" class="control-label"></label>
+                <select asp-for="dataId" class ="form-control" asp-items="ViewBag.dataId">
+                <option value ="" selected>--- SELECT ---</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="add_data" class="control-label"></label>
+                <select id="select_data" class ="form-control" asp-items="ViewBag.dataId">
+                 <option value ="" selected>--- SELECT ---</option>
+                </select>
+            </div>
+            <div class="form-group">
+            <button type="button" onclick="addValue('select_data','transform_add_data',';', true)">Add</button> <button type="button" onclick="clearValue('transform_add_data')">Clear</button>
+            </div>
+            <div class="form-group">  
+                <textarea asp-for="add_data" class="form-control"></textarea>
+                <span asp-validation-for="add_data" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="styleId" class="control-label"></label>
+                <select asp-for="styleId" class ="form-control" asp-items="ViewBag.styleId">
+                  <option value = "" selected>--- SELECT ---</option>
+                </select>
+                <span asp-validation-for="styleId" class="text-danger"></span>
+            </div>
+            <div class="form-group">   
+                <label asp-for="parameters" class="control-label"></label>
+                <select id="selectId" class ="form-control" asp-items="ViewBag.SelectId">
+                    <option value="" selected>--- SELECT ---</option>
+                 </select>
+            </div>
+            <div class="form-group">   
+                <select id="selectParam" class ="form-control" asp-items="ViewBag.SelectParam">
+                    <option disabled selected>--- SELECT ---</option>
+                </select>
+            </div>
+            <div class="form-group">
+            <button type="button" onclick="addTransform()">Add</button> <button type="button" onclick="clearTransform()">Clear</button>
+            </div>
+            <div class="form-group">  
+                <textarea asp-for="parameters" class="form-control"></textarea>
+                <span asp-validation-for="parameters" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="storedprocedure" class="control-label"></label>
+                <select asp-for="storedprocedure" class ="form-control" asp-items="ViewBag.SelectSP">
+                  <option value ="" selected>--- SELECT ---</option>
+                </select>
+            </div>
+             <div class="form-group">  
+                <label asp-for="service_endpoint" class="control-label"></label>
+                <textarea asp-for="service_endpoint" class="form-control"></textarea>
+                <span asp-validation-for="service_endpoint" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="version" class="control-label"></label>
+                <input asp-for="version" class="form-control" />
+                <span asp-validation-for="version" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="cstatus" class="control-label"></label>
+                <select asp-for="cstatus" asp-items="Html.GetEnumSelectList<Constants.ConfidentialityStatus>()" class="form-control"></select>
+                <span asp-validation-for="cstatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="qstatus" class="control-label"></label>
+                <select asp-for="qstatus" asp-items="Html.GetEnumSelectList<Constants.QualitativeStatus>()" class="form-control"></select>
+                <span asp-validation-for="cstatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="vstatus" class="control-label"></label>
+                <select asp-for="vstatus" asp-items="Html.GetEnumSelectList<Constants.VersionStatus>()" class="form-control"></select>
+                <span asp-validation-for="vstatus" class="text-danger"></span>
+            </div>

@@ -1,0 +1,115 @@
+@page
+@model ge_repository.Pages.Transform.IndexModel
+
+@if (@Model.projectId!=null) {
+        ViewData["Title"] =  @ViewBag.ProjectName + " Transform Index";
+        <h2>
+        @ViewBag.ProjectName Transform Index
+        </h2>
+        <h4>
+        <a asp-page="../Project/Details" asp-route-id="@Model.project.Id">Project Details</a>
+        |<a asp-page="../Transform/Create" asp-route-projectId="@Model.project.Id">Transform Add</a>
+        </h4>
+ } else {
+ViewData["Title"] = "Transform Index";
+<h2>Transform Index</h2>
+}
+<partial name="_PagingHeaderPartial" />
+
+<table class="table">
+    <thead>
+        <tr>
+          
+            <th>
+                @Html.DisplayNameFor(model => model.transform[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.transform[0].description)
+            </th>
+            <th>
+                Data Source 
+            </th>
+            <th>
+                Style @Html.DisplayNameFor(model => model.transform[0].style.filename)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.transform[0].createdDT)
+            </th>
+              @if(Model.project==null) {
+                <th>
+                @Html.DisplayNameFor(model => model.transform[0].project.name)
+                </th>
+              }
+             <th>
+                @Html.DisplayNameFor(model => model.transform[0].data.pstatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.transform) {
+        <tr>
+            
+            <td> <a asp-controller="ge_transform" asp-action="view" asp-route-transformId="@item.Id">
+                     @Html.DisplayFor(modelItem => item.name)
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.description)
+            </td>
+            <td>
+                @if (item.data!=null) {
+                @Html.Display("Data File: ") @Html.DisplayFor(modelItem => item.data.filename)
+                }
+                @if (item.storedprocedure!=null) {
+                @Html.Display("Stored Procedure: ")  @Html.DisplayFor(modelItem => item.storedprocedure)
+                }
+                @if (item.service_endpoint!=null) {
+                @Html.Display("Service Endpoint: ")  @Html.DisplayFor(modelItem => item.service_endpoint)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.style.filename)
+            </td>
+                
+                      <td>
+                @Html.DisplayFor(modelItem => item.createdDT)
+            </td>
+                @if(Model.project==null) {
+                    <td>
+                    <a asp-page="../Project/Details" asp-route-id="@item.projectId">
+                        @Html.DisplayFor(modelItem => item.project.name)
+                    </a>
+                    </td>
+                }
+            <td>
+                @if (item.data!=null) {
+                    @Html.DisplayFor(modelItem => item.data.pstatus)
+                }
+
+            </td>
+            
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                <text> | </text>
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a>  
+                <text> | </text>
+                @if(item.styleId!=null) {
+                <a asp-controller="ge_transform" asp-action="view" asp-route-transformId="@item.Id">View</a>
+                } else {
+                <a asp-controller="ge_transform" asp-action="run" asp-route-transformId="@item.Id">Run</a>   
+                }
+                <text> | </text>
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<partial name="_PagingFooterPartial" />
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+ 

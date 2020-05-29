@@ -1,0 +1,72 @@
+@model ge_repository.Models.ge_project
+
+        <dt>
+            @Html.DisplayNameFor(model => model.name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.managerId)
+        </dt>
+        <dd>
+            @if(@Model.manager!=null) {
+              @Model.manager.FullName();  
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.keywords)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.keywords)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.group.name)
+        </dt>
+        <dd>
+           <a asp-page="../Group/Details" asp-route-id="@Model.groupId">
+            @Html.DisplayFor(model => model.group.name)
+           </a>
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.start_date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.start_date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.end_date)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.end_date)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.pstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.pstatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.cstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.cstatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.otherDbConnectId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.otherDbConnectId)
+        </dd>
+         <dt>
+            @Html.DisplayNameFor(model => model.esriConnectId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.esriConnectId)
+        </dd>

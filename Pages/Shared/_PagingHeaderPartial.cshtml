@@ -1,0 +1,27 @@
+ @model ge_repository.Pages.Shared._geFullPagedModel
+<form class="form-inline" asp-page="./Index" method="get">
+  <input type="hidden" asp-for="@(Model.pageSort)">
+  <input type="hidden" asp-for="@(Model.pageSize)">
+  <input type="hidden" asp-for="@(Model.groupId)">
+  <input type="hidden" asp-for="@(Model.projectId)">
+    <div class="form-group">
+        <label class="sr-only">Search</label>
+        <input type="text" class="form-control" name="pageFilter" value="@(Model.pageFilter)" />
+        <input type="submit" value="Search" class="btn btn-default"/>
+    </div>
+</form>
+
+@* <form asp-page="./Index" method="get">
+  <input type="hidden" asp-for="@(Model.pageSort)">
+  <input type="hidden" asp-for="@(Model.pageSize)">
+  <input type="hidden" asp-for="@(Model.groupId)">
+  <input type="hidden" asp-for="@(Model.projectId)">
+  
+  <div class="form-actions no-color">
+        <p>
+            Search: <input type="text" name="pageFilter" value="@(Model.pageFilter)"/>
+            <input type="submit" value="Search" class="btn btn-default"/> |
+            <a asp-page="./Index">Full List</a>
+        </p>
+    </div>
+</form> *@

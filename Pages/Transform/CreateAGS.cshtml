@@ -1,0 +1,75 @@
+@page
+@model ge_repository.Pages.Transform.CreateAGSModel
+
+@{
+    ViewData["Title"] = "Create AGS Transforms";
+}
+
+<h2>Create AGS Transforms</h2>
+
+<h4>default AGSXML transforms </h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="transform.projectId" />
+
+            <input type="hidden" asp-for="project.Id" />
+            <input type="hidden" asp-for="project.name" />
+            <input type="hidden" asp-for="project.description" />
+            
+            <input type="hidden" asp-for="hole.Id" />
+            <input type="hidden" asp-for="hole.name" />
+            <input type="hidden" asp-for="hole.description" />
+
+            <input type="hidden" asp-for="table.Id" />
+            <input type="hidden" asp-for="table.name" />
+            <input type="hidden" asp-for="table.description" />
+            
+            <div class="form-group">
+                <label asp-for="transform.dataId" class="control-label"></label>
+                <input asp-for="transform.dataId" class="form-control" readonly />
+            </div>
+            <div class="form-group">   
+                <label asp-for="transform.parameters" class="control-label"></label>
+                <select id="selectId" class ="form-control" asp-items="ViewBag.SelectId">
+                    <option disabled selected>--- SELECT ---</option>
+                </select>
+            </div>
+            <div class="form-group">   
+                <select id="selectParam" class ="form-control" asp-items="ViewBag.SelectParam">
+                     <option disabled selected>--- SELECT ---</option>
+                </select>
+            </div>
+            <div class="form-group">
+            <button type="button" onclick="addTransform()">Add</button> <button type="button" onclick="clearTransform()">Clear</button>
+            </div>
+            <div class="form-group">  
+                <label asp-for="transform.parameters" class="control-label"></label>
+                <textarea asp-for="transform.parameters" class="form-control"></textarea>
+                <span asp-validation-for="transform.parameters" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">project xslt </label>
+                <select asp-for="project.styleId" class ="form-control" asp-items="ViewBag.styleId"></select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">hole xslt</label>
+                <select asp-for="hole.styleId" class ="form-control" asp-items="ViewBag.styleId"></select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">table xslt</label>
+                <select asp-for="table.styleId" class ="form-control" asp-items="ViewBag.styleId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+

@@ -1,0 +1,36 @@
+@page
+@model ge_repository.Pages.Data.CreateXMLModel
+
+@{
+    ViewData["Title"] = @ViewData["ProjectName"] + "Create XML Data";
+}
+
+<h2>
+    @ViewData["ProjectName"] Create XML Data
+</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <partial name="_DetailsData"
+                    for="data"
+                    view-data="ViewData" />   
+        <partial name="_DetailsLocation"
+                    for="data"
+                    view-data="ViewData" />
+        <partial name="_DetailsBase"
+                    for="data"
+                    view-data="ViewData" />
+        <form method="post" >
+            <div class="form-group">
+            <input type="submit" value="CreateXML" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+ 

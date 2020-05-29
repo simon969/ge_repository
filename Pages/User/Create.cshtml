@@ -1,0 +1,119 @@
+@page
+@model ge_repository.Pages.User.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>ge_user</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ge_user.FirstName" class="control-label"></label>
+                <input asp-for="ge_user.FirstName" class="form-control" />
+                <span asp-validation-for="ge_user.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.LastName" class="control-label"></label>
+                <input asp-for="ge_user.LastName" class="form-control" />
+                <span asp-validation-for="ge_user.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.LastLoggedIn" class="control-label"></label>
+                <input asp-for="ge_user.LastLoggedIn" class="form-control" />
+                <span asp-validation-for="ge_user.LastLoggedIn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.UserName" class="control-label"></label>
+                <input asp-for="ge_user.UserName" class="form-control" />
+                <span asp-validation-for="ge_user.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.NormalizedUserName" class="control-label"></label>
+                <input asp-for="ge_user.NormalizedUserName" class="form-control" />
+                <span asp-validation-for="ge_user.NormalizedUserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.Email" class="control-label"></label>
+                <input asp-for="ge_user.Email" class="form-control" />
+                <span asp-validation-for="ge_user.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.NormalizedEmail" class="control-label"></label>
+                <input asp-for="ge_user.NormalizedEmail" class="form-control" />
+                <span asp-validation-for="ge_user.NormalizedEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="ge_user.EmailConfirmed" /> @Html.DisplayNameFor(model => model.ge_user.EmailConfirmed))
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.PasswordHash" class="control-label"></label>
+                <input asp-for="ge_user.PasswordHash" class="form-control" />
+                <span asp-validation-for="ge_user.PasswordHash" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.SecurityStamp" class="control-label"></label>
+                <input asp-for="ge_user.SecurityStamp" class="form-control" />
+                <span asp-validation-for="ge_user.SecurityStamp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.ConcurrencyStamp" class="control-label"></label>
+                <input asp-for="ge_user.ConcurrencyStamp" class="form-control" />
+                <span asp-validation-for="ge_user.ConcurrencyStamp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.PhoneNumber" class="control-label"></label>
+                <input asp-for="ge_user.PhoneNumber" class="form-control" />
+                <span asp-validation-for="ge_user.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="ge_user.PhoneNumberConfirmed" /> @Html.DisplayNameFor(model => model.ge_user.PhoneNumberConfirmed))
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="ge_user.TwoFactorEnabled" /> @Html.DisplayNameFor(model => model.ge_user.TwoFactorEnabled))
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.LockoutEnd" class="control-label"></label>
+                <input asp-for="ge_user.LockoutEnd" class="form-control" />
+                <span asp-validation-for="ge_user.LockoutEnd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="ge_user.LockoutEnabled" /> @Html.DisplayNameFor(model => model.ge_user.LockoutEnabled))
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ge_user.AccessFailedCount" class="control-label"></label>
+                <input asp-for="ge_user.AccessFailedCount" class="form-control" />
+                <span asp-validation-for="ge_user.AccessFailedCount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+

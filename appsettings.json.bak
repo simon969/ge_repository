@@ -1,0 +1,86 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "ge_DbContext1": "Server=EUDTC1PSQLW001;Database=ge_data20190208;User Id=ge_repository; Password=f%^DQ@P$#8MceJ5J;MultipleActiveResultSets=true",
+    "ge_DbContext": "Server=UKCRD1LT40672\\SQLEXPRESS2014;Database=ge_data20190117;Trusted_Connection=True;MultipleActiveResultSets=true",
+    "ge_DbContext2": "Server=UKCRD1PC40002\\SQLEXPRESS2014;Database=ge_data20181217;User Id=ge_repository; Password=f%^DQ@P$#8MceJ5J;MultipleActiveResultSets=true",
+    "ge_repositoryIdentityDbContextConnection": "Server=(localdb)\\mssqllocaldb;Database=ge_repository;Trusted_Connection=True;MultipleActiveResultSets=true",
+    "ge_DbContextConnection": "Server=(localdb)\\mssqllocaldb;Database=ge_repository;Trusted_Connection=True;MultipleActiveResultSets=true"
+  },
+  "ags_config1": {
+    "host": "UKCRD1PC40002",
+    "port": "1045"
+  },
+  "ags_config2": {
+    "host": "ukcrd1pc34587",
+    "port": "1045"
+  }, 
+  "ags_config": {
+    "host": "LOCALHOST",
+    "port": "1045"
+  }, 
+  "smpt_config":{
+    "port": 587,
+    "server": "mail.gmx.com",
+    "smtpUsername": "no-reply.ge_repository@gmx.co.uk",
+    "SmtpPassword": "S*qecvrB+)H4~VN8",
+    "from": "no-reply.ge_repository@gmx.co.uk"
+  },
+  "smpt_config1":{
+    "port": 587,
+    "server": "smtp.gmail.com",
+    "smtpUsername": "simon.thomson.1168@gmail.com",
+    "SmtpPassword": "10TylecroftRoad",
+    "from": "simon.thomson.1168@gmail.com"
+  },
+  "smpt_config2":{
+    "port": 587,
+    "server": "mail.aecom.co.uk",
+    "smtpUsername": "simon.thomson@aecom.com",
+    "SmtpPassword": "hermes.feb19",
+    "from": "simon.thomson@aecom.com"
+  },
+  "ge_config": {
+    "templateprojectId": "992c33c4-fcb9-4559-bf38-38545ef04816",
+    "inviteuserpassword": "S*qecvrB+)H4~VN8",
+    "defaultagsversion": "3.1",
+    "defaultmaxfilesize": "20e6"
+    "transform_parameters": [
+      {
+      "host": "localhost",
+      "user":"any.user@aecom.com",
+      "version":"3.1",
+      "project": "F53C82CF-9496-4374-79C4-08D69F3C2170",
+      "hole": "C51AFEE0-4394-4863-79C3-08D69F3C2170",
+      "table": "1A7DF278-1447-494E-79C2-08D69F3C2170",
+      "geol":"",
+      "projects": ["test1","test2"],
+      "holes": ["bh1","bh2","bh3"],
+      "tables": ["spt","dchg","trix"],
+      "geols":["mg","alv","rtd","lcf"],
+      "options":["no_header"]
+     },
+      {
+      "host": "",
+      "user": "",
+      "version": "4.0",
+      "project": "",
+      "hole": "",
+      "table": "",
+      "geol": "",
+      "projects": "",
+      "holes": "",
+      "tables": "",
+      "geols":"",
+      "options":""
+      }
+    ]
+    }
+  
+   }
+  

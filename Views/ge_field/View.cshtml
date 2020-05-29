@@ -1,0 +1,106 @@
+@model ge_repository.OtherDatabase.ge_log_file
+
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Logger File</h4>
+<hr />
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].db_name)
+            </th>
+                 @Html.DisplayNameFor(model => model.field_headers[0].id)
+            </th>
+                 @Html.DisplayNameFor(model => model.field_headers[0].id)
+            </th>
+                @Html.DisplayNameFor(model => model.field_headers[0].id)
+            </th>   
+            }
+        </tr>
+    </thead>
+    <tbody>
+         @foreach (var heading in Model.field_headers) {
+        <tr>
+        <dd>
+            @Html.DisplayFor(modelItem =>heading.id)
+        </dd>  
+        <dd>
+            @Html.DisplayFor(modelItem => heading.name)
+        </dd> 
+        <dd>
+            @Html.DisplayFor(modelItem => heading.db_name)
+        </dd>
+        </tr>
+         }
+    </tbody>  
+    </table>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].ReadingDatetime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Duration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value1)
+            </th>
+                @Html.DisplayNameFor(model => model.readings[0].Value2)
+            </th>
+                @Html.DisplayNameFor(model => model.readings[0].Value3)
+            </th>
+                @Html.DisplayNameFor(model => model.readings[0].Value4)
+            </th>   
+            }
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var reading in Model.readings) {
+        <tr>
+           
+            <td >
+                @Html.DisplayFor(modelItem => reading.ReadingDatetime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Duration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value3)
+            </td> 
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value4)
+            </td>             
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+</div>
+<p>
+    @Html.ActionLink("Save", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

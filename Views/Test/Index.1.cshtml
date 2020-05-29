@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+<h1>Upload Files</h1>
+<div class="row">
+    <section>
+        <form method="post" enctype="multipart/form-data"
+              asp-controller="ge_data" asp-action="Post">
+             <div class="form-group">
+                <div class="col-md-10">
+                    <p>Project Id:</p>
+                    <input type="text" name="ProjectId" value="BEC5E41A-3765-4024-AB9E-08D6545F8FADM"/>
+                </div>
+            </div>  
+            <div class="form-group">
+                <div class="col-md-10">
+                    <p>Upload one or more files using this form:</p>
+                    <input type="file" name="files" multiple />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input type="submit" value="Upload" />
+                </div>
+            </div>
+        </form>
+    </section>
+</div>
+<hr />
+<h3>Other Samples</h3>
+<ul>
+    <li><a asp-controller="Profile" asp-action="Index">Profile Sample</a></li>
+    <li><a asp-controller="Streaming" asp-action="Index">Streaming Upload Sample</a></li>
+</ul>

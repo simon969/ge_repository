@@ -1,0 +1,48 @@
+@model ge_repository.Models.ge_user_ops
+               
+                @if (@Model.project != null) {
+                    <div class="form-group">
+                    <label asp-for="projectId" class="control-label"></label>
+                    <input asp-for="projectId" class="form-control" readonly></input>
+                    </div>
+                    <div class="form-group">
+                    <label class="control-label">Project Name</label>
+                    <input class="form-control" readonly value="@Model.project.name"></input>
+                    </div>
+                }
+                @if (@Model.group != null) {
+                    <div class="form-group">
+                    <label asp-for="groupId" class="control-label"></label>
+                    <input asp-for="groupId" class="form-control" readonly></input>
+                    </div>
+                    <div class="form-group">
+                    <label class="control-label">Group Name</label>
+                    <input class="form-control" readonly value="@Model.group.name"></input>
+                    </div>
+                }
+
+                <div class="form-group">
+                <label asp-for="operations" class="control-label"></label>
+                <input asp-for="operations" class="form-control" readonly></input>
+                <span asp-validation-for="operations" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                <label asp-for="user_operations" class="control-label"></label>
+                <input asp-for="user_operations" class="form-control"></input>
+                <span asp-validation-for="user_operations" class="text-danger"></span>
+                </div>
+               
+                <div class="form-group">
+                <label class="control-label">Select Operation</label>
+                <select id="select_operation" class ="form-control" asp-items="ViewBag.selectCRUDDAAOperations"></select>
+                </div>
+               
+                <div class="form-group">
+                <button type="button" onclick="addValue('select_operation','user_ops_user_operations',';', true)">Add</button> 
+                <button type="button" onclick="removeValue('select_operation','user_ops_user_operations',';', true)">Remove</button>
+                <button type="button" onclick="clearValue('user_ops_user_operations')">Clear</button>
+                </div>
+               
+                
+                

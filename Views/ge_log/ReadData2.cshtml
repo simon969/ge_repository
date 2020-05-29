@@ -1,0 +1,28 @@
+@model ge_repository.OtherDatabase.ge_log_file
+
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Logger File " + @Model.data.filename;
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Logger File</h4>
+
+    <h1> </h1>
+   <partial name="_ge_log_file"
+                    for="@Model"
+                    view-data="ViewData" />
+    <partial name="_ge_dictionary"
+                    for="header"
+                    view-data="ViewData" />
+
+</div>
+<p>
+    @Html.ActionLink("Save", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

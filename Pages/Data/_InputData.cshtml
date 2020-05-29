@@ -1,0 +1,33 @@
+@model ge_repository.Models.ge_data
+            <div class="form-group">
+                <label asp-for="description" class="control-label"></label>
+                <input asp-for="description" class="form-control" />
+                <span asp-validation-for="description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="keywords" class="control-label"></label>
+                <input asp-for="keywords" class="form-control" />
+                <span asp-validation-for="keywords" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="version" class="control-label"></label>
+                <input asp-for="version" class="form-control" />
+                <span asp-validation-for="version" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="cstatus" class="control-label"></label>
+                <select asp-for="cstatus" asp-items="Html.GetEnumSelectList<Constants.ConfidentialityStatus>()" class="form-control"></select>
+                <span asp-validation-for="cstatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="qstatus" class="control-label"></label>
+                <select asp-for="qstatus" asp-items="Html.GetEnumSelectList<Constants.QualitativeStatus>()" class="form-control"></select>
+                <span asp-validation-for="cstatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="vstatus" class="control-label"></label>
+                <select asp-for="vstatus" asp-items="Html.GetEnumSelectList<Constants.VersionStatus>()" class="form-control"></select>
+                <span asp-validation-for="vstatus" class="text-danger"></span>
+            </div>
+
+          

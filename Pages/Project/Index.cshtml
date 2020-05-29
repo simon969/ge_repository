@@ -1,0 +1,138 @@
+@page
+@model ge_repository.Pages.Project.IndexModel
+
+@if(@Model.group!=null) {
+    ViewData["Title"] =  @Model.group.name + " Project Index";
+    <h2>
+        @Model.group.name Project Index
+    </h2>
+    <h4>
+    <a asp-page="../Group/Details" asp-route-id="@Model.group.Id">Group Details</a>   
+    |<a asp-page="Create" asp-route-groupId="@Model.groupId">Create New Project</a>
+    |<a asp-controller="ge_data" asp-action="Get" asp-route-groupId=@Model.group.Id>JSON</a> 
+    </h4>
+} else { 
+ViewData["Title"] = "All Project Index";
+<h2>All Project Index</h2>
+}
+
+<!-- <form>
+  <input type="hidden" asp-for="pageSort">
+  <input type="hidden" asp-for="pageSize">
+  <input type="hidden" asp-for="groupId">
+  <input type="hidden" asp-for="projectId"> 
+   <p>
+        Search: <input type="text" name="pageFilter" value="@(Model.pageFilter)" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-page="./Index">Full Project List</a>
+        </p>
+</form> -->
+
+<partial name="_PagingHeaderPartial" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.projects[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.projects[0].description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.projects[0].start_date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.projects[0].pstatus)
+            </th>
+            @if (@Model.group == null) { 
+            <th>
+                @Html.DisplayNameFor(model => model.projects[0].group.name)
+            </th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        
+@foreach (var item in Model.projects) {
+        <tr>
+            <td>
+              <a asp-page="./Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.name)</a>  
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.start_date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.pstatus)
+            </td>
+           
+                @if (@Model.group == null) { 
+                    <td>
+                    <a asp-page="../Group/Details" asp-route-id="@item.groupId">
+                        @Html.DisplayFor(modelItem =>  @item.group.name)
+                    </a>
+                    </td>
+                }
+            
+                <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                        <text> | </text>
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a>
+                        <text> | </text>
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                        <text> | </text>
+                <a asp-page="../Data/Index" asp-route-projectId="@item.Id">Data(
+                @if(@item.data!=null){
+                    @item.data.Count();
+                })
+                </a>
+                        <text> | </text>
+                <a asp-page="../Transform/Index" asp-route-projectId="@item.Id">Transfoms(
+                 @if(@item.transform!=null){
+                    @item.transform.Count();
+                })
+                </a>
+                        <text> | </text>
+                <a asp-page="../UserOperations/Index" asp-route-projectId="@item.Id">Users</a> 
+                        <text> | </text>
+                <a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@item.Id asp-route-format="kml">Create KML</a>        
+                         <text> | </text>
+                <a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@item.Id asp-route-format="xml">Create XML</a>  
+            </td>
+        </tr>
+}
+  
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-page="./Index"
+   asp-route-pageOrder="@(Model.pageSort)"
+   asp-route-pageIndex="@(Model.pageIndex - 1)"
+   asp-route-pageSize="@(Model.pageSize)"
+   asp-route-pageFilter="@(Model.pageFilter)"
+    asp-route-groupId="@(Model.groupId)"
+    asp-route-projectId="@(Model.projectId)"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-page="./Index"
+   asp-route-pageOrder="@(Model.pageSort)"
+   asp-route-pageIndex="@(Model.pageIndex + 1)"
+   asp-route-pageSize="@(Model.pageSize)"
+   asp-route-pageFilter="@(Model.pageFilter)"
+  asp-route-groupId="@(Model.groupId)"
+    asp-route-projectId="@(Model.projectId)"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

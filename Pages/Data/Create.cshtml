@@ -1,0 +1,86 @@
+@page
+@model ge_repository.Pages.Data.CreateModel
+
+@{
+    ViewData["Title"] = @ViewData["ProjectName"] + "Add Data";
+}
+
+<h2>
+    @ViewData["ProjectName"] Add Data
+</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="data.Id" />
+            <input type="hidden" asp-for="data.projectId" />
+            <input type="hidden" asp-for="data.createdDT"/>
+            <input type="hidden" asp-for="data.createdId"/>
+            <input type="hidden" asp-for="data.editedDT"/>
+            <input type="hidden" asp-for="data.editedId"/> 
+            <partial name="_InputData"
+                    for="data"
+                    view-data="ViewData" />
+            <div class="form-group">
+                <label asp-for="data.pstatus" class="control-label"></label> 
+            @if (@Model.IsUserApprover()){
+                <select asp-for="data.pstatus" asp-items="Html.GetEnumSelectList<Constants.PublishStatus>()" class ="form-control"></select>
+            } else {
+                <input type="hidden" asp-for="data.pstatus" class ="form-control"/>
+            }
+            <span asp-validation-for="data.pstatus" class="text-danger"></span>
+            </div> 
+            
+            
+            <div class="form-group">
+                <label asp-for="data.operations" class="control-label"></label>
+            @if (@Model.IsUserAdmin()){
+                <select asp-for="data.operations" asp-items=@ViewBag.selectRUDDOperations class ="form-control"></select>
+            } else {
+              <input type="hidden" asp-for="data.operations" class ="form-control"/>    
+            }
+                <span asp-validation-for="data.operations" class="text-danger"></span>
+            </div> 
+            
+            <partial name="_inputLocation"
+                    for="data"
+                    view-data="ViewData" />
+
+            <div id="drop-area" class="form-group"
+                    ondragenter="event.stopPropagation(); event.preventDefault();" 
+                    ondragover="event.stopPropagation(); event.preventDefault();" 
+                    ondrop="event.stopPropagation(); event.preventDefault();dodrop(event);">
+                <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+                <div class="form-group">
+                    <label class="control-label">Selected Files</label>
+                    <ol id=selectedFiles></ol>
+                    <span asp-validation-for="uploadFiles" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="uploadFiles" class="control-label"></label>
+                    <input asp-for="uploadFiles" type="file" name=uploadFiles multiple class ="form-control" style="height:auto" onchange=updateSelectedFiles(-1)/>
+                    <input type="hidden" asp-for="LastModifiedDates" />
+                    <span asp-validation-for="uploadFiles" class="text-danger"></span>
+                </div>              
+                </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+            <div class="text-danger">
+                @ViewBag.ExceptionMessage
+            </div>
+        </form>
+        
+    </div>
+</div>
+<iframe id=googlemap 
+frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+</iframe>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+ 

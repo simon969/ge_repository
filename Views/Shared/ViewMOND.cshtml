@@ -1,0 +1,140 @@
+ @model List<ge_repository.OtherDatabase.MOND>
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+} *@
+
+<h2>Details</h2>
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].PointID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ItemKey)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MONG_DIS)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].DateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_TYPE)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_INST)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_RDNG)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_UNIT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_METH)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_LIM)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_ULIM)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_NAME)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_REM)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_CRED)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].MOND_CONT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].FILE_FSET)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ge_source)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ge_otherid)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => m.PointID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ItemKey)
+            </td>
+            <td>    
+                @Html.DisplayFor(modelItem => m.MONG_DIS)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.DateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_TYPE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_REF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_INST)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.MOND_RDNG)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.MOND_UNIT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_METH)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_LIM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_ULIM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_REM)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.MOND_CRED)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.MOND_CONT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.FILE_FSET)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.ge_source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ge_otherid)
+            </td>
+
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

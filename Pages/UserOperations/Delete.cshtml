@@ -1,0 +1,47 @@
+@page
+@model ge_repository.Pages.UserOperations.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>ge_user</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        @if(@Model.user_ops.projectId != null) {
+            <dt>
+                @Html.DisplayNameFor(model => model.user_ops.projectId)
+            </dt>
+            <dd>
+            @if(@Model.user_ops.project!=null) { 
+                @Model.user_ops.project.name;
+            }
+            </dd>
+        }
+        @if(@Model.user_ops.groupId != null) {
+            <dt>
+                @Html.DisplayNameFor(model => model.user_ops.groupId)
+            </dt>
+            <dd>
+            @if(@Model.user_ops.group!=null) { 
+                @Model.user_ops.group.name;
+            }
+            </dd>
+        }    
+            <partial name="_DetailsUserOperations"
+                for="user_ops"
+                view-data="ViewData" />
+            <partial name="_DetailsBase"
+                for="user_ops"
+                view-data="ViewData" />      
+      
+            <form method="post">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            <a asp-page="./Index">Back to List</a>
+            </form>
+    </dl>
+</div>

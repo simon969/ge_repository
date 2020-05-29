@@ -1,0 +1,47 @@
+@page
+@model ge_repository.Pages.Project.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>ge_project</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="project.Id" />
+            <input type="hidden" asp-for="project.createdDT"/>
+            <input type="hidden" asp-for="project.createdId"/>
+            <input type="hidden" asp-for="project.editedDT"/>
+            <input type="hidden" asp-for="project.editedId"/>   
+            <partial name="_inputProject"
+                    for="project"
+                    view-data="ViewData" />
+            <partial name="_inputLocation"
+                    for="project"
+                    view-data="ViewData" />
+            <div class="form-group">
+                <label asp-for="project.operations" class="control-label"></label>
+                <select asp-for="project.operations" asp-items="ViewBag.selectRUDOperations" class="form-control"></select>
+                <span asp-validation-for="project.operations" class="text-danger"></span>
+            </div> 
+            <div class="form-group">
+                <label asp-for="project.data_operations" class="control-label"></label>
+                <select asp-for="project.data_operations" asp-items="ViewBag.selectCRUDDOperations" class="form-control"></select>
+                <span asp-validation-for="project.data_operations" class="text-danger"></span>
+            </div>        
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+

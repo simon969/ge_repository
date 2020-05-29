@@ -1,0 +1,36 @@
+@page
+@model ge_repository.Pages.Project.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+<h3>Are you sure you want to delete this project?</h3>
+<h4 class="ge_warning"> @Html.ValidationMessage("DeleteWarning") </h4>
+<div>
+  <dl class="dl-horizontal">
+        <partial name="_DetailsLocation"
+                    for="project"
+                    view-data="ViewData" />
+        <partial name="_DetailsLocation"
+                    for="project"
+                    view-data="ViewData" />
+        <dt>
+            @Html.DisplayNameFor(model => model.project.data_operations)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.project.data_operations)
+        </dd>
+        
+        <partial name="_DetailsBase"
+                    for="project"
+                    view-data="ViewData" />
+        </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="project.Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

@@ -1,0 +1,70 @@
+ @model ge_repository.Models.ge_data 
+ 
+        <dt>
+            @Html.DisplayNameFor(model => model.project.name)
+        </dt>
+        <dd>
+            <a asp-page="../Project/Details" asp-route-id="@Model.projectId">
+             @Html.DisplayFor(model => model.project.name)
+             </a>
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.filename)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.filename)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.filesize)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.filesize)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.filetype)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.filetype)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.encoding)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.encoding)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.filedate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.filedate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.keywords)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.keywords)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.cstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.cstatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.pstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.pstatus)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.qstatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.qstatus)
+        </dd>

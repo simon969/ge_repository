@@ -1,0 +1,27 @@
+ @model ge_repository.Pages.Shared._geFullPagedModel
+ 
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-page="./Index"
+    asp-route-pageSort="@(Model.pageSort)"
+    asp-route-pageIndex="@(Model.pageIndex - 1)"
+    asp-route-pageSize="@(Model.pageSize)"
+    asp-route-pageFilter="@(Model.pageFilter)"
+    asp-route-groupId="@(Model.groupId)"
+    asp-route-projectId="@(Model.projectId)"
+     class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-page="./Index"
+    asp-route-pageOrder="@(Model.pageSort)"
+    asp-route-pageIndex="@(Model.pageIndex + 1)"
+    asp-route-pageSize="@(Model.pageSize)"
+    asp-route-pageFilter="@(Model.pageFilter)"
+    asp-route-groupId="@(Model.groupId)"
+    asp-route-projectId="@(Model.projectId)"
+    class="btn btn-default @nextDisabled">
+    Next
+</a>

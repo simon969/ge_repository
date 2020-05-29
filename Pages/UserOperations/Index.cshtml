@@ -1,0 +1,103 @@
+@page
+@model ge_repository.Pages.UserOperations.IndexModel
+
+@{
+    ViewData["Title"] = "User Operations Index";
+}
+
+@if (Model.project==null && Model.group==null) {
+<h2>
+    @Html.DisplayFor(model => model.user.LastName),
+    @Html.DisplayFor(model => model.user.FirstName) User Operations Assigned
+    </h2>
+}
+
+@if (Model.project!=null) {
+    <h2>
+    @Html.DisplayFor(model => model.project.name) User Operations Assigned
+    </h2>
+}
+
+@if (Model.group!=null) {
+    <h2>
+    @Html.DisplayFor(model => model.group.name) User Operations Assigned
+    </h2>
+}
+
+@if(@Model.groupId!=null && @Model.IsUserGroupAdmin()) {
+<a asp-page="./Create" asp-route-groupId="@Model.groupId">Create New</a>
+}
+
+<partial name="_PagingHeaderPartial" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.user_ops[0].user.LastName),
+                @Html.DisplayNameFor(model => model.user_ops[0].user.FirstName)
+            </th>
+            <th></th>
+            
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.user_ops[0].project.name)
+            </th>   
+                      
+            <th class="text-center">
+                @Html.DisplayNameFor(model => model.user_ops[0].group.name)
+            </th>
+
+            <th>Container</th>
+            
+            <th>
+                @Html.DisplayNameFor(model => model.user_ops[0].user_operations)
+            </th>
+            <th>
+
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.user_ops) {
+        <tr>
+             <td>
+                @Html.DisplayFor(modelItem => item.user.LastName),
+                @Html.DisplayFor(modelItem => item.user.FirstName)
+            </td>
+            <td></td>
+             <td>
+                @if (item.projectId != null) { 
+                    <a asp-page="../Project/Details" asp-route-id="@item.projectId">  
+                    @Html.DisplayFor(modelItem => item.project.name)
+                    </a>
+                   
+                }  
+                </td>
+                <td> 
+                @if (item.projectId !=null) {
+                    <a asp-page="../Group/Details" asp-route-id="@item.project.group.Id">  
+                    @Html.DisplayFor(modelItem => item.project.group.name)
+                    </a>
+                }    
+               @if (item.groupId !=null) {
+                    <a asp-page="../Group/Details" asp-route-id="@item.group.Id">  
+                    @Html.DisplayFor(modelItem => item.group.name)
+                    </a>
+                }
+                </td>
+                @if(item.groupId != null) {  <td>Group</td>}
+                @if(item.projectId != null) { <td>Project</td>}
+            <td>
+                @Html.DisplayFor(modelItem => item.user_operations)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+
+    </tbody>
+</table>
+
+<partial name="_PagingFooterPartial" />

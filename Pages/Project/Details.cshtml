@@ -1,0 +1,63 @@
+@page
+@model ge_repository.Pages.Project.DetailsModel
+
+@{
+    ViewData["Title"] = @Model.project.name + " Details";
+}
+
+ <h2>
+    @Model.project.name Details
+ </h2>
+<div>
+        <h4>
+        @if (@Model.project.homepageId!=null){
+        <a asp-controller="ge_transform" asp-action="View" asp-route-transformId=@Model.project.homepageId>Home Page</a>  
+        }
+        <a asp-page="../Data/Index" asp-route-projectId="@Model.project.Id">Data Index</a>
+        |<a asp-page="../Data/Create" asp-route-projectId="@Model.project.Id">Data Add</a>
+        |<a asp-controller="ge_data" asp-action="Get" asp-route-projectId=@Model.project.Id>JSON</a> 
+        |<a asp-controller="ge_data" asp-action="xmlGet" asp-route-projectId=@Model.project.Id>XML</a> 
+        |<a asp-page="../Transform/Index" asp-route-projectId="@Model.project.Id">Transform Index</a>
+        |<a asp-page="../Transform/Create" asp-route-projectId="@Model.project.Id">Transform Add</a>
+        |<a asp-page="../UserOperations/Index" asp-route-projectId="@Model.project.Id">User Index</a> 
+        |<a asp-page="../UserOperations/Create" asp-route-projectId="@Model.project.Id">User Add</a>
+        |<a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@Model.project.Id asp-route-format="kml" >Create KML</a>        
+        |<a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@Model.project.Id asp-route-format="xml" >Create XML</a>  
+        </h4>
+</div>
+<div>
+    <dl class="dl-horizontal">
+        <partial name="_DetailsProject"
+                    for="project"
+                    view-data="ViewData" />
+        <partial name="_DetailsLocation"
+                    for="project"
+                    view-data="ViewData" />
+        <dt>
+            @Html.DisplayNameFor(model => model.project.data_operations)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.project.data_operations)
+        </dd>
+        <partial name="_DetailsBase"
+                    for="project"
+                    view-data="ViewData" />
+        </dl>
+</div>
+        <h4>
+        <a asp-page="./Edit" asp-route-id="@Model.project.Id">Edit</a>
+        |<a asp-page="./Delete" asp-route-id="@Model.project.Id">Delete</a>
+        |<a asp-page="./Index">Back to List</a>
+        </h4>
+<!-- @if (Model.project.pstatus != Constants.PublishStatus.Approved && Model.IsUserApprover())
+{
+    {
+        <form style="display:inline;" method="post">
+            <input type="hidden" name="id" value="@Model.project.Id" />
+            <input type="hidden" name="pstatus" value="@Constants.PublishStatus.Approved" />
+            <button type="submit" class="btn btn-xs btn-success">ApproveProject</button>
+        </form>
+    }
+} -->
+
+

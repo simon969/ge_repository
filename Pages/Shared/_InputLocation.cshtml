@@ -1,0 +1,85 @@
+ @if(ViewData["locMessage"] == null) {
+  ViewData["locMessage"] = "";   
+ }
+
+ @model ge_repository.Models._ge_location
+
+            <div class="form-group">
+                <label asp-for="locName" class="control-label"></label>
+                <input asp-for="locName" class="form-control" />
+                <span asp-validation-for="locName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label class="control-label">Select Coordinate System</label>
+                <select id="locSelect" onchange="showLocationType()" class="form-control">
+                 <option value="locAddressPostcode">Address and Postcode</option>
+                 <option value="locMapRef">OS Map Reference</option> 
+                 <option value="locNatGrid">OS Easting Northing Level</option> 
+                 <option value="locLatLong">Latitude Longitude Height</option> 
+                </select>
+                @if(ViewData["locMessage"].ToString() != "") {
+                <span class="text-danger">@ViewData["locMessage"] </span>
+                }
+                </div>
+            <div id="locAddressPostcode" hidden="true">
+                <div class="form-group">
+                    <label asp-for="locAddress" class="control-label"></label>
+                    <input asp-for="locAddress" class="form-control" />
+                    <span asp-validation-for="locAddress" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="locPostcode" class="control-label"></label>
+                    <input asp-for="locPostcode" class="form-control" />
+                    <span asp-validation-for="locPostcode" class="text-danger"></span>
+                </div>
+                </div>
+            <div id="locMapRef" hidden="true">
+                <div class="form-group">
+                    <label asp-for="locMapReference" class="control-label"></label>
+                    <input asp-for="locMapReference" class="form-control" />
+                    <span asp-validation-for="locMapReference" class="text-danger"></span>
+                </div>
+                </div>
+            <div id="locNatGrid" hidden="true">
+                <div class="form-group">
+                    <label asp-for="locEast" class="control-label"></label>
+                    <input asp-for="locEast" class="form-control" />
+                    <span asp-validation-for="locEast" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="locNorth" class="control-label"></label>
+                    <input asp-for="locNorth" class="form-control" />
+                    <span asp-validation-for="locNorth" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="locLevel" class="control-label"></label>
+                    <input asp-for="locLevel" class="form-control" />
+                    <span asp-validation-for="locLevel" class="text-danger"></span>
+                </div>
+                <a href="https://gridreferencefinder.com"/>GridReferenceFinder</a>
+            </div>
+            <div id="locLatLong" hidden="true">
+                <div class="form-group">
+                    <label asp-for="locLongitude" class="control-label"></label>
+                    <input asp-for="locLongitude" class="form-control" />
+                    <span asp-validation-for="locLongitude" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="locLatitude" class="control-label"></label>
+                    <input asp-for="locLatitude" class="form-control" />
+                    <span asp-validation-for="locNorth" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="locHeight" class="control-label"></label>
+                    <input asp-for="locHeight" class="form-control" />
+                    <span asp-validation-for="locHeight" class="text-danger"></span>
+                </div>
+                </div>
+            <div class="form-group">
+                    <label asp-for="datumProjection" class="control-label"></label>
+                    <select asp-for="datumProjection" class="form-control"asp-items="Html.GetEnumSelectList<Constants.datumProjection>()"></select>
+                    <span asp-validation-for="datumProjection" class="text-danger"></span>
+                </div>
+            
+

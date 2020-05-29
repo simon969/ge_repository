@@ -1,0 +1,38 @@
+ @model ge_repository.Models._ge_base    
+        
+        <div id=_DetailsBase>
+        <dt>
+            @Html.DisplayNameFor(model => model.operations)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.operations)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.createdId)
+        </dt>
+        <dd>  
+            @if (@Model.created!=null) {
+             @Model.created.FullName();
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.createdDT)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.createdDT)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.editedId)
+        </dt>
+        <dd>
+            @if (@Model.edited!=null) {
+                @Model.edited.FullName();
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.editedDT)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.editedDT)
+        </dd>
+        </div>

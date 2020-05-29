@@ -1,0 +1,58 @@
+@page
+@model ge_repository.Pages.Transform.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>transform</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="transform.Id" />
+            <input type="hidden" asp-for="transform.projectId" />
+            <input type="hidden" asp-for="transform.createdDT"/>
+            <input type="hidden" asp-for="transform.createdId"/>
+            <input type="hidden" asp-for="transform.editedDT"/>
+            <input type="hidden" asp-for="transform.editedId"/> 
+            <partial name="_InputTransform"
+                    for="transform"
+                    view-data="ViewData" />
+            
+            <div class="form-group">
+                <label asp-for="transform.pstatus" class="control-label"></label>  
+            @if (@Model.IsUserApprover()){
+                 <select asp-for="transform.pstatus" asp-items="Html.GetEnumSelectList<Constants.PublishStatus>()" class ="form-control"></select>
+                 <span asp-validation-for="transform.pstatus" class="text-danger"></span>
+            } else {
+                <input type="text" asp-for="transform.pstatus" class ="form-control" readonly/>
+            }
+            
+            </div> 
+                        
+            <div class="form-group">
+                <label asp-for="transform.operations" class="control-label"></label>
+            @if (@Model.IsUserAdmin()){
+                <select asp-for="transform.operations" asp-items=@ViewBag.selectCRUDDOperations class ="form-control"></select>
+                <span asp-validation-for="transform.operations" class="text-danger"></span>  
+            } else {
+                <input type="text" asp-for="transform.operations" class ="form-control" readonly/> 
+            }
+               
+            </div>  
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+

@@ -1,0 +1,69 @@
+@page
+@model ge_repository.Pages.Project.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>ge_project</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="project.Id" />
+            <input type="hidden" asp-for="project.createdDT"/>
+            <input type="hidden" asp-for="project.createdId"/>
+            <input type="hidden" asp-for="project.editedDT"/>
+            <input type="hidden" asp-for="project.editedId"/>   
+            <partial name="_inputProject"
+                    for="project"
+                    view-data="ViewData" />
+           
+            <div class="form-group">
+                <label asp-for="project.pstatus" class="control-label"></label>
+                 @if (@Model.IsUserApprover()){
+                <select asp-for="project.pstatus" asp-items="Html.GetEnumSelectList<Constants.PublishStatus>()" class="form-control"></select>
+                } else {
+                <input readonly asp-for="project.pstatus" class="form-control">     
+                }
+                <span asp-validation-for="project.pstatus" class="text-danger"></span>
+            </div> 
+            
+           <div class="form-group">
+                <label asp-for="project.operations" class="control-label"></label>
+                @if (@Model.IsUserAdmin()) {
+                <select asp-for="project.operations" asp-items="ViewBag.selectRUDOperations" class="form-control"></select>
+                } else {
+                <input readonly asp-for="project.operations" class="form-control"> 
+                } 
+                <span asp-validation-for="project.operations" class="text-danger"></span>
+            </div> 
+            <div class="form-group">
+                <label asp-for="project.data_operations" class="control-label"></label>
+                @if (@Model.IsUserAdmin()) {
+                <select asp-for="project.data_operations" asp-items="ViewBag.selectCRUDDOperations" class="form-control"></select>
+                } else {
+                <input readonly asp-for="project.data_operations" class="form-control">     
+                }
+                <span asp-validation-for="project.data_operations" class="text-danger"></span>
+            </div> 
+            <partial name="_inputLocation"
+                    for="project"
+                    view-data="ViewData" />  
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+      <!--   <div id=googlemap class="topcorner" ><iframe width="50%" height="600"
+            src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=Malet%20St%2C%20London%20WC1E%207HU%2C%20United%20Kingdom+(Your%20Business%20Name)&ie=UTF8&t=&z=14&iwloc=B&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+        </div> -->
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+

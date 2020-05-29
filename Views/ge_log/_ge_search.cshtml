@@ -1,0 +1,37 @@
+ @model ge_repository.OtherDatabase.ge_search
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.search_items[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.search_items[0].search_text)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.search_items[0].value)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var search_item in Model.search_items) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => search_item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => search_item.row_text)
+                @Html.DisplayFor(modelItem => search_item.search_text)
+                @Html.DisplayFor(modelItem => search_item.start_offset)
+                @Html.DisplayFor(modelItem => search_item.length)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => search_item.value)
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

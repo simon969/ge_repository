@@ -1,0 +1,228 @@
+@model ge_repository.OtherDatabase.ge_log_file
+
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@{
+    @* ViewBag.Title = "Logger File " + @Model.data.filename; *@
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Logger File</h4>
+      @Html.ActionLink("View Original File", "View", "ge_data",  new { id = Model.dataId }) 
+    <h1> </h1>
+<hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.fileHeader)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.fileHeader)
+        </dd>  
+        <dt>
+            @Html.DisplayNameFor(model => model.fieldHeader)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.fieldHeader)
+        </dd>  
+        <dt>
+            @Html.DisplayNameFor(model => model.readingAggregates)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.readingAggregates)
+        </dd> 
+        <dt>
+            Save Status
+        </dt>
+        <dd> 
+            @ViewBag.fileStatus
+        </dd>  
+    </dl>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.file_headers[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.file_headers[0].search_text)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.file_headers[0].value)
+            </th>
+        </tr>
+    </thead>    
+    <tbody>
+    @foreach (var header in Model.file_headers) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => header.name)
+            </td>
+             <td>
+                @if(header.search_text!=null) {
+                @Html.DisplayFor(modelItem => header.search_text)
+                }
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => header.value)
+            </td>
+        </tr>
+    }
+    </tbody>
+    </table>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].id)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].db_name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].source)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].units)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.field_headers[0].comments)
+            </th>
+        </tr>
+    </thead>    
+    <tbody>
+    @foreach (var header in Model.field_headers) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => header.id)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => header.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => header.db_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => header.source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => header.units)
+            </td>
+               <td>
+                @Html.DisplayFor(modelItem => header.comments)
+            </td>
+        </tr>
+    }
+    </tbody>
+    </table>
+
+    @if (Model.file_array != null) {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.file_array[0].name)
+                </th>
+                    @foreach(var value in Model.file_array[0].values) {
+                    <th>
+                    @Html.DisplayNameFor(modelItem => value)
+                    </th>
+                    }
+            </tr>
+            </thead>    
+            <tbody>
+                @foreach (var row in Model.file_array) { 
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => row.name)
+                        </td>
+                        @foreach (var value in row.values) { 
+                        <td>
+                            @Html.DisplayFor(modelItem => value)
+                        </td>
+                        }
+                    </tr>
+                   
+                }
+            </tbody>
+        </table>
+    }
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].ReadingDatetime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Duration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value2)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value3)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value4)
+            </th> 
+                           <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value5)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value6)
+            </th>   
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value7)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var reading in Model.readings) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => reading.ReadingDatetime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Duration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value2)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value3)
+            </td> 
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value4)
+            </td>  
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value5)
+            </td> 
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value6)
+            </td>  
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value7)
+            </td> 
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+</div>
+<p>
+    @Html.ActionLink("Save", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

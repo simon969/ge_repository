@@ -1,0 +1,15 @@
+@model ge_repository.Models.ge_user_ops       
+        <dt>
+            @Html.DisplayNameFor(model => model.userId)
+        </dt>
+        <dd>
+            @if(@Model.user != null) {
+            @Model.user.FullName();
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.user_operations)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model =>  model.user_operations)
+        </dd>

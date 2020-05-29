@@ -1,0 +1,17 @@
+@model ge_repository.Models.ge_group
+
+            <div class="form-group">
+                <label asp-for="name" class="control-label"></label>
+                <input asp-for="name" class="form-control" />
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="folder" class="control-label"></label>
+                <input asp-for="folder" class="form-control" />
+                <span asp-validation-for="folder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="managerId" class="control-label"></label>
+                <select asp-for="managerId" class ="form-control" asp-items="ViewBag.managerId"></select>
+            </div>
+          

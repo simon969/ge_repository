@@ -1,0 +1,27 @@
+@model ge_repository.OtherDatabase.ge_log_calculateDiver
+
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Compensating Logger File " ;
+}
+
+
+<h2>Details</h2>
+
+<div>
+    <h4>Logger Readings</h4>
+
+    <h1> @Model.log_file.Comments </h1>
+    <partial name="_ge_log_file"
+                    for="log_file"
+                    view-data="ViewData" />
+
+    <h4>Barometric Readings</h4>
+
+    <h1> @Model.log_file.Comments </h1>
+    <partial name="_ge_log_file"
+                    for="log_file"
+                    view-data="ViewData" />                
