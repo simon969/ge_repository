@@ -124,7 +124,7 @@ namespace ge_repository.Controllers
 
     }
 
-   
+    [AllowAnonymous]
      public async  Task<JsonResult> getFeatures(Guid projectId, string name, string where = "") {
        
               

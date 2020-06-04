@@ -43,6 +43,11 @@ namespace ge_repository.OtherDatabase  {
 //	[MONG_REM] [ntext] NULL,
 	[Display(Name = "Dip Remarks")] public string MONV_REMD {get;set;} 
 //	[MONG_REM] [ntext] NULL,
+	[Display(Name = "Sample Remarks")] public string MONV_REMS {get;set;} 
+//	[MONG_REM] [ntext] NULL,
+	[Display(Name = "Pump Type")] public string PUMP_TYPE {get;set;} 
+//	[PUMP_TYPE] [nvarchar] (255) NULL,
+
 	[Display(Name = "Start Date and time of survey")] public DateTime? MONV_STAR {get;set;} 
 //	[MONV_STAR] [datetime] NOT NULL,
 	[Display(Name = "End Date and time of survey")] public DateTime? MONV_ENDD {get;set;} 

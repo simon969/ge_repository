@@ -10,7 +10,7 @@ using ge_repository.Models;
 namespace ge_repository.Migrations
 {
     [DbContext(typeof(ge_DbContext))]
-    [Migration("20200319001558_InitialCreate")]
+    [Migration("20200604200908_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1279,7 +1279,7 @@ private async Task<int> uploadMOND_Single(Guid projectId,
                             row = dtMOND.Rows[0];
                         } 
                         
-                        setMONDValues(item,row);
+                        setValues(item,row);
     
                        ret =+ dsMOND.Update();                           
                 } 
@@ -1290,7 +1290,7 @@ private async Task<int> uploadMOND_Single(Guid projectId,
 }
 
 
-private void setMONDValues(MOND item, DataRow row) {
+private void setValues(MOND item, DataRow row) {
                         
                         row["gINTProjectID"] = item.gINTProjectID;
                         row["PointID"] = item.PointID;
@@ -1385,7 +1385,7 @@ private async Task<int> uploadMOND_Bulk(Guid projectId,
                             row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
                             }
 
-                            if (row == null && ge_sourceLIKE!="esri") {
+                            if (row == null && ge_sourceLIKE!="esri" && ge_sourceLIKE!="ge_logger") {
                             //check for existing ge_generated records
                             row = dtMOND.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}'").SingleOrDefault();
                             }
@@ -1402,7 +1402,7 @@ private async Task<int> uploadMOND_Bulk(Guid projectId,
                             dsMOND.addRow (row);
                         }
 
-                        setMONDValues(item, row);                        
+                        setValues(item, row);                        
                 } 
             
                 ret = dsMOND.BulkUpdate();
@@ -1566,6 +1566,8 @@ private void setValues( MONV item, DataRow row) {
                             if (item.MONV_REMD == null) {row["MONV_REMD"] = DBNull.Value;} else {row["MONV_REMD"] = item.MONV_REMD;}
                             if (item.MONV_REML == null) {row["MONV_REML"] = DBNull.Value;} else {row["MONV_REML"] = item.MONV_REML;} 
                             if (item.MONV_REMG == null) {row["MONV_REMG"] = DBNull.Value;} else {row["MONV_REMG"] = item.MONV_REMG;}
+                            if (item.MONV_REMS == null) {row["MONV_REMS"] = DBNull.Value;} else {row["MONV_REMS"] = item.MONV_REMS;}
+                            if (item.PUMP_TYPE == null) {row["PUMP_TYPE"] = DBNull.Value;} else {row["PUMP_TYPE"] = item.PUMP_TYPE;}
                             if (item.MONV_MENG == null) {row["MONV_MENG"] = DBNull.Value;} else {row["MONV_MENG"] = item.MONV_MENG;}
                             if (item.PIPE_DIA== null) {row["PIPE_DIA"] = DBNull.Value;} else {row["PIPE_DIA"] = item.PIPE_DIA;}
                             if (item.AIR_PRESS== null) {row["AIR_PRESS"] = DBNull.Value;} else {row["AIR_PRESS"] = item.AIR_PRESS;}

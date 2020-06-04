@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\ge_repository.csproj": {}
+    "C:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\ge_repository.csproj": {}
   },
   "projects": {
-    "C:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\ge_repository.csproj": {
+    "C:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\ge_repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
+        "projectUniqueName": "C:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
         "projectName": "ge_repository",
-        "projectPath": "C:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
+        "projectPath": "C:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
         "packagesPath": "C:\\Users\\thomsonsj\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\obj\\",
+        "outputPath": "C:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

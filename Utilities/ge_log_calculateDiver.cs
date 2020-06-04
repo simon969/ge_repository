@@ -66,6 +66,10 @@ namespace ge_repository.OtherDatabase  {
             baro_file.packFieldHeaders();
             }
             
+            TimeSpan time_offset = log_file.getDateTimeOffset("0:0:0");
+            
+            log_file.addTimeSpan(time_offset);
+            
             log_file.packFileHeader();
             log_file.packFieldHeaders();
 

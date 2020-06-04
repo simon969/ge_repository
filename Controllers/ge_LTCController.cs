@@ -364,6 +364,8 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                 mv.MONV_REMG = survey.gas_fail + " " + survey.gas_com;
                 mv.MONV_REMD = survey.dip_fail + " " + survey.dip_com;
                 mv.MONV_REML = survey.logger_fail + " " + survey.logger_com;
+
+                
                 // if (mv.MONV_REMG.Length > 255 || mv.MONV_REMD.Length>255 || mv.MONV_REML.Length>255) {
                 //     Console.Write(mv.MONV_REMG);
                 //        Console.Write(mv.MONV_REMD);

@@ -44,6 +44,10 @@ namespace ge_repository.OtherDatabase  {
 
         public static float FACTOR_cmH20_to_mH20 = 0.01F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=cmH%E2%82%82O+4%C2%B0C&frfctr=cmH2O4C&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
+
+        public static float FACTOR_mbar_to_mH20 = 0.010197F;
+        //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=cmH%E2%82%82O+4%C2%B0C&frfctr=cmH2O4C&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
+
         public static string SOURCE_CALCULATED = "calculated";
         public static string SOURCE_ACTUAL = "actual";
         public static string SOURCE_ASSIGNED = "assigned";
@@ -176,18 +180,18 @@ namespace ge_repository.OtherDatabase  {
         public List<ge_log_reading> getReadings(DateTime? FromDT, DateTime? ToDT) {
 
         if (FromDT != null && ToDT != null) {
-            return readings.Where(e=>e.ReadingDatetime > FromDT &&
-                                     e.ReadingDatetime < ToDT 
+            return readings.Where(e=>e.ReadingDatetime >= FromDT &&
+                                     e.ReadingDatetime <= ToDT 
                                      ).ToList();
         }
 
         if (FromDT != null) {
-            return readings.Where(e=>e.ReadingDatetime>FromDT 
+            return readings.Where(e=>e.ReadingDatetime >= FromDT 
                                  ).ToList();
         }
     
         if (ToDT != null) {
-            return readings.Where(e=>e.ReadingDatetime<ToDT
+            return readings.Where(e=>e.ReadingDatetime <= ToDT
                                     ).ToList();
         }
  
@@ -500,6 +504,32 @@ namespace ge_repository.OtherDatabase  {
 
             return IsNullReturn;
         }
+    public TimeSpan getDateTimeOffset (string IsNullReturn) {
+            
+            TimeSpan? timeSpan = null;
+        
+            search_item si =  file_headers.Find(h=>h.name == "datetime_offset");
+            
+            if (si != null) {
+              timeSpan = TimeSpan.Parse (si.value);
+              timeSpan = -1 * timeSpan;
+            }
+
+            if (search_table !=null) {
+                search_item si2 = search_table.options.Find(e=>e.name.Contains("datetime_offset"));
+                    if (si2 != null) {
+                        timeSpan = TimeSpan.Parse (si2.value);
+                    }
+            }
+            
+            if (timeSpan!= null) {
+                return timeSpan.Value;
+            }
+
+             return TimeSpan.Parse( IsNullReturn);
+
+        }
+
         public float getPolyFactor(float IsNullReturn) {
 
             search_item si = null;
@@ -547,6 +577,15 @@ namespace ge_repository.OtherDatabase  {
 
             field_headers = NotCalculatedHeaders;
         } 
+         public void addTimeSpan (TimeSpan sp) {
+            foreach (ge_log_reading r in readings) {
+                DateTime? dt = r.ReadingDatetime;
+                if (dt!=null) {
+                    DateTime new_dt = dt.Value  + sp;
+                    r.ReadingDatetime = new_dt;
+                }
+            }
+        }
         public void addConstantSubtract (string value1, float constant, string value2 , string value3) {
             foreach (ge_log_reading r in readings) {
                 float? v1 = r.getValue(value1);
@@ -1230,7 +1269,16 @@ protected int AddBaroHead() {
                         baro_file.addHeader(baro_headM);
                         baro_file.addValues(baro_head.db_name,ge_log_constants.FACTOR_cmH20_to_mH20, baro_headM.db_name);
                         baro_file_success = 0;
-                } else {
+                } else if (baro_head.units == "mbar") {
+                        baro_headM = new value_header {
+                                id = ge_log_constants.BAROHEAD,
+                                units ="m",
+                                comments =$"Calculated conversion of {baro_head.db_name} from mbar to m ({ge_log_constants.FACTOR_mbar_to_mH20})",
+                                source = ge_log_constants.SOURCE_CALCULATED};
+                        baro_file.addHeader(baro_headM);
+                        baro_file.addValues(baro_head.db_name,ge_log_constants.FACTOR_mbar_to_mH20, baro_headM.db_name);
+                        baro_file_success = 0;
+                }else {
                 // Uknown units...
                 baro_file_success = NOT_OK;
                 } 

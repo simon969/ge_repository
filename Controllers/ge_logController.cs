@@ -40,7 +40,10 @@ namespace ge_repository.Controllers
 
         private static string DATE_FORMAT_AGS = "yyyy-MM-dd HH:mm:ss";
         private static string READING_FORMAT = "{0:0.000}";
-     
+
+        private static int WLEV_OFFSET_MILLISECONDS = 57;
+        private static int WDEP_OFFSET_MILLISECONDS = 0;
+
          public ge_logController(
 
             ge_DbContext context,
@@ -547,11 +550,30 @@ private async Task<int> createMOND (ge_log_file log_file,
        
         string device_name = log_file.getDeviceName();
         
+        float? gl = null;
+        
+        if (pt.Elevation!=null) {
+            gl = Convert.ToSingle(pt.Elevation.Value);
+        }
+
+        if (gl==null && pt.LOCA_GL!=null) {
+            gl = Convert.ToSingle(pt.LOCA_GL.Value);
+        }
+        
         List<ge_log_reading> readings2 = log_file.getIncludeReadings(fromDT,toDT);
         
         foreach (ge_log_reading reading in readings2) {
-            MOND md = NewMOND (mg, reading, device_name, round_ref, log_wdepth.db_name);
+            
+            // Add MOND WDEP record
+            MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " datalogger reading", log_wdepth.db_name, null);
             MOND.Add (md);
+            
+            if (gl!=null) {           
+            // Add MOND WLEV record
+            MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " datalogger reading", log_wdepth.db_name, gl);
+            MOND.Add (md2);
+            }
+
         }
 
         return 0;
@@ -570,14 +592,22 @@ private void AddRoundRef(string ROUND_REF) {
             }
 }
 
-private MOND NewMOND (MONG mg, ge_log_reading read,string instrument_name, string round_ref, string value_name) {
+private MOND NewMOND (MONG mg, ge_log_reading read,string instrument_name, string round_ref, string mond_type, string mond_rem, string value_name, float? GL) {
         
         string value = null; 
-        
+        string name = "";
+  
         if (read.NotDry==ge_log_constants.ISNOTDRY) {
             float? reading = read.getValue(value_name);
-            if (reading!=null) {
+            
+            if (reading!=null && mond_type=="WDEP") {
             value = String.Format(READING_FORMAT,reading);
+            name = "Water Depth";
+            }
+
+            if (reading!=null && mond_type=="WLEV") {
+            value = String.Format(READING_FORMAT,GL.Value - reading);
+            name = "Water Level";
             }
         }
         
@@ -585,18 +615,22 @@ private MOND NewMOND (MONG mg, ge_log_reading read,string instrument_name, strin
             value = "Dry";
         }
 
+        if (!String.IsNullOrEmpty(read.Remark)) {
+            mond_rem += " " + read.Remark;
+        }
+    
         MOND md =  new MOND {
                     gINTProjectID = mg.gINTProjectID,
                     PointID = mg.PointID,
                     ItemKey = mg.ItemKey,
                     MONG_DIS = mg.MONG_DIS,
-                    MOND_TYPE = "WDEP",
+                    MOND_TYPE = mond_type,
                     DateTime = read.ReadingDatetime,
                     MOND_UNIT = "m",
                     MOND_RDNG = value,
                     MOND_INST = instrument_name,
-                    MOND_NAME = "Data logger reading",
-                    MOND_REM = read.Remark,
+                    MOND_NAME = name,
+                    MOND_REM = mond_rem,
                     RND_REF = round_ref,
                     ge_source = "ge_logger",
                     ge_otherid = read.Id.ToString()                    
@@ -1765,12 +1799,22 @@ private DateTime? getDateTime(string s, string format) {
             for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
                 if (line.Length>0) {
+                    
+                    if (READ_STOPS.Contains(line)){
+                        break;
+                    }
+
                     string[] values = line.Split(",");
+                    
+                    if (values[0].Contains("\"")) {
+                        values = line.QuoteSplit();
+                    }
+                    
                     ge_log_reading r= new ge_log_reading();
                     if (dateformat=="") { 
                         r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
                     } else {
-                        r.ReadingDatetime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.None);
+                        r.ReadingDatetime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
                     }
                      if (!values[intValue1].IsFloat()){
                         continue;
@@ -1818,16 +1862,17 @@ private DateTime? getDateTime(string s, string format) {
     value_header Header5 = dic.getHeader5();
     value_header Header6 = dic.getHeader6();
 
-    if (DateTimeReading == null) {
-        return null;
+    if (DateTimeReading != null) {
+      intReadTime = DateTimeReading.found;
     }
-
-    intReadTime = DateTimeReading.found;
-    intValue1 = Header1.found;
-
     if (Duration!=null) {
      intDuration = Duration.found;    
     }
+    
+    if (Header1!=null) {
+    intValue1 = Header1.found;
+    }
+    
     if (Header2!=null) {
     intValue2 = Header2.found;
     }

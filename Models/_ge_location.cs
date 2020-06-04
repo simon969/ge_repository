@@ -43,6 +43,7 @@ namespace ge_repository.Models {
     [Display(Name = "Longitude")][Range (limLongitude.MIN,limLongitude.MAX)] public double? locLongitude{get;set;}
     [Display(Name = "Ellipsoid Height")][Range (limLongitude.MIN,limLongitude.MAX)] public double? locHeight{get;set;}
     [Display(Name= "Folder")] [StringLength(255)] public string folder {get;set;} 
+    [Display(Name= "Other Database Location Ref")] [StringLength(255)] public string locOtherDb {get;set;} 
 }
 
 }

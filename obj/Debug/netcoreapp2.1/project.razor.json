@@ -1,5 +1,5 @@
 {
-  "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
+  "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\ge_repository.csproj",
   "Configuration": {
     "ConfigurationName": "MVC-2.1",
     "LanguageVersion": "2.1",
@@ -2877,423 +2877,423 @@
   "RootNamespace": "ge_repository",
   "Documents": [
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\Test\\Index.cshtml",
-      "TargetPath": "Views\\Test\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\_ViewImports.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\_ViewImports.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\_inputGroup.cshtml",
-      "TargetPath": "Pages\\Group\\_inputGroup.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\_InputData.cshtml",
-      "TargetPath": "Pages\\Data\\_InputData.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\_ViewImports.cshtml",
-      "TargetPath": "Views\\_ViewImports.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\About.cshtml",
-      "TargetPath": "Pages\\About.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Details.cshtml",
-      "TargetPath": "Pages\\Transform\\Details.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\Test\\drag_n_drop.cshtml",
-      "TargetPath": "Views\\Test\\drag_n_drop.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\Delete.cshtml",
-      "TargetPath": "Pages\\Data\\Delete.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\Details.cshtml",
-      "TargetPath": "Pages\\Group\\Details.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Contact.cshtml",
-      "TargetPath": "Pages\\Contact.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\_DetailsTransform.cshtml",
-      "TargetPath": "Pages\\Transform\\_DetailsTransform.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\Create.cshtml",
-      "TargetPath": "Pages\\Group\\Create.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ViewStart.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\_ViewStart.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\_DetailsProject.cshtml",
-      "TargetPath": "Pages\\Project\\_DetailsProject.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Create.cshtml",
-      "TargetPath": "Pages\\Transform\\Create.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\Create.cshtml",
-      "TargetPath": "Pages\\Project\\Create.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_PagingHeaderPartial.cshtml",
-      "TargetPath": "Pages\\Shared\\_PagingHeaderPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Create.cshtml",
-      "TargetPath": "Pages\\UserOperations\\Create.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_log\\_ge_log_file.cshtml",
-      "TargetPath": "Views\\ge_log\\_ge_log_file.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\CreateXML.cshtml",
-      "TargetPath": "Pages\\Data\\CreateXML.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\Edit.cshtml",
-      "TargetPath": "Pages\\Data\\Edit.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\Index.cshtml",
-      "TargetPath": "Pages\\Data\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_log\\ReadData2.cshtml",
-      "TargetPath": "Views\\ge_log\\ReadData2.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\Login.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Error.cshtml",
-      "TargetPath": "Pages\\Error.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Index.cshtml",
-      "TargetPath": "Pages\\Transform\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\Delete.cshtml",
-      "TargetPath": "Pages\\Group\\Delete.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\Index.cshtml",
-      "TargetPath": "Pages\\Project\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_DetailsBase.cshtml",
-      "TargetPath": "Pages\\Shared\\_DetailsBase.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\_InputUserOperations.cshtml",
-      "TargetPath": "Pages\\UserOperations\\_InputUserOperations.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\_DetailsData.cshtml",
-      "TargetPath": "Pages\\Data\\_DetailsData.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\Details.cshtml",
-      "TargetPath": "Pages\\Project\\Details.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_log\\_ge_search.cshtml",
-      "TargetPath": "Views\\ge_log\\_ge_search.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\_DetailsUserOperations.cshtml",
-      "TargetPath": "Pages\\UserOperations\\_DetailsUserOperations.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Untitled.cshtml",
-      "TargetPath": "Pages\\Untitled.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Privacy.cshtml",
-      "TargetPath": "Pages\\Privacy.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Manage\\Index.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\Manage\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_transform\\View.cshtml",
-      "TargetPath": "Views\\ge_transform\\View.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_InputLocation.cshtml",
-      "TargetPath": "Pages\\Shared\\_InputLocation.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\User\\Details.cshtml",
-      "TargetPath": "Pages\\User\\Details.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\Shared\\ViewMOND.cshtml",
-      "TargetPath": "Views\\Shared\\ViewMOND.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\Edit.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\Edit.cshtml",
       "TargetPath": "Pages\\Project\\Edit.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\User\\Index.cshtml",
-      "TargetPath": "Pages\\User\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Edit.cshtml",
-      "TargetPath": "Pages\\UserOperations\\Edit.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_LoginPartial.cshtml",
-      "TargetPath": "Pages\\Shared\\_LoginPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_Layout.cshtml",
-      "TargetPath": "Pages\\Shared\\_Layout.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\Delete.cshtml",
-      "TargetPath": "Pages\\Project\\Delete.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\_InputTransform.cshtml",
-      "TargetPath": "Pages\\Transform\\_InputTransform.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\User\\Edit.cshtml",
-      "TargetPath": "Pages\\User\\Edit.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Edit.cshtml",
-      "TargetPath": "Pages\\Transform\\Edit.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_log\\CalculateDiver.cshtml",
-      "TargetPath": "Views\\ge_log\\CalculateDiver.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Index.cshtml",
-      "TargetPath": "Pages\\UserOperations\\Index.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_log\\ReadData.cshtml",
-      "TargetPath": "Views\\ge_log\\ReadData.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ResetPassword.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\ResetPassword.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Delete.cshtml",
-      "TargetPath": "Pages\\UserOperations\\Delete.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ForgotPasswordConfirmation.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\ForgotPasswordConfirmation.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\Create.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\Create.cshtml",
       "TargetPath": "Pages\\Data\\Create.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\Register.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\Delete.cshtml",
+      "TargetPath": "Pages\\Data\\Delete.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Manage\\_ViewImports.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\Account\\Manage\\_ViewImports.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\About.cshtml",
+      "TargetPath": "Pages\\About.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\User\\Delete.cshtml",
-      "TargetPath": "Pages\\User\\Delete.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\Edit.cshtml",
+      "TargetPath": "Pages\\Data\\Edit.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\_ViewImports.cshtml",
-      "TargetPath": "Pages\\_ViewImports.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Create.cshtml",
+      "TargetPath": "Pages\\UserOperations\\Create.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Data\\Details.cshtml",
-      "TargetPath": "Pages\\Data\\Details.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\_inputGroup.cshtml",
+      "TargetPath": "Pages\\Group\\_inputGroup.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Index.cshtml",
-      "TargetPath": "Pages\\Index.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Manage\\Index.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\Manage\\Index.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\Message.cshtml",
-      "TargetPath": "Pages\\Shared\\Message.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\_ViewStart.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\_ViewStart.cshtml",
       "TargetPath": "Pages\\_ViewStart.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ViewImports.cshtml",
-      "TargetPath": "Areas\\Identity\\Pages\\_ViewImports.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_log\\CalculateDiver.cshtml",
+      "TargetPath": "Views\\ge_log\\CalculateDiver.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_transform\\viewGEdata.cshtml",
-      "TargetPath": "Views\\ge_transform\\viewGEdata.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Manage\\_ViewImports.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\Manage\\_ViewImports.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_PagingFooterPartial.cshtml",
-      "TargetPath": "Pages\\Shared\\_PagingFooterPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\ge_field\\View.cshtml",
-      "TargetPath": "Views\\ge_field\\View.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\CreateAGS.cshtml",
-      "TargetPath": "Pages\\Transform\\CreateAGS.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\Edit.cshtml",
-      "TargetPath": "Pages\\Group\\Edit.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\xIndex.cshtml",
-      "TargetPath": "Pages\\xIndex.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\Test\\Index.1.cshtml",
-      "TargetPath": "Views\\Test\\Index.1.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_CookieConsentPartial.cshtml",
-      "TargetPath": "Pages\\Shared\\_CookieConsentPartial.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_DetailsLocation.cshtml",
-      "TargetPath": "Pages\\Shared\\_DetailsLocation.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Views\\Test\\Index2.cshtml",
-      "TargetPath": "Views\\Test\\Index2.cshtml",
-      "FileKind": "mvc"
-    },
-    {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ForgotPassword.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ForgotPassword.cshtml",
       "TargetPath": "Areas\\Identity\\Pages\\Account\\ForgotPassword.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\User\\Create.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Index.cshtml",
+      "TargetPath": "Pages\\Transform\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\_DetailsTransform.cshtml",
+      "TargetPath": "Pages\\Transform\\_DetailsTransform.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_PagingFooterPartial.cshtml",
+      "TargetPath": "Pages\\Shared\\_PagingFooterPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Create.cshtml",
       "TargetPath": "Pages\\User\\Create.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_ValidationScriptsPartial.cshtml",
-      "TargetPath": "Pages\\Shared\\_ValidationScriptsPartial.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_log\\ReadData2.cshtml",
+      "TargetPath": "Views\\ge_log\\ReadData2.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Delete.cshtml",
-      "TargetPath": "Pages\\Transform\\Delete.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Test\\Index.cshtml",
+      "TargetPath": "Views\\Test\\Index.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Project\\_InputProject.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Delete.cshtml",
+      "TargetPath": "Pages\\UserOperations\\Delete.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\_InputData.cshtml",
+      "TargetPath": "Pages\\Data\\_InputData.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\CreateAGS.cshtml",
+      "TargetPath": "Pages\\Transform\\CreateAGS.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_transform\\View.cshtml",
+      "TargetPath": "Views\\ge_transform\\View.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Create.cshtml",
+      "TargetPath": "Pages\\Group\\Create.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\ViewMOND.cshtml",
+      "TargetPath": "Views\\Shared\\ViewMOND.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_log\\_ge_log_file.cshtml",
+      "TargetPath": "Views\\ge_log\\_ge_log_file.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\_InputProject.cshtml",
       "TargetPath": "Pages\\Project\\_InputProject.cshtml",
       "FileKind": "mvc"
     },
     {
-      "FilePath": "c:\\Users\\thomsonsj\\OneDrive - AECOM Directory\\Visual Studio Code\\ge_repository\\Pages\\Group\\Index.cshtml",
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Details.cshtml",
+      "TargetPath": "Pages\\Transform\\Details.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Delete.cshtml",
+      "TargetPath": "Pages\\Group\\Delete.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_log\\ReadData.cshtml",
+      "TargetPath": "Views\\ge_log\\ReadData.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\_ViewImports.cshtml",
+      "TargetPath": "Views\\_ViewImports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Delete.cshtml",
+      "TargetPath": "Pages\\Transform\\Delete.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Contact.cshtml",
+      "TargetPath": "Pages\\Contact.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Details.cshtml",
+      "TargetPath": "Pages\\User\\Details.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\Index.cshtml",
+      "TargetPath": "Pages\\Data\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Untitled.cshtml",
+      "TargetPath": "Pages\\Untitled.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\Delete.cshtml",
+      "TargetPath": "Pages\\Project\\Delete.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Edit.cshtml",
+      "TargetPath": "Pages\\Group\\Edit.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Index.cshtml",
+      "TargetPath": "Pages\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_DetailsLocation.cshtml",
+      "TargetPath": "Pages\\Shared\\_DetailsLocation.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Edit.cshtml",
+      "TargetPath": "Pages\\UserOperations\\Edit.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\CreateXML.cshtml",
+      "TargetPath": "Pages\\Data\\CreateXML.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\Index.cshtml",
+      "TargetPath": "Pages\\Project\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\_InputTransform.cshtml",
+      "TargetPath": "Pages\\Transform\\_InputTransform.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\Register.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ViewStart.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\_ViewStart.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_LoginPartial.cshtml",
+      "TargetPath": "Pages\\Shared\\_LoginPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ResetPassword.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\ResetPassword.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Edit.cshtml",
+      "TargetPath": "Pages\\Transform\\Edit.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\ForgotPasswordConfirmation.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\ForgotPasswordConfirmation.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Delete.cshtml",
+      "TargetPath": "Pages\\User\\Delete.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Test\\drag_n_drop.cshtml",
+      "TargetPath": "Views\\Test\\drag_n_drop.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Error.cshtml",
+      "TargetPath": "Pages\\Error.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\_DetailsProject.cshtml",
+      "TargetPath": "Pages\\Project\\_DetailsProject.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\_ViewImports.cshtml",
+      "TargetPath": "Pages\\_ViewImports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Index.cshtml",
       "TargetPath": "Pages\\Group\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\Details.cshtml",
+      "TargetPath": "Pages\\Data\\Details.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_DetailsBase.cshtml",
+      "TargetPath": "Pages\\Shared\\_DetailsBase.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Test\\Index.1.cshtml",
+      "TargetPath": "Views\\Test\\Index.1.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Index.cshtml",
+      "TargetPath": "Pages\\User\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Details.cshtml",
+      "TargetPath": "Pages\\Group\\Details.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\_DetailsUserOperations.cshtml",
+      "TargetPath": "Pages\\UserOperations\\_DetailsUserOperations.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\_InputUserOperations.cshtml",
+      "TargetPath": "Pages\\UserOperations\\_InputUserOperations.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Edit.cshtml",
+      "TargetPath": "Pages\\User\\Edit.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Transform\\Create.cshtml",
+      "TargetPath": "Pages\\Transform\\Create.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\Create.cshtml",
+      "TargetPath": "Pages\\Project\\Create.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_log\\_ge_search.cshtml",
+      "TargetPath": "Views\\ge_log\\_ge_search.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ViewImports.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\_ViewImports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Index.cshtml",
+      "TargetPath": "Pages\\UserOperations\\Index.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_CookieConsentPartial.cshtml",
+      "TargetPath": "Pages\\Shared\\_CookieConsentPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_transform\\viewGEdata.cshtml",
+      "TargetPath": "Views\\ge_transform\\viewGEdata.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\_ViewImports.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\_ViewImports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Test\\Index2.cshtml",
+      "TargetPath": "Views\\Test\\Index2.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\Account\\Login.cshtml",
+      "TargetPath": "Areas\\Identity\\Pages\\Account\\Login.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Privacy.cshtml",
+      "TargetPath": "Pages\\Privacy.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_ValidationScriptsPartial.cshtml",
+      "TargetPath": "Pages\\Shared\\_ValidationScriptsPartial.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\xIndex.cshtml",
+      "TargetPath": "Pages\\xIndex.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_Layout.cshtml",
+      "TargetPath": "Pages\\Shared\\_Layout.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\ge_field\\View.cshtml",
+      "TargetPath": "Views\\ge_field\\View.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_InputLocation.cshtml",
+      "TargetPath": "Pages\\Shared\\_InputLocation.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Data\\_DetailsData.cshtml",
+      "TargetPath": "Pages\\Data\\_DetailsData.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Project\\Details.cshtml",
+      "TargetPath": "Pages\\Project\\Details.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\Message.cshtml",
+      "TargetPath": "Pages\\Shared\\Message.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_PagingHeaderPartial.cshtml",
+      "TargetPath": "Pages\\Shared\\_PagingHeaderPartial.cshtml",
       "FileKind": "mvc"
     }
   ],
