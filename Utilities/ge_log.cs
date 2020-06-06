@@ -578,6 +578,10 @@ namespace ge_repository.OtherDatabase  {
             field_headers = NotCalculatedHeaders;
         } 
          public void addTimeSpan (TimeSpan sp) {
+            value_header fh = getDateTimeReading();
+            
+            fh.comments = $"DateTime offset{sp.ToString()} has been applied";
+
             foreach (ge_log_reading r in readings) {
                 DateTime? dt = r.ReadingDatetime;
                 if (dt!=null) {
