@@ -460,6 +460,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "RDX";
                 md.MOND_RDNG = Convert.ToString(survey.eh);
+                md.MOND_NAME = "Redox Potential";
                 md.MOND_UNIT = "mV";
                 md.MOND_INST = survey.gas_instr;
                 MOND.Add(md);
