@@ -6,14 +6,7 @@
         // private string DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
         // private string FILE_NAME_DATE_FORMAT = "yyyy_MM_dd";
         // private string DATE_FORMAT_AGS = "yyyy-MM-ddThh:mm:ss";
-        private string db_DATETIMEREADING = "DateTimeReading";
-        private string db_DURATION = "Duration";
-        private string db_VALUE1 = "Value1";
-        private string db_VALUE2 = "Value2";
-        private string db_VALUE3 = "Value3";
-        private string db_VALUE4 = "Value4";
-        private string db_VALUE5 = "Value5";
-        private string db_VALUE6 = "Value6";
+
         private int NOT_FOUND = -1;
         public string status {get;set;}
         public string name {get;set;}
@@ -24,29 +17,9 @@
             search_items = new List<search_item>();
             search_tables = new List<search_table>();
         }
-        public value_header getDateTimeReading() {
-            return getFoundHeader(db_DATETIMEREADING);
-        }
-        public value_header getDuration() {
-            return getFoundHeader(db_DURATION);
-        }
-        public value_header getHeader1() {
-            return getFoundHeader(db_VALUE1);
-        }
-        public value_header getHeader2() {
-            return getFoundHeader(db_VALUE2);
-        }
-        public value_header getHeader3() {
-            return getFoundHeader(db_VALUE3);
-        }
-        public value_header getHeader4() {
-            return getFoundHeader(db_VALUE4);
-        }
-        public value_header getHeader5() {
-            return getFoundHeader(db_VALUE5);
-        }
-        public value_header getHeader6() {
-            return getFoundHeader(db_VALUE6);
+        
+        public value_header getHeader(string db_name) {
+            return getFoundHeader(db_name);
         }
         public value_header getFoundHeader(string db_name, int table = 0) {
            search_table st = search_tables[table]; 

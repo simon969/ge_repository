@@ -284,10 +284,10 @@ public async Task<int> deleteMOND (Guid projectId,
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
             
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
+            string sql_where = "gINTProjectID=" + gINTProjectId.Value;
             
             if (Id!=null) {
-                sql_where += " and gINTRec in ("  + Id.ToCSV() + ")";
+                sql_where += " and GintRecID in ("  + Id.ToCSV() + ")";
             }
             
             return await Task.Run(() =>

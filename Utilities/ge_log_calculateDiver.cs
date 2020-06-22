@@ -48,6 +48,7 @@ namespace ge_repository.OtherDatabase  {
                                             null,
                                             null);
 
+            
             string method = log_file.getCompensationMethod(COMPENSATE_HEAD);
             
             if (method == COMPENSATE_HEAD || String.IsNullOrEmpty(method)) {
@@ -61,14 +62,13 @@ namespace ge_repository.OtherDatabase  {
             if (method==COMPENSATE_DEPTH_DIFF) {
                 CompensateDepthDifferential();
             }
-            if (baro_file!=null) {
-            baro_file.packFileHeader();    
-            baro_file.packFieldHeaders();
-            }
+
+          //  if (baro_file!=null) {
+          //  baro_file.packFileHeader();    
+          //  baro_file.packFieldHeaders();
+          //  }
             
-            TimeSpan time_offset = log_file.getDateTimeOffset("0:0:0");
-            
-            log_file.addTimeSpan(time_offset);
+           
             
             log_file.packFileHeader();
             log_file.packFieldHeaders();
@@ -80,7 +80,8 @@ namespace ge_repository.OtherDatabase  {
     private void CompensateHead() {
 
             int whead_added = AddWHeadM();
-        
+            if (whead_added == NOT_OK) return;
+
             int baro_head_added = AddBaroHead();
             
             int w_head_net_added = AddHeadNetM();
@@ -100,7 +101,8 @@ namespace ge_repository.OtherDatabase  {
      private void CompensateHeadDifferential() {
 
         int whead_added = AddWHeadM();
-        
+        if (whead_added == NOT_OK) return;
+
         int baro_head_added = AddBaroHead();
 
         int w_head_net_added = AddHeadNetM_SubtractDifferential();
@@ -145,7 +147,14 @@ namespace ge_repository.OtherDatabase  {
         int whead_success = NOT_OK;
 
         value_header log_headM = log_file.getHeaderByIdUnits(ge_log_constants.WHEAD,"m");
-        value_header log_press  = log_file.getSourcePressureHeader();
+
+        if (log_headM !=null) {
+            log_file.removeHeader (log_headM);
+            log_headM = null;
+
+        }
+
+        value_header log_press  = log_file.getSourceWaterPressureHeader();
        
         if  (log_press !=null) {
             switch (log_press.units) {
@@ -179,6 +188,17 @@ namespace ge_repository.OtherDatabase  {
                                 source = ge_log_constants.SOURCE_CALCULATED};
                         log_file.addHeader(log_headM);
                         log_file.addValues(log_press.db_name,ge_log_constants.FACTOR_cmH20_to_mH20, log_headM.db_name);
+                        whead_success = 0;
+                        break;       
+                    }
+                    case "mbar": {
+                        log_headM = new value_header {
+                                id = ge_log_constants.WHEAD,
+                                units ="m",
+                                comments =$"Calculated conversion of {log_press.db_name} from mbar to m ({ge_log_constants.FACTOR_mbar_to_mH20})",
+                                source = ge_log_constants.SOURCE_CALCULATED};
+                        log_file.addHeader(log_headM);
+                        log_file.addValues(log_press.db_name,ge_log_constants.FACTOR_mbar_to_mH20, log_headM.db_name);
                         whead_success = 0;
                         break;       
                     }

@@ -13,8 +13,6 @@ namespace ge_repository.OtherDatabase  {
 
     public static class ge_log_constants {
 
-        public static string DATETIMEREADING = "DATETIMEREADING";
-        public static string DURATION = "DURATION";
         public static string BAROPRESSURE = "BAROPRESSURE";
         public static string PRESSURE ="PRESSURE";
         public static string NETPRESSURE ="NETPRESSURE";
@@ -27,10 +25,13 @@ namespace ge_repository.OtherDatabase  {
         public static string NETHEAD ="WHEAD_NET";
         public static string NETDEPTH ="WDEPTH_NET";
         public static string MMHG ="mmHg";
-        public static float FACTOR_mmHg_to_mH20 = 0.013951F;
+
+       // mercury conversion factor fixed 2020-06-15 previous value was
+       // public static float FACTOR_mmHg_to_mH20 = 0.013951F;
+        public static float FACTOR_mmHg_to_mH20 = 0.013595476F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=mmHg+0%C2%B0C&frfctr=mmHg0C&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
 
-        public static float FACTOR_mmHg_to_kPa = 0.133322F;
+        public static float FACTOR_mmHg_to_kPa = 0.133322387F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=mmHg+0%C2%B0C&frfctr=mmHg0C&tounit=kPa&tofctr=kPa
 
         public static float FACTOR_mH20_to_kPa = 9.80665F;
@@ -39,13 +40,13 @@ namespace ge_repository.OtherDatabase  {
         public static float FACTOR_kPa_to_mH20 = 0.101971621F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=kPa&frfctr=kPa&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
 
-        public static float FACTOR_PSI_to_mH20 = 0.70307F;
+        public static float FACTOR_PSI_to_mH20 = 0.70306958F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=psi&frfctr=psi&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
 
         public static float FACTOR_cmH20_to_mH20 = 0.01F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=cmH%E2%82%82O+4%C2%B0C&frfctr=cmH2O4C&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
 
-        public static float FACTOR_mbar_to_mH20 = 0.010197F;
+        public static float FACTOR_mbar_to_mH20 = 0.0101971621F;
         //https://www.sensorsone.com/pressure-converter/?frval=1&frunit=cmH%E2%82%82O+4%C2%B0C&frfctr=cmH2O4C&tounit=mH%E2%82%82O+4%C2%B0C&tofctr=mH2O4C
 
         public static string SOURCE_CALCULATED = "calculated";
@@ -55,6 +56,9 @@ namespace ge_repository.OtherDatabase  {
         public static int ISNOTDRY = 0;
         public static string LOG_DIVER ="diver";
         public static string LOG_VWIRE ="vwt";
+        public static string LOG_WQ ="wq";
+        public static string READINGDATETIME = "ReadingDateTime";
+        public static string DURATION = "Duration";
         public static string VALUE1 = "Value1";
         public static string VALUE2 = "Value2";
         public static string VALUE3 = "Value3";
@@ -62,6 +66,17 @@ namespace ge_repository.OtherDatabase  {
         public static string VALUE5 = "Value5";
         public static string VALUE6 = "Value6";
         public static string VALUE7 = "Value7";
+        public static string VALUE8 = "Value8";
+        public static string VALUE9 = "Value9";
+        public static string VALUE10 = "Value10";
+        public static string VALUE11 = "Value11";
+        public static string VALUE12 = "Value12";
+        public static string VALUE13 = "Value13";
+        public static string VALUE14 = "Value14";
+        public static string VALUE15 = "Value15";
+        public static string VALUE16 = "Value16";
+        public static string VALUE17 = "Value17";
+        public static string VALUE18 = "Value18";
         public static int NOT_FOUND = -1;
         public static int OK = 0;
 
@@ -82,6 +97,19 @@ namespace ge_repository.OtherDatabase  {
         [Display (Name = "Value5")] public float? Value5 {get;set;}
         [Display (Name = "Value6")] public float? Value6 {get;set;}
         [Display (Name = "Value7")] public float? Value7 {get;set;}
+        [Display(Name = "Value8")] public float Value8 {get;set;} 
+        [Display(Name = "Value9")] public float? Value9 {get;set;} 
+        [Display(Name = "Value10")] public float? Value10 {get;set;} 
+        [Display(Name = "Value11")] public float? Value11 {get;set;}   
+        [Display (Name = "Value12")] public float? Value12 {get;set;}
+        [Display (Name = "Value13")] public float? Value13 {get;set;}
+        [Display(Name = "Value14")] public float? Value14 {get;set;} 
+        [Display(Name = "Value15")] public float? Value15 {get;set;} 
+        [Display(Name = "Value16")] public float? Value16 {get;set;}   
+        [Display (Name = "Value17")] public float? Value17 {get;set;}
+        [Display (Name = "Value18")] public float? Value18 {get;set;}
+        [Display (Name = "data_xml")] public string data_xml {get;set;}
+        [Display (Name = "data_string")] public string data_string {get;set;}
         [Display (Name = "Remark")] public string Remark {get;set;}      
         [Display (Name = "Valid")] public int Valid {get;set;}
         [Display (Name = "Include")] public int Include {get;set;} 
@@ -96,6 +124,17 @@ namespace ge_repository.OtherDatabase  {
                         case "Value5": return Value5;
                         case "Value6": return Value6;
                         case "Value7": return Value7;
+                        case "Value8": return Value8;
+                        case "Value9": return Value9;
+                        case "Value10": return Value10;
+                        case "Value11": return Value11;
+                        case "Value12": return Value12;
+                        case "Value13": return Value15;
+                        case "Value14": return Value14;
+                        case "Value15": return Value15;
+                        case "Value16": return Value16;
+                        case "Value17": return Value17;
+                        case "Value18": return Value18;
                         default: return null;
             }
         }
@@ -122,6 +161,39 @@ namespace ge_repository.OtherDatabase  {
                          case "Value7": 
                             Value7=value;    
                         break;
+                        case "Value8": 
+                            Value8=value;
+                        break;
+                        case "Value9": 
+                            Value9=value;
+                        break;
+                        case "Value10": 
+                            Value10=value;
+                        break;
+                        case "Value11": 
+                            Value11=value;
+                        break;
+                        case "Value12": 
+                            Value12=value;
+                        break;
+                        case "Value13": 
+                            Value13=value;    
+                        break;
+                        case "Value14": 
+                            Value14=value;    
+                        break;
+                        case "Value15": 
+                            Value15=value;
+                        break;
+                        case "Value16": 
+                            Value16=value;
+                        break;
+                        case "Value17": 
+                            Value17=value;    
+                        break;
+                        case "Value18": 
+                            Value18=value;    
+                        break;
             }
         }
     }
@@ -144,11 +216,11 @@ namespace ge_repository.OtherDatabase  {
         public virtual search_table search_table {get;set;}
         public virtual ge_data data {get; set; }
         public virtual List<ge_log_reading> readings { get; set; }
-        public value_header getDateTimeReading() {
-            return field_headers.Find(v=>v.id==ge_log_constants.DATETIMEREADING);
+        public value_header getReadingDateTime() {
+            return field_headers.Find(v=>v.db_name==ge_log_constants.READINGDATETIME);
         }
         public value_header getDuration() {
-            return field_headers.Find(v=>v.id==ge_log_constants.DURATION);
+            return field_headers.Find(v=>v.db_name==ge_log_constants.DURATION);
         }
         public value_header getHeader1() {
             return field_headers.Find(v=>v.db_name==ge_log_constants.VALUE1);
@@ -198,7 +270,18 @@ namespace ge_repository.OtherDatabase  {
         return readings;
         
         }
+        public void init_new_file() {
+
+            packSearchTemplate();
+            packFileHeader();
+            packFieldHeaders();
+           
+            TimeSpan time_offset = getDateTimeOffset("0:0:0");
+            
+            addTimeSpan(time_offset);
         
+        }
+
         public int OrderReadings() {
             List<ge_log_reading> ordered = readings.OrderBy (e=>e.ReadingDatetime).ToList();
             readings = ordered;
@@ -323,8 +406,8 @@ namespace ge_repository.OtherDatabase  {
             return fieldHeader;
         }
        
-        public void setDateTimeReading (value_header vh) {
-            setHeaderByDbName(ge_log_constants.DATETIMEREADING,vh);
+        public void setReadingDateTime (value_header vh) {
+            setHeaderByDbName(ge_log_constants.READINGDATETIME,vh);
         }
         public void setDuration (value_header vh) {
              setHeaderByDbName(ge_log_constants.DURATION,vh);
@@ -382,35 +465,48 @@ namespace ge_repository.OtherDatabase  {
 
             field_headers.Add (new_header);
         }
-        public int currentMaxValueIndex() {
 
-            int index_max = 0;
-            
-            foreach (value_header vh in field_headers) {
-                if (vh.db_name==ge_log_constants.VALUE7 && index_max < 7) {
-                  index_max = 7;
+
+        public int firstAvailableIndex() {
+         for (int i=1; i< ge_log_constants.MAX_FIELD_INDEX;i++)    {
+             string value_test = "Value" + i.ToString();
+             value_header vh = field_headers.FirstOrDefault(m=>m.db_name==value_test);
+                if (vh==null) {
+                    return i;
                 }
-                if (vh.db_name==ge_log_constants.VALUE6 && index_max < 6) {
-                  index_max = 6;
-                }
-                if (vh.db_name==ge_log_constants.VALUE5 && index_max < 5) {
-                  index_max = 5;
-                }
-                if (vh.db_name==ge_log_constants.VALUE4 && index_max < 4) {
-                  index_max = 4;
-                }
-                if (vh.db_name==ge_log_constants.VALUE3 && index_max < 3) {
-                  index_max = 3;
-                }
-                if (vh.db_name==ge_log_constants.VALUE2 && index_max < 2) {
-                  index_max = 2;
-                }
-                if (vh.db_name==ge_log_constants.VALUE1 && index_max < 1) {
-                  index_max = 1;
-                }
-            }
-            return index_max;
+         }
+
+         return -1;
         }
+        // public int currentMaxValueIndex() {
+
+        //     int index_max = 0;
+            
+        //     foreach (value_header vh in field_headers) {
+        //         if (vh.db_name==ge_log_constants.VALUE7 && index_max < 7) {
+        //           index_max = 7;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE6 && index_max < 6) {
+        //           index_max = 6;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE5 && index_max < 5) {
+        //           index_max = 5;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE4 && index_max < 4) {
+        //           index_max = 4;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE3 && index_max < 3) {
+        //           index_max = 3;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE2 && index_max < 2) {
+        //           index_max = 2;
+        //         }
+        //         if (vh.db_name==ge_log_constants.VALUE1 && index_max < 1) {
+        //           index_max = 1;
+        //         }
+        //     }
+        //     return index_max;
+        // }
         // public int addHeader(value_header vh, Boolean replace_id=true, Boolean retain_db_name=true) {
             
         //     if (replace_id==true) {
@@ -436,11 +532,12 @@ namespace ge_repository.OtherDatabase  {
         // }
         public int addHeader(value_header vh) {
             
-            int next_index = currentMaxValueIndex() + 1;
+            int next_index = firstAvailableIndex();
             
-            if (next_index > ge_log_constants.MAX_FIELD_INDEX) {
+            if (next_index < 0) {
                 return -1;
             }
+
             string s1 = "Value" + next_index;
             vh.db_name = s1;
             field_headers.Add (vh);
@@ -482,6 +579,31 @@ namespace ge_repository.OtherDatabase  {
             foreach (value_header vh in list) {
                 if (vh.id=="WHEAD") return vh;
                 if (vh.id=="PRESSURE") return vh;
+                if (vh.id=="BHEAD") return vh;
+                if (vh.id=="BAROHEAD") return vh;
+                if (vh.id=="BAROPRESSURE") return vh;
+            }
+            
+            return null;
+
+        }
+        public value_header getSourceWaterPressureHeader() {
+            
+            List<value_header> list = field_headers.Where(v=>v.source==ge_log_constants.SOURCE_ACTUAL).ToList();
+
+            foreach (value_header vh in list) {
+                if (vh.id=="WHEAD") return vh;
+                if (vh.id=="PRESSURE") return vh;
+            }
+            
+            return null;
+
+        }
+         public value_header getSourceBarometricPressureHeader() {
+            
+            List<value_header> list = field_headers.Where(v=>v.source==ge_log_constants.SOURCE_ACTUAL).ToList();
+
+            foreach (value_header vh in list) {
                 if (vh.id=="BHEAD") return vh;
                 if (vh.id=="BAROHEAD") return vh;
                 if (vh.id=="BAROPRESSURE") return vh;
@@ -578,9 +700,10 @@ namespace ge_repository.OtherDatabase  {
             field_headers = NotCalculatedHeaders;
         } 
          public void addTimeSpan (TimeSpan sp) {
-            value_header fh = getDateTimeReading();
             
-            fh.comments = $"DateTime offset{sp.ToString()} has been applied";
+            value_header fh = getReadingDateTime();
+            
+            fh.comments = $"DateTime offset {sp.ToString()} has been applied";
 
             foreach (ge_log_reading r in readings) {
                 DateTime? dt = r.ReadingDatetime;
@@ -890,8 +1013,8 @@ namespace ge_repository.OtherDatabase  {
         }
         public ge_log_reading get_closest_reading(DateTime from, DateTime now, DateTime to) {
             
-            ge_log_reading early = get_closest_earlier_reading(now,from);
-            ge_log_reading later = get_closest_later_reading(now,to);
+            ge_log_reading early = get_closest_reading(from, now).LastOrDefault();
+            ge_log_reading later = get_closest_reading(now,to).FirstOrDefault();
             
             if (early==null && later==null) {
                 return null;
@@ -911,17 +1034,12 @@ namespace ge_repository.OtherDatabase  {
             if (earlyTS<=laterTS) {
                 return early;
             }
+
             return later;
         }
-        public ge_log_reading get_closest_earlier_reading(DateTime now, DateTime then) {
-            return readings.Where(r=>r.ReadingDatetime >= now && r.ReadingDatetime> then)
-                                                        .OrderBy(r=>r.ReadingDatetime)
-                                                        .FirstOrDefault();
-        }
-        public ge_log_reading get_closest_later_reading(DateTime now, DateTime then) {
-            return readings.Where(r=>r.ReadingDatetime >= now && r.ReadingDatetime < then)
-                                                        .OrderBy(r=>r.ReadingDatetime)
-                                                        .FirstOrDefault();
+        public IEnumerable<ge_log_reading> get_closest_reading(DateTime from, DateTime to) {
+            return readings.Where(r=>r.ReadingDatetime >= from && r.ReadingDatetime <= to)
+                                                        .OrderBy(r=>r.ReadingDatetime);
         }
         public string getArrayString(string name, int offset) {
             array_item ai1 = file_array.Find(a=>a.name == name);
@@ -1002,24 +1120,59 @@ namespace ge_repository.OtherDatabase  {
         public float max {get;set;}
         public float min {get;set;} 
     }
-
-    public abstract class _log_calculate {
-
-        public ge_log_file log_file {get;set;}
-        
-        public ge_log_file baro_file {get;set;}
-
-        public static int BARO_BUFFER_MINS = 15;
-
+    public abstract class _log {
         public static int NOT_FOUND = -1;
         public static int NOT_OK = -1;
         public static int OK = 0;
+        public ge_log_file log_file {get;set;}
+
+        public int AddOverrides(float? PROBE_DEPTH_OVERRIDE_M,
+                          string BHOLE_REF_OVERRIDE) {
+
+            if (PROBE_DEPTH_OVERRIDE_M!=null) {
+            search_item depth_probe = new search_item {
+                                name = "probe_depth_override",
+                                value = PROBE_DEPTH_OVERRIDE_M.Value.ToString(),
+                                units ="m",
+                                comments = "Manual depth_probe override (m)",
+                                source = ge_log_constants.SOURCE_ASSIGNED
+                                };
+                log_file.AddReplaceSearchItem (depth_probe);
+            }
+            
+            if (BHOLE_REF_OVERRIDE !=null) {
+            search_item bh_ref = new search_item {
+                                name = "bhole_ref_override",
+                                value = BHOLE_REF_OVERRIDE.ToString(),
+                                units ="m",
+                                comments = "Manual borehole reference assignment",
+                                source = ge_log_constants.SOURCE_ASSIGNED
+                                };
+                log_file.AddReplaceSearchItem (bh_ref);
+            }
+
+            return 0;
+
+         }
+    }
+    public abstract class _log_calculate: _log {
+
+        
+        public List<ge_log_file> baro_files {get;set;}
+
+        public static int BARO_BUFFER_MINS = 15;
+
+     
         public static string COMPENSATE_HEAD_DIFF = "compensate_head_diff";
         public static string COMPENSATE_DEPTH_DIFF = "compensate_depth_diff";
         public static string COMPENSATE_HEAD = "compensate_head";
         public static string COMPENSATE_DEPTH = "compensate_depth";
         public static string LINEAR_CONVERSION = "linear";
         public static string POLY_CONVERSION = "poly";
+
+        protected _log_calculate () {
+          baro_files =  new List<ge_log_file> {};  
+        }
         public int AddOverrides(int? BARO_BUFFER_MINS,
                           float? ATMOS_HEAD_M,
                           float? OFFSET_OVERRIDE_M,
@@ -1037,28 +1190,42 @@ namespace ge_repository.OtherDatabase  {
                           float? CONST_T
                           ){
             
-            if (baro_file !=null) {
+               int ret = base.AddOverrides (PROBE_DEPTH_OVERRIDE_M,
+                                            BHOLE_REF_OVERRIDE);
+                
+                if (baro_files !=null) {
+                string baroNames = "";
+                string baroIds = "";
+
+                foreach (ge_log_file barofile in baro_files) {
+                    if (baroNames.Length>0) {
+                        baroNames +=",";
+                        baroIds +=",";
+                    }
+                    baroNames += barofile.data.filename;
+                    baroIds +=barofile.Id;
+               }
+
                 search_item baro = new search_item {
                                 name = "baroId",
-                                value = baro_file.dataId.ToString(),
+                                value = baroIds,
                                 units = "",
-                                comments = "Baro file used for compensating diver readings",
+                                comments = "Baro fileId(s) used for compensating diver readings",
                                 source = ge_log_constants.SOURCE_ASSIGNED
                                 };
-               log_file.AddReplaceSearchItem (baro);
-            
-            
-                if (baro_file.data !=null) {
-                    search_item barof = new search_item {
+                log_file.AddReplaceSearchItem (baro);
+                            
+                search_item barof = new search_item {
                                     name = "baro_file",
-                                    value = baro_file.data.filename,
+                                    value = baroNames,
                                     units = "",
-                                    comments = "Baro file used for compensating diver readings",
+                                    comments = "Baro file(s) used for compensating diver readings",
                                     source = ge_log_constants.SOURCE_ASSIGNED
                                     };
                 log_file.AddReplaceSearchItem (barof);
-                }
+                
             }
+
             if (BARO_BUFFER_MINS!=null) {
                 search_item baro_buff = new search_item {
                                 name = "baro_buffer",
@@ -1092,28 +1259,7 @@ namespace ge_repository.OtherDatabase  {
                 log_file.AddReplaceSearchItem (atmos);
             }
 
-            if (PROBE_DEPTH_OVERRIDE_M!=null) {
-            search_item depth_probe = new search_item {
-                                name = "probe_depth_override",
-                                value = PROBE_DEPTH_OVERRIDE_M.Value.ToString(),
-                                units ="m",
-                                comments = "Manual depth_probe override (m)",
-                                source = ge_log_constants.SOURCE_ASSIGNED
-                                };
-                log_file.AddReplaceSearchItem (depth_probe);
-            }
-            
-            if (BHOLE_REF_OVERRIDE !=null) {
-            search_item bh_ref = new search_item {
-                                name = "bhole_ref_override",
-                                value = BHOLE_REF_OVERRIDE.ToString(),
-                                units ="m",
-                                comments = "Manual borehole reference assignment",
-                                source = ge_log_constants.SOURCE_ASSIGNED
-                                };
-                log_file.AddReplaceSearchItem (bh_ref);
-            }
-
+           
              
             if (DRY_DEPTH_M !=null) {
             search_item dry_depth = new search_item {
@@ -1224,12 +1370,35 @@ namespace ge_repository.OtherDatabase  {
                                 };
                 log_file.AddReplaceSearchItem (const_t);
             }
-
+          
             return 0;
 
     }
-
 protected int AddBaroHead() {
+
+    // cycle through each barofile and set baro pressure records where they exist within buffer offset,
+    // only set the values in the log_baro_headM column that have valid readingtime offsets 
+    foreach (ge_log_file baro_file in baro_files) {
+        
+        int res = AddBaroHead(baro_file);
+        
+        if (res == NOT_OK) {
+            return NOT_OK;
+        }
+    }
+   
+    // There may still be some readingtimes that don't have baro pressuer, this will be null, 
+    // to avoid an issue when calculating the column fill this with zero.
+    
+  //  value_header log_baro_headM = log_file.getHeaderByIdUnits(ge_log_constants.BAROHEAD,"m");
+  //  setEmptyBaroReadings (log_baro_headM.db_name,0);
+
+    return OK;
+ 
+ 
+}
+
+protected int AddBaroHead(ge_log_file baro_file) {
 
             if (baro_file == null) {
             return -1;
@@ -1239,7 +1408,7 @@ protected int AddBaroHead() {
             
             value_header baro_headM = null;
 
-            value_header baro_head = baro_file.getSourcePressureHeader();
+            value_header baro_head = baro_file.getSourceBarometricPressureHeader();
             
             if (baro_head != null) {
                 if (baro_head.units=="m") {
@@ -1287,9 +1456,7 @@ protected int AddBaroHead() {
                 baro_file_success = NOT_OK;
                 } 
             }
-
-          
-
+ 
             if (baro_headM!=null) {
                     value_header log_baro_headM = log_file.getHeaderByIdUnits(ge_log_constants.BAROHEAD,"m");
                     int baro_buffer = log_file.getBaroBuffer(BARO_BUFFER_MINS);
@@ -1304,35 +1471,44 @@ protected int AddBaroHead() {
                     } else{
                        log_baro_headM.comments = $"Looked up barometric head (m) +/-{baro_buffer} mins)"; 
                     }
-                    addBaroReadings(baro_headM.db_name, baro_buffer, log_baro_headM.db_name);
+                    addBaroReadings(baro_file, baro_headM.db_name, baro_buffer, log_baro_headM.db_name);
                     baro_file_success = 0;
             }
 
             return baro_file_success; 
     }
 
-        private void addBaroReadings(string baro_value, int minsBuffer, string value, float NotFoundValue=0) {
+        private void addBaroReadings(ge_log_file baro_file, string baro_value, int minsBuffer, string value) {
                 
                 TimeSpan time = new TimeSpan(0, 0, minsBuffer, 0);
                 
                 for(int i=0;i<log_file.readings.Count;i++) {
+                    
                     ge_log_reading r = log_file.readings[i];
                     DateTime d1 = r.ReadingDatetime - time;
                     DateTime d2 = r.ReadingDatetime + time;
 
                     ge_log_reading r_baro = baro_file.get_closest_reading(d1,r.ReadingDatetime, d2);
-                    
+                   
 
                     if (r_baro != null) {
                         float? baro_val = r_baro.getValue(baro_value);
                         if (baro_val !=null) {
                             r.setValue(value,baro_val.Value);
                         } 
-                    } else {
-                            r.setValue(value,NotFoundValue);
                     }
                 }
         
+        }
+
+        private void setEmptyBaroReadings(string baro_value, float empty_value) {
+                for(int i=0;i<log_file.readings.Count;i++) {
+                    ge_log_reading r = log_file.readings[i];
+                    float? baro_val = r.getValue(baro_value);
+                    if (baro_val == null) {
+                        r.setValue(baro_value, empty_value); 
+                    }
+                }
         }
   
          protected int addWDepthM() {

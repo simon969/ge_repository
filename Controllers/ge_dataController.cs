@@ -102,6 +102,48 @@ return await Get (Id,projectId, groupId);
        }
 
     }
+ public async Task<MemoryStream> GetMemoryStream(Guid id)
+        {
+            if (id == null)
+            {
+                return null;
+            }
+            
+            var _data = await _context.ge_data
+                                    .Include(d =>d.project)
+                                    .SingleOrDefaultAsync(m => m.Id == id);
+            if (_data == null)
+            {
+                return null;
+            }
+
+            var user = GetUserAsync().Result;
+            
+            int IsDownloadAllowed = _context.IsOperationAllowed(Constants.DownloadOperationName, _data.project, _data);
+            Boolean CanUserDownload = _context.DoesUserHaveOperation(Constants.DownloadOperationName,_data.project, user.Id);
+            
+            if (IsDownloadAllowed!=geOPSResp.Allowed) {
+                return null;
+            }
+            if (!CanUserDownload) {
+               return null;
+            }
+            
+            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            
+            if (_data_big == null)
+            {
+                return null;
+            }
+           
+         
+            var ContentType = _data.filetype;
+            var filename = _data.filename;
+            var encode = _data.GetEncoding();
+            MemoryStream memory = _data_big.getMemoryStream(encode);
+            
+            return memory;
+    }
 
     [HttpPost]
     public void Post(ge_data value) {}
@@ -145,13 +187,15 @@ return await Get (Id,projectId, groupId);
             var ContentType = _data.filetype;
             var filename = _data.filename;
             var encode = _data.GetEncoding();
-            MemoryStream memory = _data_big.getMemoryStream(encode);
+            Stream memory = _data_big.getMemoryStream(encode);
             
             /* if (ContentType == "text/xml") {
-
+            
             } */
-
-
+        //    HttpContext.Response.Headers.Add("Content-Disposition", "attachment; filename=FileName.pdf");
+        //    HttpContext.Response.Headers.Add ("title", filename);
+        //    HttpContext.Response.Headers.Add("Content-Disposition", $"inline; filename={filename}");
+    
             if (format =="download") {
             return File (memory, ContentType, filename);
             }

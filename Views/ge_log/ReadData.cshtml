@@ -174,7 +174,7 @@
              <th>
                 @Html.DisplayNameFor(model => model.readings[0].Value4)
             </th> 
-                           <th>
+            <th>
                 @Html.DisplayNameFor(model => model.readings[0].Value5)
             </th>
              <th>
@@ -183,6 +183,29 @@
             <th>
                 @Html.DisplayNameFor(model => model.readings[0].Value7)
             </th>
+            @if (Model.field_headers.Count > 7) {
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value8)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value9)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value10)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value11)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value12)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value13)
+            </th>   
+            <th>
+                @Html.DisplayNameFor(model => model.readings[0].Value14)
+            </th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -215,6 +238,29 @@
             <td>
                 @Html.DisplayFor(modelItem => reading.Value7)
             </td> 
+            @if (Model.field_headers.Count > 7) {
+             <td>
+                @Html.DisplayFor(modelItem => reading.Value8)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value9)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value10)
+            </td> 
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value11)
+            </td>  
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value12)
+            </td> 
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value13)
+            </td>  
+            <td>
+                @Html.DisplayFor(modelItem => reading.Value14)
+            </td>              
+            }
         </tr>
     }
     </tbody>
