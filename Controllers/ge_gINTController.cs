@@ -740,7 +740,7 @@ public async Task<IActionResult> createAGS(Guid Id,
 
             string[] SelectPoints = null ;
             
-            if (holes == null && MOND != null) {
+            if (holes[0] == null && MOND != null) {
             SelectPoints = MOND.Select (m=>m.PointID).Distinct().ToArray();
             } else {
             SelectPoints = holes;
@@ -895,16 +895,16 @@ public async Task<IActionResult> createAGS(Guid Id,
 }
 private async Task<int> getUniqueABBR(Guid? fileId) {
 
-if (fileId != null) {
-    var abbr = await new ge_agsController(_context,
-                                        _authorizationService,
-                                        _userManager,
-                                        _env ,
-                                        _ge_config).ReadABBR(fileId.Value); 
-}
+// if (fileId != null) {
+//     var abbr = await new ge_agsController(_context,
+//                                         _authorizationService,
+//                                         _userManager,
+//                                         _env ,
+//                                         _ge_config).ReadABBR(fileId.Value); 
+// }
 
-string[] mond_type =  MOND.Select (m=>m.MOND_TYPE).Distinct().ToArray();
-string[] loca_type = POINT.Select (m=>m.LOCA_TYPE).Distinct().ToArray();
+// string[] mond_type =  MOND.Select (m=>m.MOND_TYPE).Distinct().ToArray();
+// string[] loca_type = POINT.Select (m=>m.LOCA_TYPE).Distinct().ToArray();
 
 
 
@@ -921,8 +921,8 @@ private string getAGSTable(List<MONG> rows,
 
     string table_name =     "\"GROUP\",\"MONG\"";
     string table_headings = "\"HEADING\",\"LOCA_ID\",\"MONG_ID\",\"MONG_DIS\",\"PIPE_REF\",\"MONG_DATE\",\"MONG_TYPE\",\"MONG_DETL\",\"MONG_TRZ\",\"MONG_BRZ\",\"MONG_BRGA\",\"MONG_BRGB\",\"MONG_BRGC\",\"MONG_INCA\",\"MONG_INCB\",\"MONG_INCC\",\"MONG_RSCA\",\"MONG_RSCB\",\"MONG_RSCC\",\"MONG_REM\",\"MONG_CONT\",\"FILE_FSET\"";
-    string table_units =  "\"UNIT\",\"ID\",\"X\",\"2DP\",\"X\",\"DT\",\"PA\",\"X\",\"2DP\",\"2DP\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"";
-    string table_types =    "\"TYPE\",\"ID\",\"X\",\"2DP\",\"X\",\"PA\",\"X\",\"X\",\"XN\",\"PU\",\"X\",\"U\",\"U\",\"X\",\"X\",\"X\",\"X\",\"X\"";
+    string table_units =  "\"UNIT\",\"\",\"\",\"m\",\"\",\"yyyy-mm-dd\",\"\",\"\",\"m\",\"m\",\"deg\",\"deg\",\"deg\",\"deg\",\"deg\",\"deg\",\"\",\"\",\"\",\"\",\"\",\"\"";
+    string table_types =    "\"TYPE\",\"ID\",\"X\",\"2DP\",\"X\",\"PA\",\"X\",\"X\",\"XN\",\"PU\",\"X\",\"U\",\"U\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"";
     
     StringBuilder sb = new StringBuilder();
     sb.Append (table_name);
@@ -1002,6 +1002,18 @@ private string getAGSTable(List<TYPE> rows,
     
     return sb.ToString();
 }
+
+private string REM_Clean(String remark) {
+    if (remark==null) {
+        return "";
+    }
+
+    remark = remark.Replace("\n", " ");
+    remark = remark.Replace("\r", " ");
+
+    return remark;
+
+}
 private string getAGSTable(List<MOND> rows, 
                         string version, bool min = false) {
     
@@ -1024,9 +1036,8 @@ private string getAGSTable(List<MOND> rows,
     sb.Append (table_types);
     sb.AppendLine();
 
-
     foreach (MOND row in rows) {
-        string line = $"\"DATA\",\"{row.PointID}\",\"{row.ItemKey}\",\"{String.Format(DP2_FORMAT_AGS,row.MONG_DIS)}\",\"{String.Format(DATETIME_FORMAT_AGS,row.DateTime)}\",\"{row.MOND_TYPE}\",\"{row.MOND_REF}\",\"{row.MOND_INST}\",\"{row.MOND_RDNG}\",\"{row.MOND_UNIT}\",\"{row.MOND_METH}\",\"{row.MOND_LIM}\",\"{row.MOND_ULIM}\",\"{row.MOND_NAME}\",\"{row.MOND_CRED}\",\"{row.MOND_CONT}\",\"{row.MOND_REM}\",\"{row.FILE_FSET}\"";
+        string line = $"\"DATA\",\"{row.PointID}\",\"{row.ItemKey}\",\"{String.Format(DP2_FORMAT_AGS,row.MONG_DIS)}\",\"{String.Format(DATETIME_FORMAT_AGS,row.DateTime)}\",\"{row.MOND_TYPE}\",\"{row.MOND_REF}\",\"{row.MOND_INST}\",\"{row.MOND_RDNG}\",\"{row.MOND_UNIT}\",\"{row.MOND_METH}\",\"{row.MOND_LIM}\",\"{row.MOND_ULIM}\",\"{row.MOND_NAME}\",\"{row.MOND_CRED}\",\"{row.MOND_CONT}\",\"{REM_Clean(row.MOND_REM)}\",\"{row.FILE_FSET}\"";
         sb.Append(line);
         sb.AppendLine();
     }
@@ -1076,9 +1087,9 @@ private string getAGSTable(List<PROJ> rows,
     string table_types = "";
 
     if (version==AGS403 &&  min==false) {
-    table_headings = "\"HEADING\",\"PROJ_ID\",\"PROJ_NAME\",\"PROJ_CLNT\",\"PROJ_CONT\",\"PROJ_ENG\",\"PROJ_MEMO\",\"PROJ_GRID\",\"FILE_FSET\",\"PROJ_LOC\"";
-    table_units =    "\"UNIT\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"";
-    table_types =    "\"TYPE\",\"ID\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"";
+    table_headings = "\"HEADING\",\"PROJ_ID\",\"PROJ_NAME\",\"PROJ_LOC\",\"PROJ_CLNT\",\"PROJ_CONT\",\"PROJ_ENG\",\"PROJ_MEMO\",\"FILE_FSET\"";
+    table_units =    "\"UNIT\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"";
+    table_types =    "\"TYPE\",\"ID\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"";
     }
     
     if (version==AGS404) {
@@ -1103,7 +1114,7 @@ private string getAGSTable(List<PROJ> rows,
     
     if (version==AGS403 && min==false) {
         foreach (PROJ row in rows) {
-            string line = $"\"DATA\",\"{row.PROJ_ID}\",\"{row.PROJ_NAME}\",\"{row.PROJ_CLNT}\",\"{row.PROJ_CONT}\",\"{row.PROJ_ENG}\",\"{row.PROJ_MEMO}\",\"{row.PROJ_GRID}\",\"{row.FILE_FSET}\",\"{row.PROJ_LOC}\"";
+            string line = $"\"DATA\",\"{row.PROJ_ID}\",\"{row.PROJ_NAME}\",\"{row.PROJ_LOC}\",\"{row.PROJ_CLNT}\",\"{row.PROJ_CONT}\",\"{row.PROJ_ENG}\",\"{row.PROJ_MEMO}\",\"{row.FILE_FSET}\"";
             sb.Append(line);
             sb.AppendLine();
         }
@@ -1132,15 +1143,15 @@ private string getAGSTable(List<POINT> rows,
     string table_types = "";
 
     if (version==AGS404 && min==false) {
-    table_headings = "\"HEADING\",\"LOCA_ID\",\"LOCA_TYPE\",\"LOCA_STAT\",\"LOCA_NATE\",\"LOCA_NATN\",\"LOCA_GREF\",\"LOCA_GL\",\"LOCA_REM\",\"LOCA_FDEP\",\"LOCA_STAR\",\"LOCA_PURP\",\"LOCA_TERM\",\"LOCA_ENDD\",\"LOCA_LETT\",\"LOCA_LOCX\",\"LOCA_LOCY\",\"LOCA_LOCZ\",\"LOCA_DATM\",\"LOCA_LREF\",\"LOCA_ETRV\",\"LOCA_NTRV\",\"LOCA_LTRV\",\"LOCA_XTRL\",\"LOCA_YTRL\",\"LOCA_ZTRL\",\"LOCA_LAT\",\"LOCA_LON\",\"LOCA_ELAT\",\"LOCA_ELON\",\"LOCA_LLZ\",\"LOCA_LOCM\",\"LOCA_LOCA\",\"LOCA_CLST\",\"LOCA_ALID\",\"LOCA_OFFS\",\"LOCA_CNGE\",\"LOCA_TRAN\",\"FILE_FSET\",\"LOCA_NATD\",\"LOCA_ORID\",\"LOCA_ORJO\",\"LOCA_CHKG\",\"LOCA_CKDT\",\"LOCA_APPG\"";
-    table_units =    "\"UNIT\",\"\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"\",\"m\",\"yyyy-MM-dd\",\"\",\"\",\"yyyy-MM-dd\",\"\",\"m\",\"m\",\"m\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"deg(decimal)\",\"deg(decimal)\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"m\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"";
+    table_headings = "\"HEADING\",\"LOCA_ID\",\"LOCA_TYPE\",\"LOCA_STAT\",\"LOCA_NATE\",\"LOCA_NATN\",\"LOCA_GREF\",\"LOCA_GL\",\"LOCA_REM\",\"LOCA_FDEP\",\"LOCA_STAR\",\"LOCA_PURP\",\"LOCA_TERM\",\"LOCA_ENDD\",\"LOCA_LETT\",\"LOCA_LOCX\",\"LOCA_LOCY\",\"LOCA_LOCZ\",\"LOCA_LREF\",\"LOCA_DATM\",\"LOCA_ETRV\",\"LOCA_NTRV\",\"LOCA_LTRV\",\"LOCA_XTRL\",\"LOCA_YTRL\",\"LOCA_ZTRL\",\"LOCA_LAT\",\"LOCA_LON\",\"LOCA_ELAT\",\"LOCA_ELON\",\"LOCA_LLZ\",\"LOCA_LOCM\",\"LOCA_LOCA\",\"LOCA_CLST\",\"LOCA_ALID\",\"LOCA_OFFS\",\"LOCA_CNGE\",\"LOCA_TRAN\",\"FILE_FSET\",\"LOCA_NATD\",\"LOCA_ORID\",\"LOCA_ORJO\",\"LOCA_CHKG\",\"LOCA_CKDT\",\"LOCA_APPG\"";
+    table_units =    "\"UNIT\",\"\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"\",\"m\",\"yyyy-mm-dd\",\"\",\"\",\"yyyy-mm-dd\",\"\",\"m\",\"m\",\"m\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"deg\",\"deg\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"m\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"";
     table_types =    "\"TYPE\",\"ID\",\"X\",\"X\",\"2DP\",\"2DP\",\"X\",\"2DP\",\"X\",\"2DP\",\"DT\",\"X\",\"X\",\"DT\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"2DP\",\"2DP\",\"X\",\"X\"";
     }
     
     if (version==AGS403 && min==false) {
-    table_headings = "\"HEADING\",\"LOCA_ID\",\"LOCA_TYPE\",\"LOCA_STAT\",\"LOCA_NATE\",\"LOCA_NATN\",\"LOCA_GREF\",\"LOCA_GL\",\"LOCA_REM\",\"LOCA_FDEP\",\"LOCA_STAR\",\"LOCA_PURP\",\"LOCA_TERM\",\"LOCA_ENDD\",\"LOCA_LETT\",\"LOCA_LOCX\",\"LOCA_LOCY\",\"LOCA_LOCZ\",\"LOCA_DATM\",\"LOCA_LREF\",\"LOCA_ETRV\",\"LOCA_NTRV\",\"LOCA_LTRV\",\"LOCA_XTRL\",\"LOCA_YTRL\",\"LOCA_ZTRL\",\"LOCA_LAT\",\"LOCA_LON\",\"LOCA_ELAT\",\"LOCA_ELON\",\"LOCA_LLZ\",\"LOCA_LOCM\",\"LOCA_LOCA\",\"LOCA_CLST\",\"LOCA_ALID\",\"LOCA_OFFS\",\"LOCA_CNGE\",\"LOCA_TRAN\",\"FILE_FSET\"";
-    table_units =    "\"UNIT\",\"\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"\",\"m\",\"yyyy-MM-dd\",\"\",\"\",\"yyyy-MM-dd\",\"\",\"m\",\"m\",\"m\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"deg(decimal)\",\"deg(decimal)\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"m\",\"m\",\"\",\"\"";
-    table_types =    "\"TYPE\",\"ID\",\"X\",\"X\",\"2DP\",\"2DP\",\"X\",\"2DP\",\"X\",\"2DP\",\"DT\",\"X\",\"X\",\"DT\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"X\",\"X\",\"X\",\"X\"";
+    table_headings = "\"HEADING\",\"LOCA_ID\",\"LOCA_TYPE\",\"LOCA_STAT\",\"LOCA_NATE\",\"LOCA_NATN\",\"LOCA_GREF\",\"LOCA_GL\",\"LOCA_REM\",\"LOCA_FDEP\",\"LOCA_STAR\",\"LOCA_PURP\",\"LOCA_TERM\",\"LOCA_ENDD\",\"LOCA_LETT\",\"LOCA_LOCX\",\"LOCA_LOCY\",\"LOCA_LOCZ\",\"LOCA_LREF\",\"LOCA_DATM\",\"LOCA_ETRV\",\"LOCA_NTRV\",\"LOCA_LTRV\",\"LOCA_XTRL\",\"LOCA_YTRL\",\"LOCA_ZTRL\",\"LOCA_LAT\",\"LOCA_LON\",\"LOCA_ELAT\",\"LOCA_ELON\",\"LOCA_LLZ\",\"LOCA_LOCM\",\"LOCA_LOCA\",\"LOCA_CLST\",\"LOCA_ALID\",\"LOCA_OFFS\",\"LOCA_CNGE\",\"LOCA_TRAN\",\"FILE_FSET\"";
+    table_units =    "\"UNIT\",\"\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"\",\"m\",\"yyyy-mm-dd\",\"\",\"\",\"yyyy-mm-dd\",\"\",\"m\",\"m\",\"m\",\"\",\"\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"deg\",\"deg\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"m\",\"m\",\"\",\"\"";
+    table_types =    "\"TYPE\",\"ID\",\"X\",\"X\",\"2DP\",\"2DP\",\"X\",\"2DP\",\"X\",\"2DP\",\"DT\",\"X\",\"X\",\"DT\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"2DP\",\"X\",\"X\",\"2DP\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"2DP\",\"2DP\",\"X\",\"X\"";
     }
 
     if (min==true && (version== AGS404 || version==AGS403)) {
@@ -1161,14 +1172,14 @@ private string getAGSTable(List<POINT> rows,
     
     if (version==AGS403 && min==false) {
         foreach (POINT row in rows) {
-            string line = $"\"DATA\",\"{row.PointID}\",\"{row.LOCA_TYPE}\",\"{row.LOCA_STAT}\",\"{row.LOCA_NATE}\",\"{row.LOCA_NATN}\",\"{row.LOCA_GREF}\",\"{row.LOCA_GL}\",\"{row.LOCA_REM}\",\"{row.HoleDepth}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_STAR)}\",\"{row.LOCA_PURP}\",\"{row.LOCA_TERM}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_ENDD)}\",\"{row.LOCA_LETT}\",\"{row.East}\",\"{row.North}\",\"{row.Elevation}\",\"{row.LOCA_DATM}\",\"{row.LOCA_LREF}\",\"{row.LOCA_ETRV}\",\"{row.LOCA_NTRV}\",\"{row.LOCA_LTRV}\",\"{row.LOCA_XTRL}\",\"{row.LOCA_YTRL}\",\"{row.LOCA_ZTRL}\",\"{row.LOCA_LAT}\",\"{row.LOCA_LON}\",\"{row.LOCA_ELAT}\",\"{row.LOCA_ELON}\",\"{row.LOCA_LLZ}\",\"{row.LOCA_LOCM}\",\"{row.LOCA_LOCA}\",\"{row.LOCA_CLST}\",\"{row.LOCA_ALID}\",\"{row.LOCA_OFFS}\",\"{row.LOCA_CNGE}\",\"{row.LOCA_TRAN}\",\"{row.FILE_FSET}\"";
+            string line = $"\"DATA\",\"{row.PointID}\",\"{row.LOCA_TYPE}\",\"{row.LOCA_STAT}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_NATE)}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_NATN)}\",\"{row.LOCA_GREF}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_GL)}\",\"{row.LOCA_REM}\",\"{String.Format(DP2_FORMAT_AGS,row.HoleDepth)}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_STAR)}\",\"{row.LOCA_PURP}\",\"{row.LOCA_TERM}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_ENDD)}\",\"{row.LOCA_LETT}\",\"{String.Format(DP2_FORMAT_AGS,row.East)}\",\"{String.Format(DP2_FORMAT_AGS,row.North)}\",\"{String.Format(DP2_FORMAT_AGS,row.Elevation)}\",\"{row.LOCA_LREF}\",\"{row.LOCA_DATM}\",\"{row.LOCA_ETRV}\",\"{row.LOCA_NTRV}\",\"{row.LOCA_LTRV}\",\"{row.LOCA_XTRL}\",\"{row.LOCA_YTRL}\",\"{row.LOCA_ZTRL}\",\"{row.LOCA_LAT}\",\"{row.LOCA_LON}\",\"{row.LOCA_ELAT}\",\"{row.LOCA_ELON}\",\"{row.LOCA_LLZ}\",\"{row.LOCA_LOCM}\",\"{row.LOCA_LOCA}\",\"{row.LOCA_CLST}\",\"{row.LOCA_ALID}\",\"{row.LOCA_OFFS}\",\"{row.LOCA_CNGE}\",\"{row.LOCA_TRAN}\",\"{row.FILE_FSET}\"";
             sb.Append(line);
             sb.AppendLine();
         }
     }
   if (version==AGS404 && min==false) {
         foreach (POINT row in rows) {
-            string line = $"\"DATA\",\"{row.PointID}\",\"{row.LOCA_TYPE}\",\"{row.LOCA_STAT}\",\"{row.LOCA_NATE}\",\"{row.LOCA_NATN}\",\"{row.LOCA_GREF}\",\"{row.LOCA_GL}\",\"{row.LOCA_REM}\",\"{row.HoleDepth}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_STAR)}\",\"{row.LOCA_PURP}\",\"{row.LOCA_TERM}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_ENDD)}\",\"{row.LOCA_LETT}\",\"{row.East}\",\"{row.North}\",\"{row.Elevation}\",\"{row.LOCA_DATM}\",\"{row.LOCA_LREF}\",\"{row.LOCA_ETRV}\",\"{row.LOCA_NTRV}\",\"{row.LOCA_LTRV}\",\"{row.LOCA_XTRL}\",\"{row.LOCA_YTRL}\",\"{row.LOCA_ZTRL}\",\"{row.LOCA_LAT}\",\"{row.LOCA_LON}\",\"{row.LOCA_ELAT}\",\"{row.LOCA_ELON}\",\"{row.LOCA_LLZ}\",\"{row.LOCA_LOCM}\",\"{row.LOCA_LOCA}\",\"{row.LOCA_CLST}\",\"{row.LOCA_ALID}\",\"{row.LOCA_OFFS}\",\"{row.LOCA_CNGE}\",\"{row.LOCA_TRAN}\",\"{row.FILE_FSET}\"";
+            string line = $"\"DATA\",\"{row.PointID}\",\"{row.LOCA_TYPE}\",\"{row.LOCA_STAT}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_NATE)}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_NATN)}\",\"{row.LOCA_GREF}\",\"{String.Format(DP2_FORMAT_AGS,row.LOCA_GL)}\",\"{row.LOCA_REM}\",\"{row.HoleDepth}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_STAR)}\",\"{row.LOCA_PURP}\",\"{row.LOCA_TERM}\",\"{String.Format(DATE_FORMAT_AGS,row.LOCA_ENDD)}\",\"{row.LOCA_LETT}\",\"{String.Format(DP2_FORMAT_AGS,row.East)}\",\"{String.Format(DP2_FORMAT_AGS,row.North)}\",\"{String.Format(DP2_FORMAT_AGS,row.Elevation)}\",\"{row.LOCA_DATM}\",\"{row.LOCA_LREF}\",\"{row.LOCA_ETRV}\",\"{row.LOCA_NTRV}\",\"{row.LOCA_LTRV}\",\"{row.LOCA_XTRL}\",\"{row.LOCA_YTRL}\",\"{row.LOCA_ZTRL}\",\"{row.LOCA_LAT}\",\"{row.LOCA_LON}\",\"{row.LOCA_ELAT}\",\"{row.LOCA_ELON}\",\"{row.LOCA_LLZ}\",\"{row.LOCA_LOCM}\",\"{row.LOCA_LOCA}\",\"{row.LOCA_CLST}\",\"{row.LOCA_ALID}\",\"{row.LOCA_OFFS}\",\"{row.LOCA_CNGE}\",\"{row.LOCA_TRAN}\",\"{row.FILE_FSET}\"";
             sb.Append(line);
             sb.AppendLine();
         }
@@ -1216,16 +1227,16 @@ private string getAGS404Table(dsTable ds) {
 }
 public async Task<int> UploadMOND(Guid projectId, 
                                  List<MOND> save_items, 
-                                 string ge_sourceLIKE = null
+                                 string where = null
                                 )
                                  {   
 
 
-    if (ge_sourceLIKE=="single") {
+    if (where == null) {
     return await uploadMOND_Single(projectId, save_items);
     }
 
-    return await uploadMOND_Bulk(projectId,save_items, ge_sourceLIKE);
+    return await uploadMOND_Bulk(projectId,save_items, where);
     
     }
 private async Task<int> uploadMOND_Single(Guid projectId, 
@@ -1320,13 +1331,14 @@ private void setValues(MOND item, DataRow row) {
 
 private async Task<int> uploadMOND_Bulk(Guid projectId, 
                                  List<MOND> save_items, 
-                                 string ge_sourceLIKE = null )
+                                 string where = null )
                                  {   
 
     int NOT_OK = -1;
     int ret = 0;
     
     string wherePointID = "";
+    double? whereMONG_DIS = null;
 
     dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
@@ -1339,6 +1351,14 @@ private async Task<int> uploadMOND_Bulk(Guid projectId,
     if (holes.Count==1) {
         wherePointID= holes[0].PointID;
     }
+    var mong_dis = save_items.Select(mond => new { mond.MONG_DIS})
+                      .Distinct().ToList();
+
+    if (mong_dis.Count==1) {
+        whereMONG_DIS= mong_dis[0].MONG_DIS;
+    }
+    
+    DateTime minDateTime =  save_items.Min(e=>e.DateTime).GetValueOrDefault();
 
     string dbConnectStr = cd.AsConnectionString();
     int gINTProjectID = cd.ProjectId;
@@ -1354,19 +1374,23 @@ private async Task<int> uploadMOND_Bulk(Guid projectId,
                 dsMOND.setConnection (cnn);        
                 DataTable dtMOND = null;
 
-                // reduce the dataset only to the esri feature attribute records, all logger records could be massive
-                if (ge_sourceLIKE != null && wherePointID=="") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and ge_source like '%{ge_sourceLIKE}%'");
+                // reduce the dataset, all logger records could be massive
+
+                if (where != null && wherePointID == "") {
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");
                 }
                 
-                if (ge_sourceLIKE == null && wherePointID =="") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                if (where == null && wherePointID == "") {
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");    
                 }
 
-                if (ge_sourceLIKE != null && wherePointID !="") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and ge_source like '%{ge_sourceLIKE}%' and PointID='{wherePointID}'");
+                if (where != null && wherePointID !="" && whereMONG_DIS ==null) {
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");
                 }
-
+                
+                if (where != null && wherePointID !="" && whereMONG_DIS !=null) {
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and MONG_DIS={whereMONG_DIS.Value}");
+                }
                 dsMOND.getDataSet();
                 dtMOND = dsMOND.getDataTable();
                 Boolean checkExisting = false;
@@ -1385,10 +1409,16 @@ private async Task<int> uploadMOND_Bulk(Guid projectId,
                             row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
                             }
 
-                            if (row == null && ge_sourceLIKE!="esri" && ge_sourceLIKE!="ge_logger") {
-                            //check for existing ge_generated records
-                            row = dtMOND.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}'").SingleOrDefault();
-                            }
+                           // if (row == null && item.ge_otherid!=null) {
+                                // try and check for existing ge_generated records, but some ge_source and ge_otherid 
+                                // combination may results in mutiple matches in the MOND table 
+                                // so this is not a reliable way of identifying singular records
+                          //      try {
+                           //         row = dtMOND.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}'").SingleOrDefault();
+                          //      } catch {
+                          //      row = null;
+                          //      }
+                          //  }
 
                             //check for unique records
                             if (row == null) {

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +30,8 @@ namespace ge_repository.Controllers
    
        
         public ge_log_file ge_file {get;set;}
-       
+        public string[] tables_wdepth {get;} = new string[] {"",""};
+        public string[] tables_wquality {get;}= new string[] {"",""};
         public List<MOND> MOND {get;set;}
         public  List<MONG> MONG {get;set;}
         public  List<POINT> POINT {get;set;}
@@ -39,7 +41,10 @@ namespace ge_repository.Controllers
 
 
         private static string DATE_FORMAT_AGS = "yyyy-MM-dd HH:mm:ss";
-        private static string READING_FORMAT = "{0:0.000}";
+        private static string DP3 = "0.000";
+        private static string DP2 = "0.00";
+        private static string DP1 = "0.0";
+
         private static int MAX_SEARCH_LINES = 100;
      
          public ge_logController(
@@ -53,9 +58,76 @@ namespace ge_repository.Controllers
         {
            
         }
-    private ge_search findSearchTerms (ge_search dic, string name, ge_log_workbook workbook) {
+    private ge_search findSearchTerms (ge_search dic, string name, ge_log_workbook wb) {
+    
+        ge_search new_dic = new ge_search();
 
-        return null;
+        new_dic.name = "logger header created:" + DateTime.Now;
+       
+        foreach (search_table st in dic.search_tables.Where(e=>e.name==name)) {
+
+                        wb.setWorksheet(st.id);
+                        
+                        if (wb.worksheet==null) {
+                        continue;
+                        }
+        
+            foreach  (search_item si in dic.search_items) {
+                si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset);
+                // ge_log_workbook is zero based array of worksheet so will match string[] 
+                si.row = wb.matchReturnRow(si.search_text);
+                new_dic.search_items.Add (si);
+            }
+        
+            Boolean colNotFound=false;
+            
+            search_range sh = st.header;
+            
+            int header_row = 0;
+            int header_offset = 0;
+            search_item si2 = null;
+            colNotFound = false;
+            
+            if (!String.IsNullOrEmpty(sh.search_item)) {
+                si2 =  new_dic.search_items.Find(e=>e.name==sh.search_item);
+                // ge_log_workbook is zero based array of worksheet so will match[]
+                header_row = si2.row ;
+                header_offset = si2.row_offset;
+
+            }
+
+            foreach (value_header vh in st.headers) { 
+     
+                        int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
+                        
+                        if (i == NOT_FOUND) {
+                            new_dic.status = $"column search text [{vh.search_text}] of table [{name}] not found";
+                            colNotFound=true;
+                            break;
+                        } else {
+                            // ge_log_workbook is zero based array of worksheet so 
+                            // add 1 so column is correctly located in the csv file
+                            vh.found = i + vh.col_offset;
+                            vh.source = ge_log_constants.SOURCE_ACTUAL;
+                        }
+            }
+
+            if (colNotFound==false) {
+                if (name == null | name == "" | name == st.name) {
+                    new_dic.search_tables.Add (st);
+                    new_dic.setFoundTableValues (st);
+                    new_dic.status =$"all columns of table {name} found";
+
+                    break; 
+                }
+            }
+
+        }
+        
+       
+        
+        
+        return new_dic;
     }
 
     private ge_search findSearchTerms(ge_search dic, string name, string[] lines) {
@@ -107,14 +179,16 @@ namespace ge_repository.Controllers
             
             string[] columns =  header.Split(",");
                 foreach (value_header vh in st.headers) { 
-                            int i = columns.findFirstIndexContains(vh.search_text);
-                            if (i == NOT_FOUND) {
-                                new_dic.status = $"column search text [{vh.search_text}] of table [{name}] not found";
-                                colNotFound=true;
-                                break;
-                            } else {
+                            if (vh.found == NOT_FOUND) {
+                                int i = columns.findFirstIndexContains(vh.search_text);
+                                if (i == NOT_FOUND) {
+                                    new_dic.status = $"column search text [{vh.search_text}] of table [{name}] not found";
+                                    colNotFound=true;
+                                    break;
+                                } else {
                                 vh.found = i + vh.col_offset;
                                 vh.source = ge_log_constants.SOURCE_ACTUAL;
+                                }
                             }
                 }
 
@@ -150,7 +224,11 @@ private async Task<ge_log_file> ReadFile(Guid Id,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config).Get(Id);
-            
+
+            if (template==null || file==null) {
+                return null;
+            }            
+
             string[] lines = null;
             ge_search template_loaded = null;
 
@@ -161,25 +239,26 @@ private async Task<ge_log_file> ReadFile(Guid Id,
                                                     _env ,
                                                     _ge_config).getDataByLines(Id);
                 template_loaded = findSearchTerms(template,table, lines);
-               
                 if (template_loaded.search_tables.Count==0) {
                     return null; //     return Json (dic_loaded);
                 }
             }
 
             if (file.fileext == ".xlsx") {
-                MemoryStream ms = await new ge_dataController(  _context,
+                using (MemoryStream ms = await new ge_dataController(  _context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
-                                                _ge_config).GetMemoryStream(Id);
-                ge_log_workbook wb = new ge_log_workbook(ms);
-                template_loaded  =  findSearchTerms (template, table, wb);
-                if (template_loaded.search_tables.Count==0) {
-                    return null; //     return Json (dic_loaded);
-                }
-                lines = wb.getTable(table);
+                                                _ge_config).GetMemoryStream(Id)) {
+                    ge_log_workbook wb = new ge_log_workbook(ms);  
+                    template_loaded  =  findSearchTerms (template, table, wb);
+                    if (template_loaded.search_tables.Count==0) {
+                        return null; //     return Json (dic_loaded);
+                    }
+                    lines = wb.getTable(template_loaded.search_tables[0].id);
+                    wb.close();
 
+                }
             }
 
             ge_file = getNewLoggerFile (template_loaded, lines);
@@ -336,7 +415,18 @@ public async Task<IActionResult> ReadFile(Guid Id,
  }
 
 [HttpPost]
- public async Task<IActionResult> ReadFile(Guid Id,
+public async Task<IActionResult> ReadFile(Guid Id,
+                                          Guid templateId,
+                                          string table,
+                                          string bh_ref,
+                                          float? probe_depth,
+                                          string format = "view", 
+                                          Boolean save = false
+                                            )  {
+     return await ReadFileWith(Id,templateId, table, bh_ref,probe_depth,format,save);
+ }
+
+ public async Task<IActionResult> ReadFileWith(Guid Id,
                                           Guid templateId,
                                           string table,
                                           string bh_ref,
@@ -446,15 +536,19 @@ public async Task<IActionResult> ReadFile(Guid Id,
                     }
                   
             //      return Ok();
-
+            if (format == "view") {
             return View("ReadData", ge_file);
+            }
+
+            return Ok(ge_file);
+    
  }
 // 
 [HttpPost]
 public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                 Guid? templateId,
                                                 string table,
-                                                Guid? baroId,
+                                                Guid?[] baroIds,
                                                 float? level_offset,
                                                 int? baro_buffer_mins,
                                                 int? atmos_m,
@@ -512,25 +606,53 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                     }
             }
 
-            ge_log_file log_file = await GetFile(Id, table);
+            ge_log_file exist_log_file = await GetFile(Id, table);
+            ge_log_file log_file = null;
             
-            if (log_file==null && templateId==Guid.Empty) {
+            if (exist_log_file==null && templateId==null) {
             return Json($"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file");
             }
 
-
-            if (log_file==null && templateId!=Guid.Empty) {
+            if (templateId!=null) {
             log_file = await ReadFile (Id, templateId.Value, table);
+            } else {
+            log_file = exist_log_file;
             }
-
+            
             if (log_file==null) {
-            return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
+                return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
+            } else {
+              if (exist_log_file !=null) {
+                 log_file.Id = exist_log_file.Id; 
+              }
             }
-
+                        
+            log_file.data = _data;
 
             ge_log_calculateVWT ge_calculateVWT = new ge_log_calculateVWT() ;
 
             ge_calculateVWT.log_file = log_file;
+
+            if (baroIds!=null) {
+                    foreach (Guid? baroId in baroIds) {  
+                        if (baroId!=null) {
+                            var _baro_data = await _context.ge_data
+                                        .Include(d =>d.project)
+                                        .SingleOrDefaultAsync(m => m.Id == baroId);
+                            ge_log_file baro_file = await GetFile(baroId.Value);
+                            
+                            if (baro_file==null) {
+                                return Json($"Baro logger file records has not been found for data file ({_baro_data.filename}), please create baro logger file, before calculating wdepth");   
+                            }
+                            
+                            baro_file.data = _baro_data;
+                            ge_calculateVWT.baro_files.Add(baro_file);
+                        }
+                    }
+
+                }
+
+
             
             ge_calculateVWT.Calculate(  baro_buffer_mins,
                                         atmos_m, 
@@ -548,9 +670,14 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                         const_c,
                                         const_t);
             
-            if (save==true) {
-                        int updated = await UpdateFile (log_file, true); 
-                        ViewData["fileStatus"] = $"File records written ({updated})";
+             if (save==true) {
+                        if (log_file.Id == Guid.Empty) {
+                            var log_added = await AddNewFile(log_file);
+                            ViewData["fileStatus"] = $"Records created({log_added})";
+                        } else {             
+                            var log_updated = await UpdateFile(log_file, true);
+                            ViewData["fileStatus"] = $"Records updated({log_updated})";
+                        }
             }
             
             return View ("ReadData", ge_calculateVWT.log_file);
@@ -607,8 +734,10 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             }
             
             var log_file = await GetFile(Id, table);
-            
-            if (table.Contains("waterquality")) {
+          
+            if (table.Contains("waterquality") || 
+                table.Contains("wq") ) {
+                
                 var resp = await createMOND_WQ(log_file, 
                                             fromDT, 
                                             toDT,
@@ -619,8 +748,23 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                 if (resp < 0) {
                     return Json ($"There is an issue converting water quality logger data file {_data.filename} to MOND records");
                 }
-            } else {
-
+                if (save == true) { 
+                    var saveMOND_resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).UploadMOND (_data.projectId, MOND , "ge_source='ge_flow'");
+                }
+           } 
+           
+           if (table.Contains("depth") || 
+                table.Contains("head") || 
+                table.Contains("pressure") || 
+                table.Contains("channel") || 
+                table.Contains("r0") ||
+                table.Contains("r1")
+                ) {
                 var resp = await createMOND_WDEP(log_file, 
                                             fromDT, 
                                             toDT,
@@ -632,20 +776,19 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                     return Json ($"There is an issue converting water depth logger data file {_data.filename} to MOND records");
                 }
 
-            }
-           
+            List<MOND> ordered = MOND.OrderBy(e=>e.DateTime).ToList();
+            MOND = ordered;
 
-            if (save == true) { 
-                var saveMOND_resp = await new ge_gINTController (_context,
+                if (save == true) { 
+                    var saveMOND_resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).UploadMOND (_data.projectId, MOND ,"ge_logger");
+                                                        ).UploadMOND (_data.projectId, MOND , "ge_source='ge_logger'");
+                }
+
             }
-            
-            List<MOND> ordered = MOND.OrderBy(e=>e.DateTime).ToList();
-            MOND = ordered;
            
             if (format == "view") {
                 return View("ViewMOND", MOND);
@@ -749,58 +892,63 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
         if (gl==null && pt.LOCA_GL!=null) {
             gl = Convert.ToSingle(pt.LOCA_GL.Value);
         }
+
+        int round_no = Convert.ToInt16(round_ref);
         
         List<ge_log_reading> readings2 = log_file.getIncludeReadings(fromDT,toDT);
         
             foreach (ge_log_reading reading in readings2) {
                 
                 foreach (value_header vh in log_file.field_headers) {
-                
+                    
+                    string mond_ref = String.Format("Round {0:00} Seconds {1:00}",round_no,reading.Duration);
+                    
                     if (vh.id == "WDEPTH" && vh.units=="m") {
                         // Add MOND WDEP record
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                       
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Water Depth", vh.units,vh.format, null,"ge_flow");
                         MOND.Add (md);
                 
                         if (gl!=null && addWLEV==true) {           
                         // Add MOND WLEV record
-                        MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " flow meter reading", vh.db_name,vh.units, gl,"ge_flow");
+                        MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name,"Water Level", vh.units, vh.format, gl,"ge_flow");
                         MOND.Add (md2);
                         }
                     }
                     
                     if (vh.id == "PH" ) {
                         // Add MOND Potential Hydrogen
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "PH", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "PH", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
                     
                     if (vh.id == "DO" && vh.units == "mg/L") {
                         // Add MOND Disolved Oxygen
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "DO", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "DO", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Dissolved Oxygen", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
    
                     if (vh.id == "EC" && vh.units == "uS/cm") {
                         // Add MOND Electrical Conductivity 
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "EC", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "EC", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Electrical Conductivity", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
                     
-                    if (vh.id == "SAL" && vh.units == "g/cm³") {
+                    if (vh.id == "SAL" && vh.units == "g/cm3") {
                         // Add MOND Salinity record 
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "SAL", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "SAL", mg.MONG_TYPE + " flow meter reading",mond_ref,  vh.db_name, "Salinity", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
                     
                     if (vh.id == "TEMP" && vh.units == "Deg C") {
                         // Add MOND Salinity record 
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "DOWNTEMP", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "DOWNTEMP", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Downhole Temperature", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
                     
                     if (vh.id == "RDX" && vh.units == "mV") {
                         // Add MOND Redox Salinity record 
-                        MOND md = NewMOND (mg, reading, device_name, round_ref, "RDX", mg.MONG_TYPE + " flow meter reading", vh.db_name, vh.units, null,"ge_flow");
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "RDX", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Redox Potential", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
 
@@ -910,13 +1058,17 @@ private async Task<int> createMOND_WDEP (ge_log_file log_file,
         
         foreach (ge_log_reading reading in readings2) {
             
+            if (reading.getValue(log_wdepth.db_name) == null && reading.NotDry!=-1) {
+                continue;
+            }
+            
             // Add MOND WDEP record
-            MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " datalogger reading", log_wdepth.db_name, "m", null,"ge_logger");
+            MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " datalogger reading","", log_wdepth.db_name, "Water Depth", "m", DP3, null,"ge_logger");
             MOND.Add (md);
             
             if (gl!=null && addWLEV==true) {           
             // Add MOND WLEV record
-            MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " datalogger reading", log_wdepth.db_name,"m", gl,"ge_logger");
+            MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " datalogger reading","", log_wdepth.db_name,"Water Level", "m", DP3, gl,"ge_logger");
             MOND.Add (md2);
             }
 
@@ -938,25 +1090,30 @@ private void AddRoundRef(string ROUND_REF) {
             }
 }
 
-private MOND NewMOND (MONG mg, ge_log_reading read,string instrument_name, string round_ref, string mond_type, string mond_rem, string value_name, string units, float? GL, string ge_source) {
+private MOND NewMOND (MONG mg, ge_log_reading read,
+                        string instrument_name, 
+                        string round_ref, 
+                        string mond_type, 
+                        string mond_rem,
+                        string mond_ref, 
+                        string value_name, 
+                        string mond_name, 
+                        string units,
+                        string format, 
+                        float? GL, 
+                        string ge_source) {
         
         string value = null; 
-        string name = "";
-  
+        string format2 = "{0:" + format + "}";
+
         if (read.NotDry==ge_log_constants.ISNOTDRY) {
             float? reading = read.getValue(value_name);
-            
-            if (reading!=null && mond_type=="WDEP") {
-            value = String.Format(READING_FORMAT,reading);
-            name = "Water Depth";
-            }
-
-            if (reading!=null && mond_type=="WLEV") {
-            value = String.Format(READING_FORMAT,GL.Value - reading);
-            name = "Water Level";
+            if (reading!=null) {
+                value = String.Format(format2,reading);
+                if (mond_type=="WLEV") value = String.Format(format2,GL.Value - reading);
             }
         }
-        
+
         if (read.NotDry==ge_log_constants.ISDRY) {
             value = "Dry";
         }
@@ -971,11 +1128,12 @@ private MOND NewMOND (MONG mg, ge_log_reading read,string instrument_name, strin
                     ItemKey = mg.ItemKey,
                     MONG_DIS = mg.MONG_DIS,
                     MOND_TYPE = mond_type,
+                    MOND_REF = mond_ref,
                     DateTime = read.ReadingDatetime,
                     MOND_UNIT = units,
                     MOND_RDNG = value,
                     MOND_INST = instrument_name,
-                    MOND_NAME = name,
+                    MOND_NAME = mond_name,
                     MOND_REM = mond_rem,
                     RND_REF = round_ref,
                     ge_source = ge_source,
@@ -997,8 +1155,9 @@ public async Task<IActionResult> ProcessWQ( string[] process) {
         Guid templateId = Guid.Parse(line[1]);
         string bh_ref = line[2];
         float probe_depth = Single.Parse(line[3]);
+        string round_ref = line[4];
 
-        await ProcessWQ (Id,templateId,bh_ref,probe_depth, "");
+        await ProcessWQ (Id,templateId,bh_ref,probe_depth, round_ref, "");
 
     }
 
@@ -1006,14 +1165,53 @@ public async Task<IActionResult> ProcessWQ( string[] process) {
 
 }
 
-[HttpPost]
-public async Task<IActionResult> ProcessWQ( Guid Id, Guid? templateId, string bh_ref, float probe_depth, string response) { 
-
+public async Task<IActionResult> ProcessWQ( Guid Id, Guid? templateId, string bh_ref, float probe_depth, string round_ref, string response) { 
+   
     var calc_resp = await CalculateWQ (Id,templateId,"data_waterquality",probe_depth, bh_ref, "",true);
+    
+    var okResult = calc_resp as OkObjectResult;   
+    
+    if (okResult == null) { 
+        return Json(calc_resp);
+    } 
 
-    return await createMOND (Id,"data_waterquality",null,null,"",response,true);
+    if (okResult.StatusCode!=200) {
+        return Json(calc_resp);
+    }
+
+    return await createMOND (Id,"data_waterquality",null,null,round_ref,response,true);
+    
 }
 
+// public async Task<IActionResult> ProcessWorkbook( Guid Id, Guid? templateId, string table, string bh_ref, float probe_depth, string round_ref, string response) {
+//     return await ProcessWorkbook (Id,templateId,table,bh_ref,)
+// } 
+
+[HttpPost]
+public async Task<IActionResult> ProcessFile( Guid Id, 
+                                              Guid templateId, 
+                                              string table, 
+                                              string bh_ref, 
+                                              float probe_depth, 
+                                              string round_ref, 
+                                              string format = "view", 
+                                              Boolean save = false ) { 
+   
+    var calc_resp = await ReadFileWith (Id,templateId,table, bh_ref, probe_depth, "", true);
+    
+    var okResult = calc_resp as OkObjectResult;   
+    
+    if (okResult == null) { 
+        return Json(calc_resp);
+    } 
+
+    if (okResult.StatusCode!=200) {
+        return Json(calc_resp);
+    }
+
+    return await createMOND (Id,table, null, null, round_ref, format, save);
+    
+}
 
 [HttpPost]
 public async Task<IActionResult> Calculate(Guid Id,
@@ -1029,11 +1227,11 @@ public async Task<IActionResult> Calculate(Guid Id,
                                             string bh_ref,
                                             string format = "view", 
                                             Boolean save = false) {
-Guid[] baro_Ids = null;
+    Guid[] baro_Ids = null;
 
-if (baroId!=null) {
-    baro_Ids  = new Guid[] {baroId.Value};
-}
+    if (baroId!=null) {
+        baro_Ids  = new Guid[] {baroId.Value};
+    }
 
     return  await this.Calculate2 (Id,
                         log_type, 
@@ -1147,15 +1345,17 @@ public async Task<IActionResult> Calculate2(Guid Id,
                        
                 if (baroIds!=null) {
                     foreach (Guid? baroId in baroIds) {   
-                        var _baro_data = await _context.ge_data
+                        if (baroId!=null) {
+                            var _baro_data = await _context.ge_data
                                         .Include(d =>d.project)
                                         .SingleOrDefaultAsync(m => m.Id == baroId);
-                        ge_log_file baro_file = await GetFile(baroId.Value);
-                        if (baro_file==null) {
+                            ge_log_file baro_file = await GetFile(baroId.Value);
+                            if (baro_file==null) {
                             return Json($"Baro logger file records has not been found for data file ({_baro_data.filename}), please create baro logger file, before calculating wdepth");   
+                            }
+                            baro_file.data = _baro_data;
+                            calculate.baro_files.Add(baro_file);
                         }
-                        baro_file.data = _baro_data;
-                        calculate.baro_files.Add(baro_file);
                     }
 
                 }
@@ -1253,21 +1453,27 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             }
             
             
-            ge_log_file log_file = await GetFile(Id, table);
-         
+            ge_log_file exist_log_file = await GetFile(Id, table);
+            ge_log_file log_file = null;
             
-            if (log_file==null && templateId==null) {
-            return Json($"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file");
+            if (exist_log_file==null && templateId==null) {
+                return Json( new {status="error", message=$"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file"});
             }
 
-            if (log_file==null && templateId!=null) {
+            if (templateId!=null) {
             log_file = await ReadFile (Id, templateId.Value, table);
+            } else {
+            log_file = exist_log_file;
             }
             
             if (log_file==null) {
-            return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
+                return Json( new {status="error", message=$"The data file: {_data.filename} table: {table}) cannot be read with templateId provided"});
+            } else {
+              if (exist_log_file !=null) {
+                 log_file.Id = exist_log_file.Id; 
+              }
             }
-            
+                        
             log_file.data = _data;
             
             ge_log_calculateWQ ge_wq = new ge_log_calculateWQ() ;
@@ -1279,10 +1485,14 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
                                 );
             
             if (save==true) {
+                        if (log_file.Id == Guid.Empty) {
+                            var log_added = await AddNewFile(ge_wq.log_file);
+                            ViewData["fileStatus"] = $"Records created({log_added})";
+                        } else {
                         var log_updated = await UpdateFile(ge_wq.log_file, true);
                         ViewData["fileStatus"] = $"Records updated({log_updated})";
+                        }
             }
-            
             if (format=="view") {
             return View ("ReadData", ge_wq.log_file);
             }
@@ -1290,8 +1500,8 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             if (format=="json") {
             return Json(ge_wq.log_file);
             }
-
-            return Ok();
+            
+            return Ok(ge_wq.log_file);
     }
 
 [HttpPost]
@@ -1352,41 +1562,52 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             }
             
             
-            ge_log_file log_file = await GetFile(Id, table);
-         
+            ge_log_file exist_log_file = await GetFile(Id, table);
+            ge_log_file log_file = null;
             
-            if (log_file==null && templateId==null) {
+            if (exist_log_file==null && templateId==null) {
             return Json($"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file");
             }
 
-            if (log_file==null && templateId!=null) {
+            if (templateId!=null) {
             log_file = await ReadFile (Id, templateId.Value, table);
+            } else {
+            log_file = exist_log_file;
             }
             
             if (log_file==null) {
-            return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
+                return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
+            } else {
+              if (exist_log_file !=null) {
+                 log_file.Id = exist_log_file.Id; 
+              }
             }
-            
+                        
             log_file.data = _data;
             
             ge_log_calculateDiver ge_diver = new ge_log_calculateDiver() ;
             
             ge_diver.log_file = log_file;
             
-            if (baroIds!=null) {
-                foreach (Guid? baroId in baroIds) {   
-                    var _baro_data = await _context.ge_data
-                                    .Include(d =>d.project)
-                                    .SingleOrDefaultAsync(m => m.Id == baroId);
-                    ge_log_file baro_file = await GetFile(baroId.Value);
-                    if (baro_file==null) {
-                        return Json($"Baro logger file records has not been found for data file ({_baro_data.filename}), please create baro logger file, before calculating wdepth");   
+                if (baroIds!=null) {
+                    foreach (Guid? baroId in baroIds) {  
+                        if (baroId!=null) {
+                            var _baro_data = await _context.ge_data
+                                        .Include(d =>d.project)
+                                        .SingleOrDefaultAsync(m => m.Id == baroId);
+                            ge_log_file baro_file = await GetFile(baroId.Value);
+                            
+                            if (baro_file==null) {
+                                return Json($"Baro logger file records has not been found for data file ({_baro_data.filename}), please create baro logger file, before calculating wdepth");   
+                            }
+                            
+                            baro_file.data = _baro_data;
+                            ge_diver.baro_files.Add(baro_file);
+                        }
                     }
-                    baro_file.data = _baro_data;
-                    ge_diver.baro_files.Add(baro_file);
+
                 }
 
-            }
             
            
             ge_diver.Calculate( baro_buffer_mins,
@@ -1397,8 +1618,13 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
                                 dry_depth);
             
             if (save==true) {
-                        var log_updated = await UpdateFile(ge_diver.log_file, true);
-                        ViewData["fileStatus"] = $"Records updated({log_updated})";
+                        if (log_file.Id == Guid.Empty) {
+                            var log_added = await AddNewFile(log_file);
+                            ViewData["fileStatus"] = $"Records created({log_added})";
+                        } else {             
+                            var log_updated = await UpdateFile(log_file, true);
+                            ViewData["fileStatus"] = $"Records updated({log_updated})";
+                        }
             }
             
             if (format=="view") {
@@ -1900,9 +2126,12 @@ private async Task<int>  UpdateFile (ge_log_file file, Boolean IncludeReadings) 
                             reading.Id = (Guid) row["Id"];
                             reading.fileId = file.Id;
                         }
-
+                        //what if there are other records (more) in dt_readings from a previous version of the ge_log_file? 
+                        // file.readings.count<dt_readings.count this will still be present
                         set_log_reading_values (reading,row);
                     }
+
+
                     ret = ret + ds_readings.Update();
                     return ret;
                 } 
@@ -1916,14 +2145,25 @@ private void get_logger_reading_values(DataRow row, ge_log_reading reading) {
                 reading.Id = (Guid) row ["Id"];
                 reading.fileId = (Guid) row["fileId"];     
                 reading.ReadingDatetime = (DateTime) row["ReadingDateTime"];
-                reading.Duration = (int) row["Duration"];
-                reading.Value1 = Convert.ToSingle((row["Value1"]).ToString());
+                if (row["Duration"] != DBNull.Value) reading.Duration= Convert.ToInt64(row["Duration"].ToString());
+                if (row["Value1"] != DBNull.Value) reading.Value1 =Convert.ToSingle( row["Value1"].ToString());
                 if (row["Value2"] != DBNull.Value) reading.Value2= Convert.ToSingle(row["Value2"].ToString());
                 if (row["Value3"] != DBNull.Value) reading.Value3 =Convert.ToSingle( row["Value3"].ToString());
                 if (row["Value4"] != DBNull.Value) reading.Value4 = Convert.ToSingle(row["Value4"].ToString());
                 if (row["Value5"] != DBNull.Value)  reading.Value5 =Convert.ToSingle(row["Value5"].ToString());
                 if (row["Value6"] != DBNull.Value)  reading.Value6 =Convert.ToSingle(row["Value6"].ToString());
                 if (row["Value7"] != DBNull.Value)  reading.Value7 =Convert.ToSingle(row["Value7"].ToString());
+                if (row["Value8"] != DBNull.Value) reading.Value8= Convert.ToSingle(row["Value8"].ToString());
+                if (row["Value9"] != DBNull.Value) reading.Value9 =Convert.ToSingle( row["Value9"].ToString());
+                if (row["Value10"] != DBNull.Value) reading.Value10 = Convert.ToSingle(row["Value10"].ToString());
+                if (row["Value11"] != DBNull.Value)  reading.Value11 =Convert.ToSingle(row["Value11"].ToString());
+                if (row["Value12"] != DBNull.Value)  reading.Value12 =Convert.ToSingle(row["Value12"].ToString());
+                if (row["Value13"] != DBNull.Value)  reading.Value13 =Convert.ToSingle(row["Value13"].ToString());
+                if (row["Value14"] != DBNull.Value) reading.Value14 =Convert.ToSingle( row["Value14"].ToString());
+                if (row["Value15"] != DBNull.Value) reading.Value15 = Convert.ToSingle(row["Value15"].ToString());
+                if (row["Value16"] != DBNull.Value)  reading.Value16 =Convert.ToSingle(row["Value16"].ToString());
+                if (row["Value17"] != DBNull.Value)  reading.Value17 =Convert.ToSingle(row["Value17"].ToString());
+                if (row["Value18"] != DBNull.Value)  reading.Value18 =Convert.ToSingle(row["Value18"].ToString());
                 if (row["Remark"] != DBNull.Value) reading.Remark = (String) row["Remark"]; 
                 reading.Valid = (int) row["Valid"];
                 reading.Include = (int) row["Include"];
@@ -1935,14 +2175,25 @@ private void set_log_reading_values(ge_log_reading reading, DataRow row) {
                 row["Id"] = reading.Id;
                 row["fileId"] = reading.fileId;
                 row["ReadingDateTime"] = reading.ReadingDatetime;
-                row["Duration"] = reading.Duration;
-                row["Value1"] = reading.Value1;
+                if (reading.Duration==null) { row["Duration"] = DBNull.Value;} else {row["Duration"] = reading.Duration;} 
+                if (reading.Value1==null) { row["Value1"] = DBNull.Value;} else {row["Value1"] = reading.Value1;} 
                 if (reading.Value2==null) { row["Value2"] = DBNull.Value;} else {row["Value2"] = reading.Value2;} 
                 if (reading.Value3==null) { row["Value3"] = DBNull.Value;}  else {row["Value3"] = reading.Value3;}
                 if (reading.Value4==null) { row["Value4"] = DBNull.Value;} else {row["Value4"] = reading.Value4;} 
                 if (reading.Value5==null) { row["Value5"] = DBNull.Value;} else {row["Value5"] = reading.Value5;} 
                 if (reading.Value6==null) { row["Value6"] =  DBNull.Value;} else {row["Value6"] =reading.Value6;}
                 if (reading.Value7==null) { row["Value7"] = DBNull.Value;} else {row["Value7"] = reading.Value7;} 
+                if (reading.Value8==null) { row["Value8"] = DBNull.Value;} else {row["Value8"] = reading.Value8;} 
+                if (reading.Value9==null) { row["Value9"] = DBNull.Value;}  else {row["Value9"] = reading.Value9;}
+                if (reading.Value10==null) { row["Value10"] = DBNull.Value;} else {row["Value10"] = reading.Value10;} 
+                if (reading.Value11==null) { row["Value11"] = DBNull.Value;} else {row["Value11"] = reading.Value11;} 
+                if (reading.Value12==null) { row["Value12"] =  DBNull.Value;} else {row["Value12"] =reading.Value12;}
+                if (reading.Value13==null) { row["Value13"] = DBNull.Value;} else {row["Value13"] = reading.Value13;} 
+                if (reading.Value14==null) { row["Value14"] = DBNull.Value;} else {row["Value14"] = reading.Value14;} 
+                if (reading.Value15==null) { row["Value15"] = DBNull.Value;} else {row["Value15"] = reading.Value15;} 
+                if (reading.Value16==null) { row["Value16"] =  DBNull.Value;} else {row["Value16"] =reading.Value16;}
+                if (reading.Value17==null) { row["Value17"] = DBNull.Value;} else {row["Value17"] = reading.Value17;} 
+                if (reading.Value18==null) { row["Value18"] = DBNull.Value;} else {row["Value18"] = reading.Value18;} 
                 row["Remark"] = reading.Remark;
                 row["Valid"] = reading.Valid;
                 row["Include"] = reading.Include;
@@ -1985,44 +2236,56 @@ private string getAggregates(ge_log_file file) {
     ar.maxReadingDate = file.readings.Max(r=>r.ReadingDatetime);
     ar.minReadingDate = file.readings.Min(r=>r.ReadingDatetime);
     
-    ar.Value1= new ValueRange {
-        max = file.readings.Max(r=>r.Value1),
-        min = file.readings.Min(r=>r.Value1),
-   
-    };
-    
+    if (file.getHeader1()!=null) {
+        try {
+            ar.Value1= new ValueRange {
+            max = file.readings.Max(r=>r.Value1.Value),
+            min = file.readings.Min(r=>r.Value1.Value),
+            } ;
+        } catch {};
+    }
     if (file.getHeader2()!=null) {
-        ar.Value2 = new ValueRange {
+        try {
+            ar.Value2 = new ValueRange {
             max = file.readings.Max(r=>r.Value2.Value),
             min = file.readings.Min(r=>r.Value2.Value),
-        };
+            } ;
+        } catch {};
     }
     
     if (file.getHeader3()!=null) {
-        ar.Value3 = new ValueRange {
+        try {
+            ar.Value3 = new ValueRange {
             max = file.readings.Max(r=>r.Value3.Value),
             min = file.readings.Min(r=>r.Value3.Value),
-        };
+            };
+        } catch {};
     }
     
     if (file.getHeader4()!=null) {
-        ar.Value4 = new ValueRange {
+        try {
+            ar.Value4 = new ValueRange {
             max = file.readings.Max(r=>r.Value4.Value),
             min = file.readings.Min(r=>r.Value4.Value),
-        };
+            };
+        } catch {};
     }
     
     if (file.getHeader5()!=null) {
-        ar.Value5 = new ValueRange {
+        try {
+            ar.Value5 = new ValueRange {
             max = file.readings.Max(r=>r.Value5.Value),
             min = file.readings.Min(r=>r.Value5.Value),
-        };
+            };
+        } catch {};
     }
     if (file.getHeader6()!=null) {
-        ar.Value6 = new ValueRange {
+        try {
+            ar.Value6 = new ValueRange {
             max = file.readings.Max(r=>r.Value6.Value),
             min = file.readings.Min(r=>r.Value6.Value),
-        };
+            };
+        } catch{};
     }
 return JsonConvert.SerializeObject(ar);
 
@@ -2049,8 +2312,84 @@ private DateTime? getDateTime(string s, string format) {
     }
 
     }
+    private int addReadingsAny(List<ge_log_reading> list, 
+                    string[] lines, 
+                    int line_start,
+                    int line_end, 
+                    int intReadTime, 
+                    int intDuration, 
+                    int intValue1, 
+                    int intValue2,
+                    int intValue3,
+                    int intValue4,
+                    int intValue5,
+                    int intValue6, 
+                    int intValue7, 
+                    int intValue8,
+                    int intValue9,
+                    int intValue10,
+                    int intValue11,
+                    int intValue12,
+                    int intValue13, 
+                    int intValue14,
+                    int intValue15,
+                    int intValue16,
+                    int intValue17,
+                    int intValue18,
+                    int intRemark,
+                    int intValueCheckForDry,
+                    string dateformat = "") {
 
- private int addReadings (List<ge_log_reading> list, 
+    for (int i = line_start; i<line_end; i++) {
+                string line = lines[i];
+                if (line.Length>0) {
+                    string[] values = line.Split(",");
+                    
+                    if (values[0].Contains("\"")) {
+                            values = line.QuoteSplit();
+                    }
+                    if (values[0] == "") {
+                        break;
+                    }
+                   
+                    ge_log_reading r= new ge_log_reading();
+
+                    if (intReadTime != NOT_FOUND) {r.ReadingDatetime = DateTime.Parse(values[intReadTime]);}
+                    if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
+                    if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
+                    if (intValue2 != NOT_FOUND) {r.Value2 = getFloat(values[intValue2],null);}
+                    if (intValue3 != NOT_FOUND) {r.Value3 = getFloat(values[intValue3],null);}
+                    if (intValue4 != NOT_FOUND) {r.Value4 = getFloat(values[intValue4],null);}
+                    if (intValue5!= NOT_FOUND) { r.Value5 = getFloat(values[intValue5],null);}
+                    if (intValue6 != NOT_FOUND) {r.Value6 = getFloat(values[intValue6],null);}
+                    if (intValue7 != NOT_FOUND) {r.Value7 = getFloat(values[intValue7],null);}
+                    if (intValue8 != NOT_FOUND) {r.Value8 = getFloat(values[intValue8],null);}
+                    if (intValue9 != NOT_FOUND) {r.Value9 = getFloat(values[intValue9],null);}
+                    if (intValue10 != NOT_FOUND) {r.Value10 = getFloat(values[intValue10],null);}
+                    if (intValue11 != NOT_FOUND) {r.Value11 = getFloat(values[intValue11],null);}
+                    if (intValue12 != NOT_FOUND) {r.Value12 = getFloat(values[intValue12],null);}
+                    if (intValue13 != NOT_FOUND) {r.Value13 = getFloat(values[intValue13],null);}
+                    if (intValue14 != NOT_FOUND) {r.Value14 = getFloat(values[intValue14],null);}
+                    if (intValue15 != NOT_FOUND) {r.Value15 = getFloat(values[intValue15],null);}
+                    if (intValue16 != NOT_FOUND) {r.Value16 = getFloat(values[intValue16],null);}
+                    if (intValue17 != NOT_FOUND) {r.Value17 = getFloat(values[intValue17],null);}
+                    if (intValue18 != NOT_FOUND) {r.Value18 = getFloat(values[intValue18],null);}
+                    if (intRemark != NOT_FOUND) {r.Remark = values[intRemark];}
+                    if (intValueCheckForDry!=NOT_FOUND) {
+                        if (values[intValueCheckForDry] == "Dry" || values[intValueCheckForDry] == "DRY") {
+                            r.NotDry = -1;
+                        }   
+                    }
+
+                    list.Add (r);
+                }
+    }
+
+    return list.Count();
+
+ }
+
+ private int addReadingsOrdered (List<ge_log_reading> list, 
                     string[] lines, 
                     int line_start,
                     int line_end, 
@@ -2092,12 +2431,12 @@ private DateTime? getDateTime(string s, string format) {
                 if (values[0].Contains("\"")) {
                         values = line.QuoteSplit();
                 }
-                if (values.Count()==0) {
+                if (values[0] == "") {
                     break;
                 }
                 ge_log_reading r= new ge_log_reading();
                 r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
-                r.Duration = getDuration(values[intDuration]);
+                r.Duration = getDuration(values[intDuration],null);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
                 r.Value3 = Convert.ToSingle(values[intValue3]);
@@ -2400,44 +2739,55 @@ private DateTime? getDateTime(string s, string format) {
 
     return 0;
  }
- private Int32 getDuration(string duration) {
-    Int32 dur  = 0 ;
+
+ private float? getFloat(string s1, float? retOnError) {
+     float? fl;
+     try {
+         fl = Convert.ToSingle(s1);
+         return fl;
+     } catch {
+         return retOnError;
+     }
+
+
+ }
+ private long? getDuration(string duration, long? retIfError) {
+    Int64 dur  = 0 ;
     try {
         TimeSpan ts = TimeSpan.Parse(duration);
-        dur = (Int32) ts.TotalSeconds;
+        dur = Convert.ToInt64(ts.TotalSeconds);
         return dur;
     } catch {
         try {
-            dur = (Int32) Convert.ToSingle(duration);
+            dur = (Int64) Convert.ToSingle(duration);
             return dur;
         } catch {
-            return 0;
+            return retIfError;
         }
     }
   }
- private ge_log_file getNewLoggerFile(ge_search dic, string[] lines) {
-    
-        int intReadTime = NOT_FOUND;
-        int intDuration = NOT_FOUND;
-        int intValue1 = NOT_FOUND;
-        int intValue2 = NOT_FOUND;
-        int intValue3 = NOT_FOUND;
-        int intValue4 = NOT_FOUND;
-        int intValue5 = NOT_FOUND;
-        int intValue6 = NOT_FOUND;
-        int intValue7 = NOT_FOUND;
-        int intValue8 = NOT_FOUND;
-        int intValue9 = NOT_FOUND;
-        int intValue10 = NOT_FOUND;
-        int intValue11 = NOT_FOUND;
-        int intValue12 = NOT_FOUND;
-        int intValue13 = NOT_FOUND;
-        int intValue14 = NOT_FOUND;
-        int intValue15 = NOT_FOUND;
-        int intValue16 = NOT_FOUND;
-        int intValue17 = NOT_FOUND;
-        int intValue18 = NOT_FOUND;
+  private Boolean IsTableStandardFormat(search_table st) {
 
+
+                int max_id = -1;
+
+                foreach (value_header vh in st.headers) {
+                    if (max_id < vh.found) {
+                        max_id = vh.found;
+                    }
+
+                }
+
+                if (max_id==st.headers.Count) {
+                    return true;
+                } 
+                return false;
+}
+
+
+   private ge_log_file getNewLoggerFile(ge_search dic, string[] lines) {
+    
+       
         ge_log_file file = new ge_log_file();
         file.search_template = dic;
         
@@ -2450,113 +2800,148 @@ private DateTime? getDateTime(string s, string format) {
         file.channel = st.name;
         
         value_header DateTimeReading = dic.getHeader(ge_log_constants.READINGDATETIME);
-        value_header Duration = dic.getHeader(ge_log_constants.DURATION);
-        value_header Header1 = dic.getHeader(ge_log_constants.VALUE1);
-        value_header Header2 = dic.getHeader(ge_log_constants.VALUE2);
-        value_header Header3 = dic.getHeader(ge_log_constants.VALUE3);
-        value_header Header4 = dic.getHeader(ge_log_constants.VALUE4);
-        value_header Header5 = dic.getHeader(ge_log_constants.VALUE5);
-        value_header Header6 = dic.getHeader(ge_log_constants.VALUE6);
-        value_header Header7 = dic.getHeader(ge_log_constants.VALUE7);
-        value_header Header8 = dic.getHeader(ge_log_constants.VALUE8);
-        value_header Header9 = dic.getHeader(ge_log_constants.VALUE9);
-        value_header Header10 = dic.getHeader(ge_log_constants.VALUE10);
-        value_header Header11 = dic.getHeader(ge_log_constants.VALUE11);
-        value_header Header12 = dic.getHeader(ge_log_constants.VALUE12);
-        value_header Header13 = dic.getHeader(ge_log_constants.VALUE13);
-        value_header Header14 = dic.getHeader(ge_log_constants.VALUE14);
-        value_header Header15 =dic.getHeader(ge_log_constants.VALUE15);
-        value_header Header16 =dic.getHeader(ge_log_constants.VALUE16);
-        value_header Header17 = dic.getHeader(ge_log_constants.VALUE17);
-        value_header Header18 = dic.getHeader(ge_log_constants.VALUE18);
-
+        int intReadTime = NOT_FOUND;
         if (DateTimeReading != null) {
             intReadTime = DateTimeReading.found;
         }
+
+        value_header Duration = dic.getHeader(ge_log_constants.DURATION);
+        int intDuration = NOT_FOUND;
         if (Duration!=null) {
             intDuration = Duration.found;    
         }
-        
+
+        value_header Header1 = dic.getHeader(ge_log_constants.VALUE1);
+        int intValue1 = NOT_FOUND;
         if (Header1!=null) {
             intValue1 = Header1.found;
         }
         
+        value_header Header2 = dic.getHeader(ge_log_constants.VALUE2); 
+        int intValue2 = NOT_FOUND;
         if (Header2!=null) {
             intValue2 = Header2.found;
         }
 
+        value_header Header3 = dic.getHeader(ge_log_constants.VALUE3);
+        int intValue3 = NOT_FOUND;
         if (Header3!=null) {
             intValue3 = Header3.found;
         }
 
+        value_header Header4 = dic.getHeader(ge_log_constants.VALUE4);
+        int intValue4 = NOT_FOUND;
         if (Header4!=null) {
             intValue4 = Header4.found;
         }
-        
+
+        value_header Header5 = dic.getHeader(ge_log_constants.VALUE5);
+        int intValue5 = NOT_FOUND;
         if (Header5!=null) {
             intValue5 = Header5.found;
         }
-        
+
+        value_header Header6 = dic.getHeader(ge_log_constants.VALUE6);
+        int intValue6 = NOT_FOUND;
         if (Header6!=null) {
             intValue6 = Header6.found;
         }
 
+        value_header Header7 = dic.getHeader(ge_log_constants.VALUE7);
+        int intValue7 = NOT_FOUND;
         if (Header7!=null) {
             intValue7 = Header7.found;
         }
-        
+
+        value_header Header8 = dic.getHeader(ge_log_constants.VALUE8);
+        int intValue8 = NOT_FOUND;
         if (Header8!=null) {
             intValue8 = Header8.found;
         }
 
+        value_header Header9 = dic.getHeader(ge_log_constants.VALUE9);
+        int intValue9 = NOT_FOUND;
         if (Header9!=null) {
             intValue9 = Header9.found;
         }
-
+        
+        value_header Header10 = dic.getHeader(ge_log_constants.VALUE10);       
+        int intValue10 = NOT_FOUND;
         if (Header10!=null) {
             intValue10 = Header10.found;
         }
-        
+
+        value_header Header11 = dic.getHeader(ge_log_constants.VALUE11);
+        int intValue11= NOT_FOUND;
         if (Header11!=null) {
             intValue11 = Header11.found;
         }
-        
+
+        value_header Header12 = dic.getHeader(ge_log_constants.VALUE12);
+        int intValue12 = NOT_FOUND;
         if (Header12!=null) {
             intValue12 = Header12.found;
         }
-
+        
+        value_header Header13 = dic.getHeader(ge_log_constants.VALUE13);
+        int intValue13 = NOT_FOUND;
         if (Header13!=null) {
             intValue13 = Header13.found;
         }
-        
+
+        value_header Header14 = dic.getHeader(ge_log_constants.VALUE14); 
+        int intValue14 = NOT_FOUND;
         if (Header14!=null) {
             intValue14 = Header14.found;
         }
-
+        
+        value_header Header15 =dic.getHeader(ge_log_constants.VALUE15);
+        int intValue15 = NOT_FOUND;
         if (Header15!=null) {
             intValue15 = Header15.found;
         }
 
+        value_header Header16 =dic.getHeader(ge_log_constants.VALUE16);
+        int intValue16= NOT_FOUND;
         if (Header16!=null) {
             intValue16 = Header16.found;
         }
-        
+
+        value_header Header17 = dic.getHeader(ge_log_constants.VALUE17);
+        int intValue17 = NOT_FOUND;
         if (Header17!=null) {
             intValue17 = Header17.found;
         }
-        
+
+        value_header Header18 = dic.getHeader(ge_log_constants.VALUE18);
+        int intValue18 = NOT_FOUND;
         if (Header18!=null) {
             intValue18 = Header18.found;
         }
+        value_header HeaderRemark = dic.getHeader(ge_log_constants.REMARK);
+        int intRemark = NOT_FOUND;
+        if (HeaderRemark!=null) {
+            intRemark = HeaderRemark.found;
+        }
+
+        value_header log_wdepthM = file.getHeaderByIdUnits(ge_log_constants.WDEPTH,"m");
+        int intCheckValueForDry = NOT_FOUND;
+        if (log_wdepthM!=null) {
+            intCheckValueForDry = log_wdepthM.found;   
+        }
 
         file.readings =  new List<ge_log_reading>();
-
         
         int line_start = find_row(dic.search_items,"data_start",NOT_FOUND);
         
         if (line_start==NOT_FOUND) {
             line_start = find_row(dic.search_items,"header",NOT_FOUND); 
         }
+        
+        if (line_start==NOT_FOUND) {
+            line_start = find_row(dic.search_items,st.header.search_item,NOT_FOUND); 
+        }
+        
         line_start = line_start + 1;   
         
         int line_end = find_row(dic.search_items,"data_end",NOT_FOUND);
@@ -2567,7 +2952,8 @@ private DateTime? getDateTime(string s, string format) {
             line_end = lines.Count();
         }
         
-        int readlines = addReadings(file.readings, 
+
+        int readlines = addReadingsAny(file.readings, 
                                     lines, 
                                     line_start, 
                                     line_end,
@@ -2590,8 +2976,10 @@ private DateTime? getDateTime(string s, string format) {
                                     intValue15,
                                     intValue16,
                                     intValue17,
-                                    intValue18,                                    
-                                    DateTimeReading.format);
+                                    intValue18, 
+                                    intRemark,
+                                    intCheckValueForDry                             
+                                    );
         if (readlines <= 0) {
             return null;
         }
@@ -2665,6 +3053,9 @@ private async Task<int> AddNewFile(ge_log_file file) {
         if (file == null) {
                 return NOT_OK;
         }
+        
+        file.packFieldHeaders();
+        file.packFileHeader();
         
         var _data = await _context.ge_data
                                     .Include(d =>d.project)

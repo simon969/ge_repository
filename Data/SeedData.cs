@@ -35,8 +35,8 @@ namespace ge_repository.Data
                 //  SeedLowerThamesCrossing(context);
 
                 //FixLTC_OtherDatabase(context);
-                // FixUsers (context);
-
+               //  FixUsers (context);
+                var u6 = await EnsureUser(serviceProvider, testUserPw, "connor.caplen@aecom.com","Connor","Caplen","+441412021849");
             }
         }
 
@@ -73,6 +73,8 @@ namespace ge_repository.Data
                 await EnsureRole(serviceProvider, m3, Constants.ge_repositoryManagerRole);
                 
                 var u5 = await EnsureUser(serviceProvider, testUserPw, "charlie.chaplin@aecom.com","Charlie","Chaplin","+44208639356");
+
+                var u6 = await EnsureUser(serviceProvider, testUserPw, "connor.caplen@aecom.com","Connor","Caplen","");
         }
         #endregion
 
@@ -97,6 +99,7 @@ namespace ge_repository.Data
             var userManager = serviceProvider.GetService<UserManager<ge_user>>();
 
             var user = await userManager.FindByNameAsync(email);
+
             if (user == null)
             {
                 user = new ge_user(firstname,lastname,email,phonenumber);
@@ -745,7 +748,9 @@ namespace ge_repository.Data
             var user1 = context.Users.Where(a => a.UserName=="WeiJian.Ng@aecom.com").Single();
             user1.FirstName = "WeiJian";
             user1.LastName = "Ng";
-            context.SaveChanges();   
+            context.SaveChanges(); 
+
+         
         }
         public static void FixLTC_OtherDatabase(ge_DbContext context) {
 
@@ -771,7 +776,7 @@ namespace ge_repository.Data
         public static void SeedLowerThamesCrossing(ge_DbContext context) {
           var manager1 = context.Users.Where(a => a.UserName=="simon.thomson@aecom.com").Single();      
             var user1 = context.Users.Where(a => a.UserName=="WeiJian.Ng@aecom.com").Single();
-            
+           
             var g1 = new ge_group {
                 Id = Guid.NewGuid(),
                 locName= "Lower Thames Crossing Ground Investigation",
@@ -934,6 +939,8 @@ namespace ge_repository.Data
             context.ge_group.Add (g1);
             context.SaveChanges();  
     } 
+
+
   
     }
 

@@ -27,10 +27,29 @@ namespace ge_repository.OtherDatabase  {
        AddOverrides (PROBE_DEPTH_OVERRIDE_M,
                       BHOLE_REF_OVERRIDE);
        AddWaterDepthM();
-         
+       AddDuration();
+       log_file.packFileHeader();
+       log_file.packFieldHeaders();
+       
        return 0;
-    
     }
+
+
+  private int AddDuration() {
+
+    value_header log_Duration= log_file.getDuration();
+
+   if (log_Duration==null) {
+      log_Duration = new value_header {
+                                id = ge_log_constants.DURATION,
+                                units ="s",
+                                comments =$"Calculated test durations (s) from ordered ReadingDateTime)",
+                                source = ge_log_constants.SOURCE_CALCULATED};
+      log_file.addDuration();
+    }
+ 
+    return 0;
+  }
 
 
   private int AddWaterDepthM() {

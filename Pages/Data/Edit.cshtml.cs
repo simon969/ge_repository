@@ -147,18 +147,25 @@ namespace ge_repository.Pages.Data
                 Boolean IsContentText = formFile.IsContentTypeText(true);
                
                 if (IsContentText) { 
-                        Boolean IsContentXML = formFile.IsContentTypeXML();
-                        Encoding encoding = formFile.GetEncoding (Encoding.ASCII);
-                        data.SetEncoding(encoding);  
-                        if (IsContentXML) { 
-                            b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,encoding,true);
-                        } else {
+                    Boolean IsContentXML = formFile.IsContentTypeXML();
+                    if (IsContentXML) { 
+                            b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,Encoding.UTF8,true);
+                            b.data_string = null;
+                            b.data_binary = null;
+                            data.SetEncoding(Encoding.UTF8);
+                    } else {
+                            Encoding encoding = formFile.ReadEncoding (Encoding.UTF8);
+                            b.data_binary = null;
+                            b.data_xml = null;
                             b.data_string = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,encoding, false);
-                        }
-                    }  else {
-                       b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
-                        data.SetEncoding(null);
+                            data.SetEncoding(encoding); 
                     }
+                }  else {
+                    b.data_xml = null;
+                    b.data_string = null;
+                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
+                    data.SetEncoding(null);
+                }
                 
                 if (!ModelState.IsValid) {
                 return Page();

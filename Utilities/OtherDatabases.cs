@@ -241,6 +241,7 @@ public class OtherDbConnections {
             public String Password {get;set;}
             public int TimeOut {get;set;} = 30;
             public int ProjectId {get;set;}
+          
      
     public string AsConnectionString() {
         

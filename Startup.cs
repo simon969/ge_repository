@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -89,6 +91,10 @@ namespace ge_repository
             services.Configure<ags_config>(_config.GetSection("ags_config"));            
             services.Configure<smpt_config>(_config.GetSection("smpt_config"));
             services.Configure<ge_config>(_config.GetSection("ge_config"));
+            services.Configure<FormOptions>(x => {
+                x.ValueLengthLimit = int.MaxValue;
+                x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
+            });
 
             services.AddScoped<IAuthorizationHandler, ge_repositoryIsOwnerAuthorizationHandler>();
             services.AddScoped<IAuthorizationHandler, ge_repositoryAuthorizationHandler>();

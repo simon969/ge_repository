@@ -117,18 +117,6 @@ return await Get (Id,projectId, groupId);
                 return null;
             }
 
-            var user = GetUserAsync().Result;
-            
-            int IsDownloadAllowed = _context.IsOperationAllowed(Constants.DownloadOperationName, _data.project, _data);
-            Boolean CanUserDownload = _context.DoesUserHaveOperation(Constants.DownloadOperationName,_data.project, user.Id);
-            
-            if (IsDownloadAllowed!=geOPSResp.Allowed) {
-                return null;
-            }
-            if (!CanUserDownload) {
-               return null;
-            }
-            
             var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
             
             if (_data_big == null)
@@ -255,7 +243,7 @@ return await Get (Id,projectId, groupId);
     
                     if (IsContentText) { 
                         Boolean IsContentXML = uploadFile.IsContentTypeXML();
-                        Encoding encoding = uploadFile.GetEncoding (Encoding.ASCII);
+                        Encoding encoding = uploadFile.ReadEncoding (Encoding.Unicode);
                         d.SetEncoding(encoding);
                         if (IsContentXML) {   
                            Encoding encoding16 = new UnicodeEncoding();

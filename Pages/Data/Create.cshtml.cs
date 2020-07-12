@@ -155,20 +155,20 @@ namespace ge_repository.Pages.Data
 
                     d.createdId = GetUserIdAsync().Result;    
                     
-                    if (IsContentText) { 
-                        Boolean IsContentXML = formFile.IsContentTypeXML();
-                        Encoding encoding = formFile.GetEncoding (Encoding.ASCII);
-                        d.SetEncoding(encoding);
-                        if (IsContentXML) {   
-                           b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize, encoding, true);
-                        } else {
-                           b.data_string = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize, encoding, false);
-                        }
-                       
-                    }  else {
-                        b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
-                        d.SetEncoding(null); 
+                     if (IsContentText) { 
+                    Boolean IsContentXML = formFile.IsContentTypeXML();
+                    if (IsContentXML) { 
+                            b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,Encoding.UTF8,true);
+                            d.SetEncoding(Encoding.UTF8);
+                    } else {
+                            Encoding encoding = formFile.ReadEncoding (Encoding.UTF8);
+                            b.data_string = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,encoding, false);
+                            d.SetEncoding(encoding); 
                     }
+                }  else {
+                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
+                    d.SetEncoding(null);
+                }
 
                     // Perform a second check to catch ProcessFormFile method
                     // violations.

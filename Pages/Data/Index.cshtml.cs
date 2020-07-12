@@ -13,7 +13,6 @@ using ge_repository.Pages.Shared;
 using ge_repository.Authorization;
 using System.Linq;
 
-
 namespace ge_repository.Pages.Data
 {
     public class IndexModel : _geFullPagedTypedModel<ge_data>

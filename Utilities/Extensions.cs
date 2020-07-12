@@ -162,7 +162,7 @@ namespace  ge_repository.Extensions {
                string ext = System.IO.Path.GetExtension(formFile.FileName);
                return ext.ToLower();
        }
-       public static Encoding GetEncoding(this IFormFile formFile, Encoding defaultEncodingIfNoBom) {
+       public static Encoding PeekEncoding(this IFormFile formFile, Encoding defaultEncodingIfNoBom) {
          
        using (var reader = new StreamReader(formFile.OpenReadStream(), defaultEncodingIfNoBom, true))
             {
@@ -170,7 +170,7 @@ namespace  ge_repository.Extensions {
                 return reader.CurrentEncoding;
             }
         }
-       public static Encoding GetEncoding(this IFormFile formFile)
+       public static Encoding ReadEncoding(this IFormFile formFile, Encoding defaultEncoding)
         {
             // Read the BOM
             var bom = new byte[4];
@@ -185,7 +185,7 @@ namespace  ge_repository.Extensions {
             if (bom[0] == 0xff && bom[1] == 0xfe) return Encoding.Unicode; //UTF-16LE
             if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
             if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return Encoding.UTF32;
-            return Encoding.ASCII;
+            return defaultEncoding;
         }
 /*         public static async Task<string> ProcessFormFileString(this IFormFile formFile, ModelStateDictionary modelState, long MaxFileSize, Encoding encode) { 
             return await ProcessFormFileString(formFile,modelState,MaxFileSize, encode, false);
@@ -1314,6 +1314,7 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
  
             for (int i = 0; i < array.Length; i++) {
                 String s1 = array[i];
+                s1 = encapsulate + s1 + encapsulate;
                  if (!String.IsNullOrEmpty(s1)) { 
                     if (sb.Length>0) {
                     sb.Append (delimeter);
@@ -1321,22 +1322,16 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
                     sb.Append (s1);
                 }
             }
-
-            String s2 = ""; 
-            
             if (sb.Length == 0 && encapsulate == null) {
-                s2 = "null";
+                return "null";
             } 
-            
-            if (sb.Length  >0 && encapsulate.Length > 0) {
-                s2 =  encapsulate + sb.ToString().Substring(0, sb.Length) + encapsulate;
-            }
-            
+                       
             if (sb.Length == 0 && encapsulate.Length > 0) {
-                s2 =  encapsulate + encapsulate;
+                return encapsulate + encapsulate;
             }
             
-            return s2;
+            return sb.ToString();
+
          }
 
     public static string[] purgeArray(this string[] array, string[] delimeters) {
@@ -1431,6 +1426,12 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
     }  
     }
 
+    public static string ToSafeSubString(this string value, int count)
+    {
+         return value != null && value.Length > count ?
+                                                   value.Substring(0, count) : value;
+    }
+    
     public static string RemoveXmlDeclaration(this String xmlString) {
     
         XmlDocument xmlDocument = new XmlDocument();

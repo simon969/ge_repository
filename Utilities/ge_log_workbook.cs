@@ -1,69 +1,235 @@
 using System;
 using System.IO;
 using System.Text;
-using NPOI.HSSF.UserModel;
+using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
-
+using System.Globalization;
 namespace ge_repository.OtherDatabase
 {
 
     public class ge_log_workbook {
-    public HSSFWorkbook hssfworkbook {get;}
-    public ISheet hssfsheet{get;}
-    public ICellRange<ICell> headers {get;}
-    public ICellRange<ICell> data {get;}
+
+        // https://poi.apache.org/components/spreadsheet/quick-guide.html#Iterator
+    public XSSFWorkbook workbook {get;private set;}
+    public ISheet worksheet{get;private set;}
+    public ICellRange<ICell> headers {get;private set;}
+    public ICellRange<ICell> data {get; private set;}
 
     public int current_data_row;
     public int start_data_row;
     public int end_data_row;    
-        
     public ge_log_workbook(FileStream fs) {
-        hssfworkbook = new HSSFWorkbook(fs);
+        workbook = new XSSFWorkbook(fs);
     }
     public ge_log_workbook(MemoryStream ms) {
-        hssfworkbook = new HSSFWorkbook(ms);
+        
+            workbook = new XSSFWorkbook(ms);
+    
+    }
+    public void close() {
+
+        worksheet = null;
+        headers = null;
+        data = null;
+        workbook.Close();
+        workbook = null;
+
     }
     public IRow NextRow() {
         current_data_row++;
         if (current_data_row<=end_data_row) {
-            return hssfsheet.GetRow(current_data_row);
+            return worksheet.GetRow(current_data_row);
         }
         return null;
     }
     public IRow FirstRow() {
         current_data_row = start_data_row;
-        return hssfsheet.GetRow(current_data_row);
+        return worksheet.GetRow(current_data_row);
     }
 
-    public object getValue(int column) {
-        ICell cell = hssfsheet.GetRow(current_data_row).GetCell(column);
+    public string RowCSV(IRow row, int lastColumn) {
+        
+        StringBuilder sb =new StringBuilder();
+
+        for (int i = 0; i < lastColumn; i++) {
+            
+            ICell cell = row.GetCell(i);
+            
+            if (cell == null & i!=0) {
+                sb.Append (",");
+            } else {
+                if (i>0) {
+                  sb.Append (","); 
+                }
+                sb.Append (DataFormatter(cell));
+            }
+        }
+    
+        return sb.ToString();
+    
+    }
+     public string WorksheetCSV(string name) {
+        
+        int MIN_COLUMN_COUNT = 50;
+        worksheet = workbook.GetSheet(name);
+        
+        if (worksheet==null) {
+            return "";
+        }
+        
+        StringBuilder sb =new StringBuilder();
+        
+        int rowStart = Math.Min(15, worksheet.FirstRowNum);
+        int rowEnd = Math.Max(1400, worksheet.LastRowNum);
+        
+        for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) {
+            IRow r = worksheet.GetRow(rowNum);
+            if (r == null) {
+            // This whole row is empty
+            // Handle it as needed
+                continue;
+            }
+
+            int lastColumn = Math.Max(r.LastCellNum, MIN_COLUMN_COUNT);
+            if (rowNum == rowStart) {
+            sb.Append (RowCSV(r, lastColumn));
+            } else {
+            sb.Append(Environment.NewLine + RowCSV(r,lastColumn));
+            }
+        }
+
+        return sb.ToString();
+
+    }
+
+    public object getValue(int row, int column) {
+        ICell cell = worksheet.GetRow(row).GetCell(column);
         return getCellValue(cell);
     }
 
-    public ISheet findWorksheetName (string name) {
-        return hssfworkbook.GetSheet (name);
+    public ISheet setWorksheet (string name) {
+        worksheet = workbook.GetSheet (name);
+        return worksheet;
     }
+    
+    public int matchReturnColumn(string find_string, int row_start, int row_offset) {
 
-    public ICell findCellValue(ICellRange<ICell> range, string value) {
-        
-        foreach (ICell cell in range) {
-            if (cell.StringCellValue ==  value) {
-                return cell;
+        for (int row = row_start; row <= row_start + row_offset; row++) {
+            ICell cell = findCellContainsValue(find_string, row); 
+            if (cell!=null) {
+                return cell.ColumnIndex;
             }
         }
-     
-        return null;
+
+        return -1;
     }
 
-   private object getCellValue(ICell cell)
-{
+    public int matchReturnRow(string find_string) {
+
+        ICell cell = findCellContainsValue(find_string); 
+        
+        if (cell!=null) {
+           return cell.RowIndex;
+        }
+
+        return -1;
+
+    }
+   
+    public int matchReturnColumn(string find_string) {
+
+        ICell cell = findCellContainsValue(find_string); 
+        
+        if (cell!=null) {
+           return cell.ColumnIndex;
+        }
+
+        return -1;
+
+    }
+        public string ExcelDateFormatter(string DateTimeFORMAT, ICell cell) {
+        DateTime cell_DT = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddDays(cell.NumericCellValue);
+        return string.Format(DateTimeFORMAT, cell_DT);
+        }
+       public string DataFormatter(ICell cell) {
+            IFormulaEvaluator evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
+            DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
+            string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
+
+            if (cell!=null) {
+                if (cell.CellType==CellType.Numeric) {
+                    if (DateUtil.IsCellDateFormatted(cell)) {
+                        try {
+                            return String.Format(DateTimeFORMAT, cell.DateCellValue);
+                        } catch {
+                            return ExcelDateFormatter(DateTimeFORMAT, cell);
+                        }
+                    }
+                }
+                try {
+                    return formatter.FormatCellValue(cell,evaluator);
+                } catch {
+
+                }
+            }
+
+            return "";
+
+    }
+    public string matchReturnValue(string find_string, int ret_offset_col, int ret_offset_row) {
+       
+        ICell cell = findCellContainsValue(find_string); 
+        
+        if (cell!=null) {
+            ICell val_cell = worksheet.GetRow(cell.RowIndex + ret_offset_row).GetCell(cell.ColumnIndex + ret_offset_col);
+            if (val_cell!=null) {
+              return DataFormatter(val_cell);
+            }
+        }
+
+        return "";
+    }
+    public ICell findCellContainsValue(string value) {
+        
+        foreach (IRow row in worksheet) {
+            foreach (ICell cell in row) {
+                string s1 = DataFormatter(cell);
+                  if (s1.Contains(value)) {
+                  return cell;
+                }
+            }
+        }
+
+        return null;
+    }
+    public ICell findCellContainsValue(string value, int row_index) {
+        
+        IRow row  = worksheet.GetRow(row_index);
+        
+        if (row!=null) { 
+            foreach (ICell cell in row) {
+                string s1 = DataFormatter(cell);
+                if (s1.Contains(value)) {
+                    return cell;
+                }
+            }
+        }
+
+        return null;
+    }
+   private object getCellValue(ICell cell) {
+    
     object cValue = string.Empty;
+
     switch (cell.CellType)
     {
         case (CellType.Unknown | CellType.Formula | CellType.Blank):
             cValue = cell.ToString();
             break;
         case CellType.Numeric:
+            if (DateUtil.IsCellDateFormatted(cell)) {
+                return cell.DateCellValue;
+            }
             cValue = cell.NumericCellValue;
             break;
         case CellType.String:
@@ -82,57 +248,39 @@ namespace ge_repository.OtherDatabase
     return cValue;
 }
 
-public string [] getTable(string name) {
-
-    StringBuilder sb = new StringBuilder();
-
-
-
-
-
-
-
-    string[] lines = sb.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-    return lines;
-
+    private string DataFormatter2(ICell cell) {
+    string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
+    
+    switch (cell.CellType)
+    {
+        case (CellType.Unknown | CellType.Formula | CellType.Blank):
+            return cell.ToString();
+        case CellType.Numeric:
+            if (DateUtil.IsCellDateFormatted(cell)) {
+                return String.Format(DateTimeFORMAT, cell.DateCellValue);
+            }
+            return  Convert.ToString(cell.NumericCellValue);
+        case CellType.String:
+            return cell.StringCellValue;
+        case CellType.Boolean:
+            return Convert.ToString(cell.BooleanCellValue);
+        case CellType.Error:
+            return Convert.ToString(cell.ErrorCellValue);
+        default:
+            return string.Empty;
+    }
 }
 
-    // class Program
-    // {
-    //     static HSSFWorkbook hssfworkbook;
+public string [] getTable(string name) {
 
-    //     static void Main(string[] args)
-    //     {
-    //         InitializeWorkbook();
+    string tableCSV = WorksheetCSV(name);
+  
+    string[] lines = tableCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+  
+    return lines;
+}
 
-    //         ISheet s = hssfworkbook.GetSheetAt(0);
-
-    //         ICell cell = s.GetRow(4).GetCell(1);
-    //         cell.CopyCellTo(3); //copy B5 to D5
-
-    //         IRow c = s.GetRow(3);
-    //         c.CopyCell(0, 1);   //copy A4 to B4
-
-    //         s.CopyRow(0, 1);     //copy row A to row B, original row B will be moved to row C automatically
-    //         WriteToFile();
-    //     }
-
-    //     static void WriteToFile()
-    //     {
-    //         //Write the stream data of workbook to the root directory
-    //         FileStream file = new FileStream(@"test.xls", FileMode.Create);
-    //         hssfworkbook.Write(file);
-    //         file.Close();
-    //     }
-
-    //     static void InitializeWorkbook()
-    //     {
-    //         using (var fs = File.OpenRead(@"Data\test.xls"))
-    //         {
-    //             hssfworkbook = new HSSFWorkbook(fs);
-    //         }
-    //     }
-    // }
+    
 } 
 
 

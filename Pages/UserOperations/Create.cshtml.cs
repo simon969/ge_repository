@@ -97,6 +97,7 @@ namespace ge_repository.Pages.UserOperations
                 return Page();
             }
            
+            
             if (user_ops.groupId!=null) {
                     var group =  _context.ge_group                                        
                                         .Where(o=>o.Id==user_ops.groupId).FirstOrDefault();

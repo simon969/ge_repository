@@ -1,4 +1,4 @@
-@page
+@page 
 @model ge_repository.Pages.Data.IndexModel
 
 @if (@Model.project!=null) {
@@ -40,6 +40,8 @@ ViewData["Title"] = "Data Index";
                 @Html.DisplayNameFor(model => model.items[0].filename)
             </th>
             <th>
+              
+
                 @Html.DisplayNameFor(model => model.items[0].description)
             </th>
             <th>
@@ -56,16 +58,15 @@ ViewData["Title"] = "Data Index";
         </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.items) {
-        <tr>
-           
+    @foreach (var item in Model.items) { 
+            <tr>
             <td title="filesize: @item.filesize last edited: @item.editedDT">
               <a asp-controller="ge_data" asp-action="View" asp-route-id=@item.Id>
                  @Html.DisplayFor(modelItem => item.filename)   
               </a>   
             </td>
             <td class="text-center">
-                @Html.DisplayFor(modelItem => item.description)
+                @Html.DisplayFor(modelItem =>item.description)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.filedate)

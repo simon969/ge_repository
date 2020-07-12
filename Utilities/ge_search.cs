@@ -130,7 +130,31 @@
             length = Length;
          }
       
-        
+         public string any_value_string() {
+            string ret;
+             
+            ret = value_string();
+             
+            if (ret!="") {
+                return ret;
+            }
+
+            ret = value;
+            
+            if (ret!="") {
+                return ret;
+            }
+            
+            ret = value2;
+            
+            if (ret!="") {
+                return ret;
+            }
+
+            return "";
+
+         }
+
          public string value_string() {
             try {
 
@@ -190,12 +214,14 @@
 
         public class search_table {
             public string name {get;set;}
+            public string id {get;set;}
             public search_range header {get;set;}
             public search_range data_start {get;set;}
             public search_range data_end {get;set;}
             public List<value_header> headers {get;set;}
             public List<search_item> options {get;set;}
             public string action {get;set;}
+
         }
 
         public class search_range {

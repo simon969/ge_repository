@@ -77,6 +77,8 @@ namespace ge_repository.OtherDatabase  {
         public static string VALUE16 = "Value16";
         public static string VALUE17 = "Value17";
         public static string VALUE18 = "Value18";
+        public static string REMARK = "Remark";
+
         public static int NOT_FOUND = -1;
         public static int OK = 0;
 
@@ -89,15 +91,15 @@ namespace ge_repository.OtherDatabase  {
         [Display(Name = "Log File Id")] public Guid fileId {get;set;}
         virtual public ge_log_file file {set;get;}
         [Display(Name = "Reading DateTime")] public DateTime ReadingDatetime {get;set;} 
-        [Display(Name = "Reading Duration")] public long Duration {get;set;} 
-        [Display(Name = "Value1")] public float Value1 {get;set;} 
+        [Display(Name = "Reading Duration")] public long? Duration {get;set;} 
+        [Display(Name = "Value1")] public float? Value1 {get;set;} 
         [Display(Name = "Value2")] public float? Value2 {get;set;} 
         [Display(Name = "Value3")] public float? Value3 {get;set;} 
         [Display(Name = "Value4")] public float? Value4 {get;set;}   
         [Display (Name = "Value5")] public float? Value5 {get;set;}
         [Display (Name = "Value6")] public float? Value6 {get;set;}
         [Display (Name = "Value7")] public float? Value7 {get;set;}
-        [Display(Name = "Value8")] public float Value8 {get;set;} 
+        [Display(Name = "Value8")] public float? Value8 {get;set;} 
         [Display(Name = "Value9")] public float? Value9 {get;set;} 
         [Display(Name = "Value10")] public float? Value10 {get;set;} 
         [Display(Name = "Value11")] public float? Value11 {get;set;}   
@@ -129,7 +131,7 @@ namespace ge_repository.OtherDatabase  {
                         case "Value10": return Value10;
                         case "Value11": return Value11;
                         case "Value12": return Value12;
-                        case "Value13": return Value15;
+                        case "Value13": return Value13;
                         case "Value14": return Value14;
                         case "Value15": return Value15;
                         case "Value16": return Value16;
@@ -860,6 +862,20 @@ namespace ge_repository.OtherDatabase  {
                 }
             }
         }
+        public void addDuration () {
+
+            List<ge_log_reading> ordered = readings.OrderBy(e=>e.ReadingDatetime).ToList();
+            
+            ge_log_reading reading_start = ordered[0];
+            
+            reading_start.Duration = 0;
+
+            for (int i=1;i<ordered.Count;i++) {
+                ge_log_reading reading = ordered[i];
+                reading.Duration = (long) (reading.ReadingDatetime - reading_start.ReadingDatetime).TotalSeconds;
+            } 
+        }
+
         public float getDryDepth(float NullReturn = -1) {
             search_item si = file_headers.Find(e=>e.name.Contains("dry_depth"));
             
@@ -1051,18 +1067,23 @@ namespace ge_repository.OtherDatabase  {
 
         public string getDeviceName() {
         string ret = "";
-
+        
         search_item device =  file_headers.Find(h=>h.name == "device" || h.name == "InstrumentType");
         search_item serial =  file_headers.Find(h=>h.name == "serial_number" || h.name == "SerialNumber");
         
         if (device != null) {
-            ret = device.value_string().Trim() + " ";
+            ret = device.any_value_string().Trim() + " ";
+           
         }
         
         if (serial != null) {
-            ret = ret + serial.value_string().Trim() + " ";
+            if (ret!="") {
+                ret += " ";
+            }
+            ret += serial.any_value_string().Trim();
         }
         
+
         if (ret=="") {
             int colChannel = getChannelColId ("CalibrationFactors");
             string ch_device =  getArrayString("Model",colChannel);
@@ -1071,6 +1092,7 @@ namespace ge_repository.OtherDatabase  {
         }
 
         return ret;
+
         }
         public void tempFixHeaders() {
 
