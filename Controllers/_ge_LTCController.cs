@@ -119,10 +119,16 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
      List<MOND> deleteMOND = new List<MOND>();
      
      foreach (MOND existM in existingMOND) {
+        // var newM = newMOND.Where(m=>m.PointID == existM.PointID &&
+        //                         m.MONG_DIS == existM.MONG_DIS &&
+        //                         m.DateTime == existM.DateTime &&
+        //                         m.MOND_TYPE == existM.MOND_TYPE ).FirstOrDefault(); 
         var newM = newMOND.Where(m=>m.PointID == existM.PointID &&
                                 m.MONG_DIS == existM.MONG_DIS &&
                                 m.DateTime == existM.DateTime &&
-                                m.MOND_TYPE == existM.MOND_TYPE).FirstOrDefault();
+                                m.MOND_TYPE == existM.MOND_TYPE &&
+                                m.ge_source == existM.ge_source &&
+                                m.ge_otherid == existM.ge_otherid).FirstOrDefault();
         if (newM==null) {
             deleteMOND.Add (existM);
         }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Serialization;
 
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -55,7 +56,10 @@ namespace ge_repository.Controllers
 		public static string constHref_Logger = "/ge_log";
 		public static string constHref_gINT = "/ge_gINT";
 		public static string constHref_LTC = "/ge_LTC";
-		public static string xmlGetData_Endpoint = "ge_gis/xmlGet";
+		public static string ge_gis_xmlGet_Endpoint = "ge_gis/xmlGet";
+		public static string ge_data_xmlGetData_Endpoint ="ge_data/xmlGetData";
+		public static string ge_data_xmlGetProjects_Endpoint ="ge_data/xmlGetProjects";
+
     public ge_transformController(
 
             ge_DbContext context,
@@ -220,29 +224,79 @@ namespace ge_repository.Controllers
 		}
 		public async Task<string> getServiceEndPointData(string url, ge_transform_parameters transform_params)
         {
-            if (url== xmlGetData_Endpoint) {
-			
-			Guid? Id = null;
+            Guid? Id = null;
 			Guid? projectId = null;
 			Guid? groupId = null;
 
 			if (transform_params.Id!=null) {Id = new Guid(transform_params.Id);}
 			if (transform_params.projectId!=null) {projectId = new Guid(transform_params.projectId);}
 			if (transform_params.groupId!=null) {groupId = new Guid(transform_params.groupId);}
-
-			var res  = await new ge_gisController(  _context,
+			
+			
+			if (url== ge_gis_xmlGet_Endpoint) {
+				var res  = await new ge_gisController(  _context,
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
                                                         _ge_config).xmlGet(projectId); 
 
-			if (res==null) {
-				return "";
-			}
-			return res;
-			 
+				if (res==null) {
+					return "";
+				}
+				
+				return res;
 			}
 			
+			if (url== ge_data_xmlGetData_Endpoint) {
+				var res  = await new ge_dataController(  _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config).xmlGetData(Id,projectId,groupId); 
+
+				if (res==null) {
+					return "";
+				}
+			
+				var serializer = new XmlSerializer(typeof(List<ge_data>),
+                                   new XmlRootAttribute("ge_root"));
+				using(var stream = new StringWriter()) {
+    				serializer.Serialize(stream, res);
+    					return stream.ToString();
+				}
+			
+			}
+			if (url== ge_data_xmlGetProjects_Endpoint) {
+				var res  = await new ge_dataController(  _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config).xmlGetProjects(groupId); 
+
+				if (res==null) {
+					return "";
+				}
+				
+
+				var serializer = new XmlSerializer(typeof(List<ge_project>),
+                                   new XmlRootAttribute("ge_root"));
+				
+				//to prevent circular reference in xml serialisation;
+				foreach (ge_project p in res) {
+					p.transform = null;
+				}
+				using(var stream = new StringWriter()) {
+    				serializer.Serialize(stream, res);
+    					return stream.ToString();
+				}
+			
+			}
+
+
+
+
+
+
 			HttpClient _httpClient = new HttpClient();
             var response = await _httpClient.PostAsync(url, null);
             var result =

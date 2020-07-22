@@ -58,75 +58,76 @@ namespace ge_repository.Controllers
         {
            
         }
-    private ge_search findSearchTerms (ge_search dic, string name, ge_log_workbook wb) {
+    private ge_search findSearchTerms (ge_search dic, string table, ge_log_workbook wb, string sheet) {
     
         ge_search new_dic = new ge_search();
 
         new_dic.name = "logger header created:" + DateTime.Now;
        
-        foreach (search_table st in dic.search_tables.Where(e=>e.name==name)) {
+        try {
+            if (sheet!="") {
+                wb.setWorksheet(sheet);
+            } 
 
-                        wb.setWorksheet(st.id);
-                        
-                        if (wb.worksheet==null) {
-                        continue;
-                        }
-        
+            if (sheet=="" && wb.setOnlyWorksheet()==false) {
+                new_dic.status ="Unable to determine which worksheet to get data from";
+                return new_dic;
+            }
+
             foreach  (search_item si in dic.search_items) {
-                si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset);
-                // ge_log_workbook is zero based array of worksheet so will match string[] 
-                si.row = wb.matchReturnRow(si.search_text);
-                new_dic.search_items.Add (si);
+                    si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset);
+                    // ge_log_workbook is zero based array of worksheet so will match string[] 
+                    si.row = wb.matchReturnRow(si.search_text);
+                    new_dic.search_items.Add (si);
             }
+                    
+            foreach (search_table st in dic.search_tables.Where(e=>e.name.Contains(table))) {
+
+                Boolean colNotFound = false;
+                
+                search_range sh = st.header;
+                
+                int header_row = 0;
+                int header_offset = 0;
+                search_item si2 = null;
+                colNotFound = false;
+                
+                if (!String.IsNullOrEmpty(sh.search_item)) {
+                    si2 =  new_dic.search_items.Find(e=>e.name==sh.search_item);
+                    // ge_log_workbook is zero based array of worksheet so will match[]
+                    header_row = si2.row ;
+                    header_offset = si2.row_offset;
+
+                }
+                foreach (value_header vh in st.headers) { 
         
-            Boolean colNotFound=false;
-            
-            search_range sh = st.header;
-            
-            int header_row = 0;
-            int header_offset = 0;
-            search_item si2 = null;
-            colNotFound = false;
-            
-            if (!String.IsNullOrEmpty(sh.search_item)) {
-                si2 =  new_dic.search_items.Find(e=>e.name==sh.search_item);
-                // ge_log_workbook is zero based array of worksheet so will match[]
-                header_row = si2.row ;
-                header_offset = si2.row_offset;
+                            int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
+                            
+                            if (i == NOT_FOUND) {
+                                new_dic.status = $"column search text [{vh.search_text}] of table [{table}] not found";
+                                colNotFound=true;
+                                break;
+                            } else {
+                                // ge_log_workbook is zero based array of worksheet so 
+                                // add 1 so column is correctly located in the csv file
+                                vh.found = i + vh.col_offset;
+                                vh.source = ge_log_constants.SOURCE_ACTUAL;
+                            }
+                }
 
-            }
-
-            foreach (value_header vh in st.headers) { 
-     
-                        int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
-                        
-                        if (i == NOT_FOUND) {
-                            new_dic.status = $"column search text [{vh.search_text}] of table [{name}] not found";
-                            colNotFound=true;
-                            break;
-                        } else {
-                            // ge_log_workbook is zero based array of worksheet so 
-                            // add 1 so column is correctly located in the csv file
-                            vh.found = i + vh.col_offset;
-                            vh.source = ge_log_constants.SOURCE_ACTUAL;
-                        }
-            }
-
-            if (colNotFound==false) {
-                if (name == null | name == "" | name == st.name) {
-                    new_dic.search_tables.Add (st);
-                    new_dic.setFoundTableValues (st);
-                    new_dic.status =$"all columns of table {name} found";
-
-                    break; 
+                if (colNotFound==false) {
+                        st.name = table;
+                        st.id = table;
+                        new_dic.search_tables.Add (st);
+                        new_dic.setFoundTableValues (st);
+                        new_dic.status =$"all columns of table {table} found";
+                        break; 
                 }
             }
-
+        } catch (Exception e) {
+        new_dic.status = e.Message;
         }
-        
-       
-        
-        
+
         return new_dic;
     }
 
@@ -209,25 +210,29 @@ namespace ge_repository.Controllers
         
         return new_dic;
     }
-private async Task<ge_log_file> ReadFile(Guid Id,
+private async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,
-                                          string table = "") {
+                                          string table = "",
+                                          string sheet = "") {
             
             var template = await new ge_dataController(  _context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config).getDataAsClass<ge_search>(templateId);
-            
+            if (template==null) {
+            return BadRequest ($"Unable to load templateId {templateId} as a ge_search object");
+            }   
+
             var file = await new ge_dataController( _context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config).Get(Id);
 
-            if (template==null || file==null) {
-                return null;
-            }            
+            if (file==null) {
+            return BadRequest ($"Unable to load ge_logger file Id {Id}");
+            }
 
             string[] lines = null;
             ge_search template_loaded = null;
@@ -240,7 +245,7 @@ private async Task<ge_log_file> ReadFile(Guid Id,
                                                     _ge_config).getDataByLines(Id);
                 template_loaded = findSearchTerms(template,table, lines);
                 if (template_loaded.search_tables.Count==0) {
-                    return null; //     return Json (dic_loaded);
+                    return BadRequest(template_loaded);
                 }
             }
 
@@ -251,11 +256,11 @@ private async Task<ge_log_file> ReadFile(Guid Id,
                                                 _env ,
                                                 _ge_config).GetMemoryStream(Id)) {
                     ge_log_workbook wb = new ge_log_workbook(ms);  
-                    template_loaded  =  findSearchTerms (template, table, wb);
+                    template_loaded  =  findSearchTerms (template, table, wb, sheet);
                     if (template_loaded.search_tables.Count==0) {
-                        return null; //     return Json (dic_loaded);
+                        return BadRequest(template_loaded);
                     }
-                    lines = wb.getTable(template_loaded.search_tables[0].id);
+                    lines = wb.WorksheetToTable();
                     wb.close();
 
                 }
@@ -264,15 +269,16 @@ private async Task<ge_log_file> ReadFile(Guid Id,
             ge_file = getNewLoggerFile (template_loaded, lines);
 
             if (ge_file==null) {
-            //    dic_loaded.status = $"Unable to process logger file {_data.filename} please check the search template for correctly finding the required fields";
-            //    return Json (dic_loaded);
-            return null;
+                template_loaded.status = $"Unable to process logger file {file.filename} please check the ge_search template for finding the required header fields";
+                return BadRequest(template_loaded);
             }
 
             ge_file.readingAggregates = getAggregates(ge_file);
             ge_file.dataId = Id;
             ge_file.templateId = templateId;
-            return ge_file;
+
+            return Ok(ge_file);
+
 }
 [HttpPost]
 public async Task<IActionResult>  setFileHeaderValue (Guid Id, 
@@ -306,12 +312,13 @@ public async Task<IActionResult>  setFileHeaderValue (Guid Id,
                                           string format = "view", 
                                           Boolean save = false
                                             ) {
-            return await ReadFile(Id,templateId, table,format, save);                                
+            return await ReadFile(Id, templateId, table, "", format, save);                                
 }
 
 public async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,
                                           string table = "",
+                                          string sheet = "",
                                           string format = "view", 
                                           Boolean save = false
                                             ) {
@@ -370,9 +377,25 @@ public async Task<IActionResult> ReadFile(Guid Id,
             return RedirectToPageMessage (msgCODE.DATA_CREATE_USER_PROHIBITED);
             }
           
-           
-            var ge_file = await ReadFile(Id, templateId, table);
+            ge_log_file log_file = null;
+            ge_log_file exist_file = null;
 
+            var read_resp = await ReadFile(Id, templateId, table, "");
+            
+            var okResult = read_resp as OkObjectResult;   
+            
+            if (okResult == null) { 
+                return Json(read_resp);
+            } 
+
+            if (okResult.StatusCode!=200) {
+                return Json(read_resp);
+            }
+           
+            if (okResult.StatusCode == 200) {
+                return Json(read_resp);
+            }
+            
             if (ge_file==null){
                 return Json($"Unable to locate table ({table}) from template file ({_template.filename}) in data file ({_data.filename})");
             }
@@ -410,8 +433,13 @@ public async Task<IActionResult> ReadFile(Guid Id,
                     }
                   
             //      return Ok();
-
+            
+            if (format=="view") {
             return View("ReadData", ge_file);
+            }
+
+            return Ok(ge_file);
+
  }
 
 [HttpPost]
@@ -423,84 +451,38 @@ public async Task<IActionResult> ReadFile(Guid Id,
                                           string format = "view", 
                                           Boolean save = false
                                             )  {
-     return await ReadFileWith(Id,templateId, table, bh_ref,probe_depth,format,save);
+     return await ReadFileWith(Id,templateId, table, null, bh_ref,probe_depth,format,save);
  }
 
- public async Task<IActionResult> ReadFileWith(Guid Id,
+ private async Task<IActionResult> ReadFileWith(Guid Id,
                                           Guid templateId,
                                           string table,
+                                          string sheet,
                                           string bh_ref,
                                           float? probe_depth,
                                           string format = "view", 
                                           Boolean save = false
                                             ) {
 
-            if (Id == Guid.Empty) {
-                return NotFound();
-            }
+            ge_log_file log_file = null;
+
+            var read_resp = await ReadFile(Id, templateId, table, sheet);
+                
+            var okResult = read_resp as OkObjectResult;   
             
-            if (templateId == Guid.Empty) {
-                return NotFound();
+            if (okResult == null) {
+                    return (read_resp);
             }
 
+            if (okResult.StatusCode != 200) {
+                    return (read_resp);
+            }
+
+            if (okResult.StatusCode == 200) {
+                    log_file = okResult.Value as ge_log_file;
+            }
            
-            var _data = await _context.ge_data
-                                    .Include(d =>d.project)
-                                    .SingleOrDefaultAsync(m => m.Id == Id);
-            if (_data == null)
-            {
-                return NotFound();
-            }
-            var _template = await _context.ge_data
-                                    .Include(d =>d.project)
-                                    .SingleOrDefaultAsync(m => m.Id == templateId);
-            
-            if (_template == null)
-            {
-                return NotFound();
-            }
-
-            var empty_data = new ge_data();
-            
-            var user = GetUserAsync();
-            
-            if (user==null) {
-              return RedirectToPageMessage (msgCODE.USER_NOTFOUND);
-            } 
-
-            int IsDownloadAllowed = _context.IsOperationAllowed(Constants.DownloadOperationName, _data.project, _data);
-            Boolean CanUserDownload = _context.DoesUserHaveOperation(Constants.DownloadOperationName,_data.project, user.Result.Id);
-            
-            int IsCreateAllowed = _context.IsOperationAllowed(Constants.CreateOperationName, _data.project, empty_data);
-            Boolean CanUserCreate = _context.DoesUserHaveOperation(Constants.CreateOperationName,_data.project, user.Result.Id);
-
-            if (IsDownloadAllowed!=geOPSResp.Allowed) {
-                return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_PROHIBITED);
-            }
-            
-            if (!CanUserDownload) {
-            return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_USER_PROHIBITED);
-            }
-
-            if (IsCreateAllowed!=geOPSResp.Allowed) {
-                return RedirectToPageMessage (msgCODE.DATA_CREATE_PROHIBITED);
-            }
-            if (!CanUserCreate) {
-            return RedirectToPageMessage (msgCODE.DATA_CREATE_USER_PROHIBITED);
-            }
-          
            
-            var ge_file = await ReadFile(Id, templateId, table);
-
-            if (ge_file==null){
-                return Json($"Unable to locate table ({table}) from template file ({_template.filename}) in data file ({_data.filename})");
-            }
-
-            if (ge_file.channel!=table) {
-                table = ge_file.channel;
-            }
-
-
            ge_log_helper gf = new ge_log_helper();
 
            gf.log_file = ge_file;
@@ -614,18 +596,31 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             }
 
             if (templateId!=null) {
-            log_file = await ReadFile (Id, templateId.Value, table);
-            } else {
-            log_file = exist_log_file;
+                var read_resp = await ReadFile (Id, templateId.Value, table,"");
+                var okResult = read_resp as OkObjectResult;   
+    
+                if (okResult == null) { 
+                    return Json(read_resp);
+                }
+
+                if (okResult.StatusCode!=200) {
+                    return Json(read_resp);
+                }
+                
+                if (okResult.StatusCode ==200) {
+                   log_file = okResult.Value as ge_log_file;
+                }
+            
+            }
+            
+            if (log_file==null && exist_log_file!=null) {
+            log_file = exist_log_file; 
+            log_file.Id = exist_log_file.Id;
             }
             
             if (log_file==null) {
                 return Json($"The data file: {_data.filename} table: {table}) cannot be read with templateId provided");
-            } else {
-              if (exist_log_file !=null) {
-                 log_file.Id = exist_log_file.Id; 
-              }
-            }
+            } 
                         
             log_file.data = _data;
 
@@ -1191,13 +1186,14 @@ public async Task<IActionResult> ProcessWQ( Guid Id, Guid? templateId, string bh
 public async Task<IActionResult> ProcessFile( Guid Id, 
                                               Guid templateId, 
                                               string table, 
+                                              string sheet,
                                               string bh_ref, 
                                               float probe_depth, 
                                               string round_ref, 
                                               string format = "view", 
                                               Boolean save = false ) { 
    
-    var calc_resp = await ReadFileWith (Id,templateId,table, bh_ref, probe_depth, "", true);
+    var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", true);
     
     var okResult = calc_resp as OkObjectResult;   
     
@@ -1314,9 +1310,26 @@ public async Task<IActionResult> Calculate2(Guid Id,
             }
 
             if (templateId!=null) {
-            log_file = await ReadFile (Id, templateId.Value, table);
-            } else {
-            log_file = exist_log_file;
+                var read_resp = await ReadFile (Id, templateId.Value, table,"");
+                var okResult = read_resp as OkObjectResult;   
+    
+                if (okResult == null) { 
+                    return Json(read_resp);
+                }
+
+                if (okResult.StatusCode!=200) {
+                    return Json(read_resp);
+                }
+                
+                if (okResult.StatusCode ==200) {
+                   log_file = okResult.Value as ge_log_file;
+                }
+            
+            }
+            
+            if (log_file==null && exist_log_file!=null) {
+            log_file = exist_log_file; 
+            log_file.Id = exist_log_file.Id;
             }
             
             if (log_file==null) {
@@ -1461,9 +1474,26 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             }
 
             if (templateId!=null) {
-            log_file = await ReadFile (Id, templateId.Value, table);
-            } else {
-            log_file = exist_log_file;
+                var read_resp = await ReadFile (Id, templateId.Value, table,"");
+                var okResult = read_resp as OkObjectResult;   
+    
+                if (okResult == null) { 
+                    return Json(read_resp);
+                }
+
+                if (okResult.StatusCode!=200) {
+                    return Json(read_resp);
+                }
+                
+                if (okResult.StatusCode ==200) {
+                   log_file = okResult.Value as ge_log_file;
+                }
+            
+            }
+            
+            if (log_file==null && exist_log_file!=null) {
+            log_file = exist_log_file; 
+            log_file.Id = exist_log_file.Id;
             }
             
             if (log_file==null) {
@@ -1569,10 +1599,27 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             return Json($"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file");
             }
 
-            if (templateId!=null) {
-            log_file = await ReadFile (Id, templateId.Value, table);
-            } else {
-            log_file = exist_log_file;
+           if (templateId!=null) {
+                var read_resp = await ReadFile (Id, templateId.Value, table,"");
+                var okResult = read_resp as OkObjectResult;   
+    
+                if (okResult == null) { 
+                    return Json(read_resp);
+                }
+
+                if (okResult.StatusCode!=200) {
+                    return Json(read_resp);
+                }
+                
+                if (okResult.StatusCode ==200) {
+                   log_file = okResult.Value as ge_log_file;
+                }
+            
+            }
+            
+            if (log_file==null && exist_log_file!=null) {
+            log_file = exist_log_file; 
+            log_file.Id = exist_log_file.Id;
             }
             
             if (log_file==null) {
@@ -2934,25 +2981,29 @@ private DateTime? getDateTime(string s, string format) {
         
         int line_start = find_row(dic.search_items,"data_start",NOT_FOUND);
         
+        if (line_start != NOT_FOUND) {
+            search_item si = dic.search_items.Find(e=>e.name=="data_start");
+            line_start = si.row + si.row_offset;
+      
+        }
+       
+        
         if (line_start==NOT_FOUND) {
             line_start = find_row(dic.search_items,"header",NOT_FOUND); 
+            line_start = line_start + 1;
         }
         
         if (line_start==NOT_FOUND) {
             line_start = find_row(dic.search_items,st.header.search_item,NOT_FOUND); 
+            line_start = line_start + 1;   
         }
-        
-        line_start = line_start + 1;   
-        
+
         int line_end = find_row(dic.search_items,"data_end",NOT_FOUND);
 
-        if (line_end!=NOT_FOUND) {
-            line_end= line_end - 1;
-        } else {
-            line_end = lines.Count();
+        if (line_end == NOT_FOUND) {
+          line_end = lines.Count();
         }
         
-
         int readlines = addReadingsAny(file.readings, 
                                     lines, 
                                     line_start, 
@@ -2996,7 +3047,9 @@ private DateTime? getDateTime(string s, string format) {
     if (si==null) {
         return retIfNotFound;
     }
+    
     return si.row;
+
  }
 
 private async Task<int> DeleteFile(Guid dataId, string channel = "") {

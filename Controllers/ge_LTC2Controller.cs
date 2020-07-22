@@ -255,6 +255,23 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
 
  }
 
+private string IfOther(string s1, string other) {
+    
+    if (s1==null && other==null) {
+        return "";
+    }
+    
+    if (s1==null && other!=null) {
+        return other.Replace ("_"," ");
+    }
+    
+    if (s1!="Other") {
+        return s1.Replace("_"," ");
+    } 
+
+    return other.Replace("_"," ");
+    
+}
  
 private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data, 
                                          List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat,  
@@ -323,7 +340,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
 
             DateTime survey_startDT = gINTDateTime(survey.date1_getDT()).Value;
             DateTime survey_endDT = gINTDateTime(survey.time2_getDT()).Value;
-
+            
             MONV mv = NewMONV(pt,survey);
                
                 mv.MONV_STAR =  survey_startDT;
@@ -343,23 +360,16 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 mv.MONV_TEMP = survey.temp;
                 mv.MONV_WIND = survey.wind;
                 
-                if (survey.dip_instr!=null) {
                 mv.DIP_SRLN = survey.dip_instr;
-                mv.DIP_CLBD = null; // gINTDateTime(survey..dip_cali_d_getDT());
-                }          
+                mv.DIP_CLBD = null;
                 
-              //  if (survey.interface_instr !=null) {
-              //  mv.DIP_SRLN = survey.interface_instr;
-              //  mv.DIP_CLBD = gINTDateTime(survey.interface_cali_d_getDT());
-              //  }
-
-                mv.FLO_SRLN = survey.purg_meter;
+                mv.FLO_SRLN = IfOther(survey.purg_meter, survey.purg_meter_other);
                 mv.FLO_CLBD = gINTDateTime(survey.purg_meter_cali_d_getDT());
                 
-                mv.GAS_SRLN = survey.gas_instr;
+                mv.GAS_SRLN = IfOther(survey.gas_instr, survey.gas_instr_other);
                 mv.GAS_CLBD = gINTDateTime(survey.gas_cali_d_getDT());
                 
-                mv.PID_SRLN = survey.PID_instr;
+                mv.PID_SRLN = IfOther(survey.PID_instr, survey.PID_instr_other);
                 mv.PID_CLBD = gINTDateTime(survey.PID_cali_d_getDT());
                 
                 mv.RND_REF = survey.mon_rd_nb;
@@ -383,8 +393,11 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "WDEP";
                 md.MOND_RDNG = Convert.ToString(survey.depth_gwl_bgl);
                 md.MOND_UNIT = "m";
-                md.MOND_INST = "Dipmeter:" + survey.dip_instr;
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                    md.DateTime  = gINTDateTime(survey.dip_time_getDT());
+                }
                 MOND.Add(md);
             }
             
@@ -394,7 +407,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "WDEP";
                 md.MOND_RDNG = "Dry";
                 md.MOND_UNIT = "m";
-                md.MOND_INST = "Dipmeter:" + survey.dip_instr;
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
                 MOND.Add(md);
             }
@@ -405,17 +418,29 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "WDEP";
                 md.MOND_RDNG = "Dry";
                 md.MOND_UNIT = "m";
-                md.MOND_INST = "Dipmeter:" + survey.dip_instr;
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
                 MOND.Add(md);
+            }    
+
+            // Depth to base of instalation (m)
+            if (survey.depth_install_bgl != null && survey.dip_datum_offset !=null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DBSE";
+                md.MOND_RDNG = Convert.ToString(survey.depth_install_bgl);
+                md.MOND_NAME = "Depth to base of installation";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = IfOther(survey.dip_instr, survey.dip_instr_other);
+                MOND.Add(md);
             }
+            
             // PH
             if (survey.ph != null) {
                 MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "PH";
                 md.MOND_RDNG = Convert.ToString(survey.ph);
                 md.MOND_UNIT = "PH";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -425,20 +450,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "RDX";
                 md.MOND_RDNG = Convert.ToString(survey.redox_potential);
                 md.MOND_UNIT = "mV";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
-
-            //Redox Potential from eh field
-            // if (survey.eh!= null) {
-            //    MOND md = NewMOND(mg, survey); 
-            //     md.MOND_TYPE = "RDX";
-            //     md.MOND_RDNG = Convert.ToString(survey.eh);
-            //     md.MOND_NAME = "Redox Potential";
-            //     md.MOND_UNIT = "mV";
-            //     md.MOND_INST = survey.gas_instr;
-            //     MOND.Add(md);
-            // }
 
             // Electrical Conductivity
             if (survey.conductivity != null) {
@@ -447,7 +461,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.conductivity);
                 md.MOND_NAME = "Electrical Conductivity";
                 md.MOND_UNIT = "uS/cm";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -458,7 +472,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.temperature);
                 md.MOND_NAME = "Downhole temperature";
                 md.MOND_UNIT = "Deg C";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -469,7 +483,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.dissolved_oxy);
                 md.MOND_NAME = "Dissolved Oxygen";
                 md.MOND_UNIT = "mg/l";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -480,7 +494,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.atmo_temp);
                 md.MOND_NAME = "Atmospheric temperature";
                 md.MOND_UNIT = "Deg C";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -491,31 +505,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.atmo_pressure);
                 md.MOND_NAME = "Atmospheric pressure";
                 md.MOND_UNIT = "mbar";
-                md.MOND_INST = survey.gas_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
-           // Differential borehole pressure (mbar)
-            // if (survey.Diff_BH_pressure != null) {
-            //  MOND md = NewMOND(mg, survey); 
-            //     md.MOND_TYPE = "GPRS";
-            //     md.MOND_RDNG = Convert.ToString(survey.Diff_BH_pressure);
-            //     md.MOND_NAME = "Differential pressure";
-            //     md.MOND_UNIT = "mbar";
-            //     md.MOND_INST = survey.gas_instr;
-            //     MOND.Add(md);
-            // }
-            // Depth to base of installation (m)
-            if (survey.depth_install_bgl != null && survey.dip_datum_offset !=null) {
-             MOND md = NewMOND(mg, survey); 
-                md.MOND_TYPE = "DBSE";
-                md.MOND_RDNG = Convert.ToString(survey.depth_install_bgl);
-                md.MOND_NAME = "Depth to base of installation";
-                md.MOND_UNIT = "m";
-                md.MOND_INST = survey.dip_instr;
-                MOND.Add(md);
-            }
-          
             // Peak Gas flow
             if (survey.gas_flow_peak != null) {
              MOND md = NewMOND(mg, survey); 
@@ -523,7 +516,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.gas_flow_peak);
                 md.MOND_NAME = "Peak gas flow rate";
                 md.MOND_UNIT = "l/h";
-                md.MOND_INST = survey.dip_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -534,7 +527,84 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.gas_flow_steady);
                 md.MOND_NAME = "Steady gas flow rate";
                 md.MOND_UNIT = "l/h";
-                md.MOND_INST = survey.dip_instr;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+
+            // Peak diff barometric pressure (mbar?)
+            if (survey.BH_pressure_peak != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GPRP";
+                md.MOND_RDNG = Convert.ToString(survey.BH_pressure_peak);
+                md.MOND_NAME = "Peak diff barometric pressure";
+                md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+
+            // Steady diff barometric pressure (mbar?) 
+            if (survey.BH_pressure_steady != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GPRS";
+                md.MOND_RDNG = Convert.ToString(survey.BH_pressure_steady);
+                md.MOND_NAME = "Steady diff barometric pressure";
+                md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+            
+            // Ambient Methane concentration 
+            if (survey.ambi1_CH4 != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "TGMA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CH4);
+                md.MOND_NAME = "Ambient methane concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+          
+            // Ambient Methane concentration 
+            if (survey.ambi1_CH4_lel != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GMA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CH4_lel);
+                md.MOND_NAME = "Ambient methane concentration";
+                md.MOND_UNIT = "%LEL";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+           
+            // Ambient Oxygen concentration 
+            if (survey.ambi1_O2 != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GOXA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_O2);
+                md.MOND_NAME = "Ambient oxygen concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+           
+            // Ambient Carbon Dioxide concentration 
+            if (survey.ambi1_CO2 != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GCDA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CO2);
+                md.MOND_NAME = "Ambient carbon dioxide concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                MOND.Add(md);
+            }
+            
+            // Ambient Carbon Dioxide concentration 
+            if (survey.PID_t != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "VOC";
+                md.MOND_RDNG = Convert.ToString(survey.PID_t);
+                md.MOND_NAME = "Volatile organic compounds";
+                md.MOND_UNIT = "ppm";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                 MOND.Add(md);
             }
 
@@ -564,12 +634,12 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 
                 // Methane reading Limit CH4 LEL (%)
                 if (survey2.CH4_lel_t != null) {
-                     MOND md = NewMOND(mg, survey, survey2);
+                    MOND md = NewMOND(mg, survey, survey2);
                     md.MOND_TYPE = "GM";
                     md.MOND_RDNG = Convert.ToString(survey2.CH4_lel_t);
                     md.MOND_NAME = "Methane as percentage of LEL (Lower Explosive Limit)";
                     md.MOND_UNIT = "%vol";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt; 
                     MOND.Add(md);
                 }
@@ -581,7 +651,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                     md.MOND_RDNG = Convert.ToString(survey2.CH4_t);
                     md.MOND_NAME = "Total Methane";
                     md.MOND_UNIT = "%vol";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt; 
                     MOND.Add(md);  
                 }
@@ -593,7 +663,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                     md.MOND_RDNG = Convert.ToString(survey2.CO2_t);
                     md.MOND_NAME = "Carbon Dioxide";
                     md.MOND_UNIT = "%vol";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt; 
                     MOND.Add(md);  
                 }
@@ -605,7 +675,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                     md.MOND_RDNG = Convert.ToString(survey2.O2_t);
                     md.MOND_NAME = "Oxygen";
                     md.MOND_UNIT = "%vol";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt;  
                     MOND.Add(md);  
                 }
@@ -617,7 +687,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                     md.MOND_RDNG = Convert.ToString(survey2.H2S_t);
                     md.MOND_NAME = "Hydrogen Sulphide";
                     md.MOND_UNIT = "ppm";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt;  
                     MOND.Add(md);  
                 }
@@ -629,7 +699,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                     md.MOND_RDNG = Convert.ToString(survey2.CO_t);
                     md.MOND_NAME = "Carbon Monoxide";
                     md.MOND_UNIT = "ppm";
-                    md.MOND_INST = survey.gas_instr;
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
                     md.DateTime = dt;  
                     MOND.Add(md);  
                 }
@@ -647,16 +717,16 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 // }
 
                 // VOC (ppm)
-                if (survey2.voc_t != null) {
-                    MOND md = NewMOND(mg, survey, survey2);
-                    md.MOND_TYPE = "VOC";
-                    md.MOND_RDNG = Convert.ToString(survey2.voc_t);
-                    md.MOND_NAME = "Volatile Organic Compounds";
-                    md.MOND_UNIT = "ppm";
-                    md.MOND_INST = survey.gas_instr;
-                    md.DateTime = dt; 
-                    MOND.Add(md);  
-                }
+                // if (survey2.voc_t != null) {
+                //     MOND md = NewMOND(mg, survey, survey2);
+                //     md.MOND_TYPE = "VOC";
+                //     md.MOND_RDNG = Convert.ToString(survey2.voc_t);
+                //     md.MOND_NAME = "Volatile Organic Compounds";
+                //     md.MOND_UNIT = "ppm";
+                //     md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                //     md.DateTime = dt; 
+                //     MOND.Add(md);  
+                // }
 
           }
     }

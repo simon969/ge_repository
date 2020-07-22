@@ -40,15 +40,21 @@ namespace ge_repository.Pages.UserOperations
         {
                 var CurrentUserId = GetUserIdAsync().Result;
                 
-
-               if (groupId != null) {
-                    group =  _context.ge_group                                        
+                user = new ge_user();
+               
+                user_ops = new ge_user_ops();
+       
+                if (groupId != null) {
+                    user_ops.group =  _context.ge_group                                        
                                         .Where(o=>o.Id==groupId).FirstOrDefault();
-                    if (group!=null) {
-                        bool IsUserGroupAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, group, CurrentUserId);
+                    if (user_ops.group!=null) {
+                        bool IsUserGroupAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.group, CurrentUserId);
                             if  (!IsUserGroupAdmin) {
                             return RedirectToPageMessage(msgCODE.GROUP_OPERATION_CREATE_ADMINREQ); 
                             }
+                        user_ops.groupId = user_ops.group.Id;
+                        setViewData();                      
+                        return Page(); 
                     }
                     if (projectId != null) {
                             return RedirectToPageMessage(msgCODE.USER_OPS_CREATE_AMBIGUOUS); 
@@ -56,30 +62,23 @@ namespace ge_repository.Pages.UserOperations
                 }
 
                 if (projectId !=null) { 
-                    project = _context.ge_project
+                    user_ops.project = _context.ge_project
                                            .Where(p=>p.Id==projectId).FirstOrDefault();
-                    if (project!=null) {
-                        bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, project, CurrentUserId);
+                    if (user_ops.project!=null) {
+                        bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.project, CurrentUserId);
                             if  (!IsUserProjectAdmin) {
                             return RedirectToPageMessage(msgCODE.PROJECT_OPERATION_CREATE_ADMINREQ); 
                             }
+                        user_ops.projectId = user_ops.project.Id;
+                        setViewData();                      
+                        return Page();         
                     }
                 }
-                            user = new ge_user();
-                            new_user_password = GeneratePassword();
 
-                            user_ops = new ge_user_ops();
-                          
-                            if (group != null) { 
-                            user_ops.groupId = group.Id;
-                            }
-                            if (project != null) {
-                            user_ops.projectId = project.Id;
-                            }
+                return NotFound();      
 
-                    setViewData();                      
-                    return Page(); 
-                }
+                   
+        }
  
 
         public async Task<IActionResult> OnPostAsync()
@@ -91,46 +90,49 @@ namespace ge_repository.Pages.UserOperations
             
             var CurrentUserId= GetUserIdAsync().Result;
             
-            if (!String.IsNullOrEmpty(search_user) && String.IsNullOrEmpty(user.Id)) {
-                ViewData["create_userId"] = _context.getUsers(search_user);
-                setViewData();
-                return Page();
-            }
-           
-            
+                      
             if (user_ops.groupId!=null) {
-                    var group =  _context.ge_group                                        
+                    user_ops.group =  _context.ge_group                                        
                                         .Where(o=>o.Id==user_ops.groupId).FirstOrDefault();
-                    if (group!=null) {
-                        bool IsUserGroupAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, group, CurrentUserId);
+                    if (user_ops.group!=null) {
+                        bool IsUserGroupAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.group, CurrentUserId);
                         if (!IsUserGroupAdmin) {
                             return RedirectToPageMessage(msgCODE.GROUP_OPERATION_CREATE_ADMINREQ); 
                         }
                     }
             }
             if (user_ops.projectId!=null) {
-                    var project = _context.ge_project
+                    user_ops.project = _context.ge_project
                                             .Where(p=>p.Id==user_ops.projectId).FirstOrDefault();
-                    if (project!=null) {
-                            bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, project, CurrentUserId);
+                    if (user_ops.project!=null) {
+                            bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.project, CurrentUserId);
                             if (!IsUserProjectAdmin){
                                 return RedirectToPageMessage(msgCODE.PROJECT_OPERATION_CREATE_ADMINREQ); 
                             }
                     }
+                    
             }
-                        var createUserId= await ensureUser();
+                       
+                       
+            if (!String.IsNullOrEmpty(search_user) && String.IsNullOrEmpty(user.Id)) {
+                ViewData["create_userId"] = _context.getUsers(search_user);
+                setViewData();
+                return Page();
+            }
+                      
+            var createUserId= await ensureUser();
 
-                        if (createUserId==null) {
-                            return RedirectToPageMessage(msgCODE.USER_CREATE_NOTFOUND); 
-                        }
+            if (createUserId==null) {
+                return RedirectToPageMessage(msgCODE.USER_CREATE_NOTFOUND); 
+            }
 
-                        user_ops.userId = createUserId;
-                        user_ops.createdId = CurrentUserId;
-                        user_ops.createdDT= DateTime.UtcNow;
-                        
-                        _context.ge_user_ops.Add(user_ops);
-                        await _context.SaveChangesAsync();
-                        return RedirectToPage("./Index");
+            user_ops.userId = createUserId;
+            user_ops.createdId = CurrentUserId;
+            user_ops.createdDT= DateTime.UtcNow;
+            
+            _context.ge_user_ops.Add(user_ops);
+            await _context.SaveChangesAsync();
+            return RedirectToPage("./Index");
         }
         
         private async Task<string> ensureUser()
@@ -159,18 +161,18 @@ namespace ge_repository.Pages.UserOperations
                     return null;
                 }
 
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(u);
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { userId = u.Id, code = code },
-                        protocol: Request.Scheme);
+                // var code = await _userManager.GenerateEmailConfirmationTokenAsync(u);
+                //     var callbackUrl = Url.Page(
+                //         "/Account/ConfirmEmail",
+                //         pageHandler: null,
+                //         values: new { userId = u.Id, code = code },
+                //         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(u.Email, "GE Repository Confirm your email",
-                        $"<p>An account in the Ground Engineering Repository has been created for you. </p>" + 
-                        $"<p>Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a></p>" +
-                        $"<p>Your temporary password is [{new_user_password}] please change this when you first login.</p>"            
-                        );
+                //     await _emailSender.SendEmailAsync(u.Email, "GE Repository Confirm your email",
+                //         $"<p>An account in the Ground Engineering Repository has been created for you. </p>" + 
+                //         $"<p>Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a></p>" +
+                //         $"<p>Your temporary password is [{new_user_password}] please change this when you first login.</p>"            
+                //         );
             }
                         
             return u.Id;

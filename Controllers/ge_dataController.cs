@@ -64,11 +64,19 @@ namespace ge_repository.Controllers
                           .Where (p=>p.groupId == groupId).ToListAsync();
             
             
-        }
+    }
 
 [HttpGet]  
-[Produces("application/xml")]    public async Task<List<ge_data>> xmlGet (Guid? Id, Guid? projectId, Guid? groupId) {
-return await Get (Id,projectId, groupId);
+[Produces("application/xml")]  public async Task<List<ge_project>> xmlGetProjects(Guid? groupId) {
+return await GetProjects (groupId);
+}
+[HttpGet]  
+[Produces("application/xml")]  public async Task<List<ge_data>> xmlGetData (Guid? Id, Guid? projectId, Guid? groupId) {
+return await Get (Id, projectId, groupId);
+}
+[HttpGet]  
+[Produces("application/xml")]  public async Task<List<ge_data>> xmlGet (Guid? Id, Guid? projectId, Guid? groupId) {
+return await Get (Id, projectId, groupId);
 }
 
 [HttpGet]
@@ -80,18 +88,17 @@ return await Get (Id,projectId, groupId);
             
             if (groupId != null) {
             return await _context.ge_data
-                        .Include(d=>d.project)
-                        .Where (d=>d.project.groupId == groupId).ToListAsync();
+                       .Where (d=>d.project.groupId == groupId.Value).ToListAsync();
             }
             
             if (projectId != null) {
             return await _context.ge_data
-                        .Where (m=>m.projectId == projectId).ToListAsync();
+                        .Where (m=>m.projectId == projectId.Value).ToListAsync();
             }
 
             if (Id != null) {
             return await _context.ge_data
-                        .Where (m=>m.Id == Id).ToListAsync();
+                        .Where (m=>m.Id == Id.Value).ToListAsync();
             }
 
             return null;
@@ -354,4 +361,5 @@ public  async Task<string> getDataAsString (Guid Id) {
             }
     }
     }
+
 }

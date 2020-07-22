@@ -36,6 +36,7 @@ namespace ge_repository.Pages.UserOperations
                                         .Include(g => g.created)
                                         .Include(g => g.edited)
                                         .Include(g => g.group)
+                                        .Include(g => g.project)
                                         .Include(g => g.user).FirstOrDefaultAsync(m => m.Id == Id);
             
             if (user_ops == null) {
@@ -91,7 +92,7 @@ namespace ge_repository.Pages.UserOperations
             }
             
             if (user_ops.project != null) {
-                bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.group, userId);
+                bool IsUserProjectAdmin = _context.DoesUserHaveOperation(Constants.AdminOperationName, user_ops.project, userId);
                 if (!IsUserProjectAdmin) {
                     return RedirectToPageMessage(msgCODE.PROJECT_OPERATION_DELETE_ADMINREQ); 
                 } 

@@ -1631,11 +1631,15 @@ public class OrderCoordinator<TItem>
                 
                 //'Slideshows'
                 Add (".ppt", "application/vnd.ms-powerpoint");
-                Add (".pptx", "application/vnd.openxmlformats-officedocument.presentation.presentation");
+                Add (".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
                 
                 //'Data'
-                Add (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheet.sheet");
+                Add (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                Add (".xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
                 Add (".xls", "application/vnd.ms-excel");
+                Add (".xlt", "application/vnd.ms-excel");
+                Add (".xla", "application/vnd.ms-excel");
+               
                 Add (".csv", "text/plain");
                 Add (".xml", "text/xml");
                 Add (".xsl", "text/xsl");
@@ -1648,6 +1652,9 @@ public class OrderCoordinator<TItem>
                 Add (".html", "text/html");
                 Add (".css", "text/css");
                 Add (".js", "application/javascript");
+
+                Add (".mdb", "application/vnd.ms-access");
+                Add (".accdb", "application/vnd.ms-access");
                 
                 //'Compressed Folders'
                 Add (".zip", "application/zip");

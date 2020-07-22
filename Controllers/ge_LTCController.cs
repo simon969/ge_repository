@@ -28,6 +28,21 @@ namespace ge_repository.Controllers
         public List<LTM_Survey_Data> Survey_Data;
         public List<LTM_Survey_Data_Repeat> Survey_Repeat_Data;
 
+        public Guid[] IgnoreDataRepeat_GlobalId =  new Guid[]  {new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a"),
+                                                                new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
+                                                                new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
+                                                                new Guid("9d515e60-8fd8-4102-83ff-dfae6701d5e6"),
+                                                                new Guid("c44f4585-53bb-4ac4-b9d5-c96807db3ad2"),
+                                                                new Guid("be08d83a-d962-4b70-a7bb-ea859afded55"),
+                                                                new Guid("64e1335e-cd49-48d0-88e0-36d4c0100330"),
+                                                                new Guid("a4438ad3-9e87-4afd-851d-74c4e05e1da2"),
+                                                                new Guid("0c2fd345-b0c4-488e-950f-a79cfaa0328a"),
+                                                                new Guid("1ac157f9-9b6c-4800-ab53-9b30052be81d"),
+                                                                new Guid("b46e37b5-4b8b-4f4b-91af-67a29b8b2c14"),
+                                                                new Guid("bb2b4acc-5f9d-4e16-aaeb-974336626bf5"),
+                                                                new Guid("b8b99893-87d5-425c-9bd0-437510049873"),
+                                                                new Guid("4903b36b-0d2a-4237-b86d-03b15118f038")
+                                                                };
          public ge_LTCController(
 
             ge_DbContext context,
@@ -93,7 +108,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     }
             }
             
-            var t1 = await new ge_esriController(  _context,
+            var t1 = await new ge_esriController(   _context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
@@ -318,11 +333,17 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
             } 
       
             DateTime? survey_start = gINTDateTime(survey.date1_getDT());
-
+            
             if (survey_start==null) continue;
+
+          
 
             DateTime survey_startDT = gINTDateTime(survey.time1_getDT()).Value;
             DateTime survey_endDT = gINTDateTime(survey.time2_getDT()).Value;
+
+            // if (survey.globalid == new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a")) {
+            //     Console.WriteLine ("{0}       {1}", survey_startDT, survey.time1_getDT());
+            // }
 
             MONV mv = NewMONV(pt,survey);
                
@@ -388,7 +409,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                 MOND.Add(md);
             }
             
-            // Water depth below gl (m)
+            // Water depth if dry
             if (survey.dip_check == "dry") {
                 MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "WDEP";
@@ -399,7 +420,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                 MOND.Add(md);
             }
             
-            // Water depth below gl (m)
+            // Water depth if null and dip required and offset
             if (survey.depth_gwl_bgl == null && survey.dip_req == "yes" && survey.dip_datum_offset!=null) {
                 MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "WDEP";
@@ -409,6 +430,11 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                 md.MOND_REM = survey.dip_com;
                 MOND.Add(md);
             }
+            
+            if (IgnoreDataRepeat_GlobalId.Contains(survey.globalid)) {
+                continue;
+            }
+
             // PH
             if (survey.ph != null) {
                 MOND md = NewMOND(mg, survey); 

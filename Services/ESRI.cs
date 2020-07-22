@@ -22,6 +22,7 @@ namespace ge_repository.Services
         }
  
         public static DateTime setDateWithTime(DateTime date, String time) {
+       
         DateTime t = DateTime.ParseExact(time, "HH:mm",
                                             CultureInfo.InvariantCulture);
         DateTime dt = new DateTime( date.Year, 
@@ -31,6 +32,7 @@ namespace ge_repository.Services
                                     t.Minute,
                                     t.Second);
         return dt;
+     
         }
     }
 

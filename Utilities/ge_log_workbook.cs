@@ -68,15 +68,10 @@ namespace ge_repository.OtherDatabase
         return sb.ToString();
     
     }
-     public string WorksheetCSV(string name) {
+     public string WorksheetToCSV() {
         
         int MIN_COLUMN_COUNT = 50;
-        worksheet = workbook.GetSheet(name);
-        
-        if (worksheet==null) {
-            return "";
-        }
-        
+     
         StringBuilder sb =new StringBuilder();
         
         int rowStart = Math.Min(15, worksheet.FirstRowNum);
@@ -111,7 +106,10 @@ namespace ge_repository.OtherDatabase
         worksheet = workbook.GetSheet (name);
         return worksheet;
     }
-    
+    public Boolean setOnlyWorksheet() {
+        worksheet = workbook.GetSheetAt(0); 
+        return workbook.NumberOfSheets == 1;
+    }
     public int matchReturnColumn(string find_string, int row_start, int row_offset) {
 
         for (int row = row_start; row <= row_start + row_offset; row++) {
@@ -147,10 +145,25 @@ namespace ge_repository.OtherDatabase
         return -1;
 
     }
-        public string ExcelDateFormatter(string DateTimeFORMAT, ICell cell) {
-        DateTime cell_DT = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddDays(cell.NumericCellValue);
+
+    public static DateTime FromExcelSerialDateTime(double SerialDate) {
+    if (SerialDate > 59) SerialDate -= 1; //Excel/Lotus 2/29/1900 bug   
+    return new DateTime(1899, 12, 31).AddDays(SerialDate);
+    }
+
+    public string ExcelDateFormatter(string DateTimeFORMAT, ICell cell) {
+        DateTime cell_DT = FromExcelSerialDateTime(cell.NumericCellValue);
         return string.Format(DateTimeFORMAT, cell_DT);
-        }
+    }
+    public string ExcelDateFormatter3(string DateTimeFORMAT, ICell cell) {
+        DateTime cell_DT = DateTime.FromOADate(cell.NumericCellValue);
+        return string.Format(DateTimeFORMAT, cell_DT);
+    }
+    public string ExcelDateFormatter2(string DateTimeFORMAT, ICell cell) {
+    DateTime cell_DT = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc).AddDays(cell.NumericCellValue-1);
+    return string.Format(DateTimeFORMAT, cell_DT);
+    }
+
        public string DataFormatter(ICell cell) {
             IFormulaEvaluator evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
             DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
@@ -159,11 +172,12 @@ namespace ge_repository.OtherDatabase
             if (cell!=null) {
                 if (cell.CellType==CellType.Numeric) {
                     if (DateUtil.IsCellDateFormatted(cell)) {
-                        try {
-                            return String.Format(DateTimeFORMAT, cell.DateCellValue);
-                        } catch {
-                            return ExcelDateFormatter(DateTimeFORMAT, cell);
-                        }
+                        return ExcelDateFormatter(DateTimeFORMAT,cell);
+                        // try {
+                        //     return String.Format(DateTimeFORMAT, cell.DateCellValue);
+                        // } catch {
+                        //     return ExcelDateFormatter(DateTimeFORMAT, cell);
+                        // }
                     }
                 }
                 try {
@@ -271,9 +285,9 @@ namespace ge_repository.OtherDatabase
     }
 }
 
-public string [] getTable(string name) {
+public string [] WorksheetToTable() {
 
-    string tableCSV = WorksheetCSV(name);
+    string tableCSV = WorksheetToCSV();
   
     string[] lines = tableCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
   

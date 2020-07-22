@@ -312,7 +312,8 @@ public async Task<int> deleteMOND (Guid projectId,
                         foreach (DataRow row in dt_MOND.Rows) {
                             row.Delete();
                         }
-                        return  dsMOND.Update();
+                        // return dsMOND.Update();
+                        return  dsMOND.Delete();
                     }
             }
             );
