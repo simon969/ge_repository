@@ -150,12 +150,10 @@ namespace ge_repository.Controllers
 
 
  
- public async Task<List<MONG>> getMONG(Guid projectId, string[] points) {
+ public async Task<IActionResult> getMONG(Guid projectId, string[] points, string format="") {
             
-            if (projectId == null)
-            
-            {
-                return null;
+            if (projectId == null) {
+                return BadRequest("No projectId provided");
             }
             
             var project = await _context.ge_project
@@ -164,14 +162,14 @@ namespace ge_repository.Controllers
             
             if (project == null)
             {
-                return null;
+                return BadRequest("project not found");
             }
 
 
             dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
             if (cd==null) {
-                throw new Exception ($"There is a problem with {project.name} gINT connection file");
+                return BadRequest($"There is a problem with {project.name} gINT connection file");
             }
 
             string dbConnectStr = cd.AsConnectionString();
@@ -193,7 +191,7 @@ namespace ge_repository.Controllers
             //     sql_where += ")";
             // }
 
-            return await Task.Run(() =>
+            MONG = await Task.Run(() =>
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
@@ -217,6 +215,12 @@ namespace ge_repository.Controllers
                     }
             }
             );
+
+            if (format=="view") {
+                return View(MONG);
+            }
+
+            return Ok(MONG);
 
  }
 
@@ -322,72 +326,74 @@ public async Task<int> deleteMOND (Guid projectId,
 
 
 
- public async Task<List<MOND>> getMOND (Guid projectId, 
-                                        string where) {
-            if (projectId == null) {
-                return null;
-            }
+//  public async Task<List<MOND>> getMOND (Guid projectId, 
+//                                         string where) {
+//             if (projectId == null) {
+//                 return null;
+//             }
             
-            var project = await _context.ge_project
-                                        .Include(p=>p.group)
-                                    .SingleOrDefaultAsync(m => m.Id == projectId);
+//             var project = await _context.ge_project
+//                                         .Include(p=>p.group)
+//                                     .SingleOrDefaultAsync(m => m.Id == projectId);
             
-            if (project == null) {
-                return null;
-            }
+//             if (project == null) {
+//                 return null;
+//             }
             
 
-            dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+//             dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
-            if (cd==null) {
-                throw new Exception ($"There is a problem with {project.name} gINT connection file");
-            }
+//             if (cd==null) {
+//                 throw new Exception ($"There is a problem with {project.name} gINT connection file");
+//             }
 
-            string dbConnectStr = cd.AsConnectionString();
-            int? gINTProjectId = cd.ProjectId;
+//             string dbConnectStr = cd.AsConnectionString();
+//             int? gINTProjectId = cd.ProjectId;
             
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
+//             string sql_where = "gINTProjectId=" + gINTProjectId.Value;
             
-            if (!String.IsNullOrEmpty(where)) {
-                sql_where += " and "  + where;
-            }
+//             if (!String.IsNullOrEmpty(where)) {
+//                 sql_where += " and "  + where;
+//             }
             
-            return await Task.Run(() =>
-                    {
-                    using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
-                    {
-                        dsTable dsMOND = new gINTTables().MOND;
-                        cnn.Open();
-                        dsMOND.setConnection (cnn);        
-                        dsMOND.getDataTable ();  
-                        dsMOND.sqlWhere(sql_where);
-                        dsMOND.getDataSet();
-                        DataTable dt_MOND = dsMOND.getDataTable();
+//             return await Task.Run(() =>
+//                     {
+//                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+//                     {
+//                         dsTable dsMOND = new gINTTables().MOND;
+//                         cnn.Open();
+//                         dsMOND.setConnection (cnn);        
+//                         dsMOND.getDataTable ();  
+//                         dsMOND.sqlWhere(sql_where);
+//                         dsMOND.getDataSet();
+//                         DataTable dt_MOND = dsMOND.getDataTable();
                         
-                        if (dt_MOND==null) {
-                            return null;
-                        } 
+//                         if (dt_MOND==null) {
+//                             return null;
+//                         } 
                         
-                        if (dt_MOND.Rows.Count==0) {
-                            return null;
-                        }
+//                         if (dt_MOND.Rows.Count==0) {
+//                             return null;
+//                         }
                         
-                        return  ConvertDataTable<MOND>( dt_MOND);
-                    }
-            }
-            );
+//                         return  ConvertDataTable<MOND>( dt_MOND);
+//                     }
+//             }
+//             );
 
- }
+//  }
 
-public async Task<List<MOND>> getMOND( Guid projectId, 
+public async Task<IActionResult> getMOND( Guid projectId, 
                                         DateTime? fromDT, 
                                         DateTime? toDT,
-                                        string[] points) {
+                                        string[] points = null,
+                                        string where = "",
+                                        string format = "") {
+            
             
             if (projectId == null)
-            
             {
-                return null;
+                return BadRequest("No projectId provided");
             }
             
             var project = await _context.ge_project
@@ -396,14 +402,14 @@ public async Task<List<MOND>> getMOND( Guid projectId,
             
             if (project == null)
             {
-                return null;
+                return BadRequest("No project found for projectId provided");
             }
             
 
             dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
             if (cd==null) {
-                throw new Exception ($"There is a problem with {project.name} gINT connection file");
+                return UnprocessableEntity("There is a problem with {project.name} gINT connection file");
             }
 
             string dbConnectStr = cd.AsConnectionString();
@@ -411,6 +417,8 @@ public async Task<List<MOND>> getMOND( Guid projectId,
             
             string sql_where = "gINTProjectId=" + gINTProjectId.Value;
             
+            points = points ?? new string[0];
+
             if (!String.IsNullOrEmpty(points [0])) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             }
@@ -423,7 +431,11 @@ public async Task<List<MOND>> getMOND( Guid projectId,
                 sql_where += String.Format(" and DateTime<='{0:yyyy-MM-dd HH:mm:ss}'",toDT.Value);
             }
 
-            return await Task.Run(() =>
+            if (where!=null) {
+                sql_where += " " + where;                
+            }
+
+            MOND = await Task.Run(() =>
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
@@ -447,6 +459,12 @@ public async Task<List<MOND>> getMOND( Guid projectId,
                     }
             }
             );
+
+            if (format=="view") {
+                return View("ViewMOND",MOND);
+            }
+
+            return Ok(MOND);
 
  }
  public async Task<List<MONV>> getMONV(Guid projectId,
@@ -508,11 +526,11 @@ public async Task<List<MOND>> getMOND( Guid projectId,
             );
 
  }
-public async Task<List<TRAN>> getTRAN(Guid projectId) {
+public async Task<IActionResult> getTRAN(Guid projectId, string format = "") {
             
             if (projectId == null)
             {
-                return null;
+                return BadRequest("No projectId provided");
             }
 
             var project = await _context.ge_project
@@ -521,49 +539,54 @@ public async Task<List<TRAN>> getTRAN(Guid projectId) {
            
             if (project == null)
             {
-                return null;
+                return BadRequest("This project is not found");
             }
 
 
             dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
             if (cd==null) {
-                return null;
+                return BadRequest("This project has no connection details");
             }
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
             
             if (gINTProjectId==null) {
-                return null;
+                return BadRequest("This project connection file has no gINTProjectId");
             }
 
             string sql_where = "gINTProjectId=" + gINTProjectId.Value;
            
-            return await Task.Run(() =>
-                    {
-                    using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
-                    {
-                        dsTable dst= new gINTTables().TRAN;
-                        cnn.Open();
-                        dst.setConnection (cnn);        
-                        dst.getDataTable ();  
-                        dst.sqlWhere( sql_where );
-                        dst.getDataSet();
-                        DataTable dt = dst.getDataTable();
-                        
-                        if (dt==null) {
-                            return null;
-                        } 
-                        
-                        if (dt.Rows.Count==0) {
-                            return null;
-                        }
-                        
-                        return  ConvertDataTable<TRAN>(dt);
+            List<TRAN> TRAN = await Task.Run(() => {
+                            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+                            {
+                                dsTable dst= new gINTTables().TRAN;
+                                cnn.Open();
+                                dst.setConnection (cnn);        
+                                dst.getDataTable ();  
+                                dst.sqlWhere( sql_where );
+                                dst.getDataSet();
+                                DataTable dt = dst.getDataTable();
+                                
+                                if (dt==null) {
+                                    return null;
+                                } 
+                                
+                                if (dt.Rows.Count==0) {
+                                    return null;
+                                }
+                                
+                                return  ConvertDataTable<TRAN>(dt);
+                            }
                     }
-            }
             );
+
+            if (format=="view") {
+                return View(TRAN);
+            }
+
+            return Ok(TRAN);
 
  }
 public async Task<List<PROJ>> getPROJ(Guid projectId) {
@@ -626,7 +649,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
  }
 
 
-  public async Task<List<POINT>> getPOINT(Guid projectId, string[] points) {
+  public async Task<IActionResult> getPOINT(Guid projectId, string[] points, string format="") {
             
             if (projectId == null)
             {
@@ -635,7 +658,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
 
             var project = await _context.ge_project
                                         .Include(p=>p.group)
-                                    .SingleOrDefaultAsync(m => m.Id == projectId);
+                                        .SingleOrDefaultAsync(m => m.Id == projectId);
            
             if (project == null)
             {
@@ -662,7 +685,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             }
 
-            return await Task.Run(() =>
+            POINT = await Task.Run(() =>
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
@@ -686,6 +709,12 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
                     }
             }
             );
+
+            if (format=="view") {
+                return View(POINT);
+            }
+
+            return Ok(POINT);
 
  }
 
@@ -736,7 +765,11 @@ public async Task<IActionResult> createAGS(Guid Id,
             
               
             if (tables.Contains("MOND")) {
-            MOND = await getMOND (Id, fromDT, toDT, holes);
+            var resp = await getMOND (Id, fromDT, toDT, holes,"","");
+            var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    MOND = okResult.Value as List<MOND>;
+                }
             }
 
             string[] SelectPoints = null ;
@@ -779,34 +812,50 @@ public async Task<IActionResult> createAGS(Guid Id,
             }
             
             if (tables.Contains("POINT-min")) {
-            POINT = await getPOINT (Id, SelectPoints);  
-                if (POINT != null) {
-                    sb.Append (getAGSTable(POINT, version, true));
-                    sb.AppendLine();
+                var resp = await getPOINT (Id, SelectPoints);  
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    POINT = okResult.Value as List<POINT>;
+                    if (POINT != null) {
+                        sb.Append (getAGSTable(POINT, version, true));
+                        sb.AppendLine();
+                    }
                 }
             }
             
             if (tables.Contains("POINT")) {
-            POINT = await getPOINT (Id, SelectPoints); 
-                if (POINT!=null) { 
-                    sb.Append (getAGSTable(POINT, version, false));
-                    sb.AppendLine();
+                var resp = await getPOINT (Id, SelectPoints);  
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    POINT = okResult.Value as List<POINT>;
+                    if (POINT!=null) { 
+                        sb.Append (getAGSTable(POINT, version, false));
+                        sb.AppendLine();
+                    }
                 }
             }
             
             if (tables.Contains("TRAN")) {
-            TRAN = await getTRAN (Id);
-                if (TRAN!=null) {
+                var resp = await getTRAN(Id);
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    TRAN = okResult.Value as List<TRAN>;
+                    if (TRAN!=null) {
                     sb.Append (getAGSTable(TRAN, version, false));
                     sb.AppendLine();
+                    }
                 }
             }
             
             if (tables.Contains("MONG")) {
-            MONG = await getMONG(Id, SelectPoints);
-                if (MONG!=null) {
+                var resp = await getMONG(Id, SelectPoints);
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) { 
+                    MONG = okResult.Value as List<MONG>;
+                    if (MONG!=null) {
                     sb.Append (getAGSTable(MONG, version, true));
                     sb.AppendLine();
+                    }
                 }
             }
             
@@ -818,8 +867,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             }
 
             if (tables.Contains("ABBR")) {
-            var abbr = await getUniqueABBR(appendId);
-                
+                var abbr = await getUniqueABBR(appendId);
                 if (ABBR!=null) {
                     sb.Append (getAGSTable(ABBR, version));
                     sb.AppendLine();
@@ -1325,7 +1373,7 @@ private void setValues(MOND item, DataRow row) {
 
                         //Non standard LTC  fields
                         row["ge_source"] = item.ge_source;
-                        row["ge_otherId"] = item.ge_otherid;
+                        row["ge_otherId"] = item.ge_otherId;
                         row["RND_REF"] = item.RND_REF;
 }
 
@@ -1495,12 +1543,12 @@ public async Task<int> UploadMONV(Guid projectId, List<MONV> save_items){
                 
                 foreach (MONV item in save_items) {
 
-                        row = dtMONV.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}'").SingleOrDefault();
+                        row = dtMONV.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherId}'").SingleOrDefault();
                        
                         if (row == null) {
                             row = ds_MONV.NewRow();
                             row["ge_source"] = item.ge_source;
-                            row["ge_otherId"] = item.ge_otherid;
+                            row["ge_otherId"] = item.ge_otherId;
                             ds_MONV.addRow (row);
                            // row.SetAdded();     
                         } else{

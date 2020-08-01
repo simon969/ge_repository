@@ -205,14 +205,22 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             ViewData["FeatureStatus"] = "Features not written to MOND table";
             
             if (save == true) {
-
-               var existingMOND = await new ge_gINTController (_context,
-                                                   _authorizationService,
-                                                   _userManager,
-                                                   _env ,
-                                                   _ge_config
-                                                       ).getMOND (_project.Id,"ge_source in ('esri_survey2','esri_survey2_repeat')");
-                if (existingMOND!=null) {
+               List<MOND> existingMOND; 
+               var resp = await new ge_gINTController ( _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config
+                                                       ).getMOND (  _project.Id,
+                                                                    null,
+                                                                    null,
+                                                                    null,
+                                                                    "ge_source in ('esri_survey2','esri_survey2_repeat')",
+                                                                    "");
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    existingMOND = okResult.Value as List<MOND>;
+                    if (existingMOND!=null) {
                     var deleteMOND =  getMONDForDeletion(existingMOND, MOND);
                     if (deleteMOND!=null) {
                         int[] s = deleteMOND.Select (m=>m.GintRecID).ToArray();
@@ -224,6 +232,8 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                        ).deleteMOND(_project.Id, s);
                     }
                 }
+                }
+               
                var saveMOND_resp = await new ge_gINTController (_context,
                                                    _authorizationService,
                                                    _userManager,
@@ -278,18 +288,38 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                                          ge_project project) {
             string[] AllPoints = new string[] {""};
 
-            MONG = await new ge_gINTController (_context,
+            var resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
                                                         ).getMONG(project.Id,AllPoints);
-            POINT = await new ge_gINTController (_context,
+            var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode!=200) {
+                return -1;
+                } 
+        
+            MONG = okResult.Value as List<MONG>;
+                if (MONG==null) { 
+                return -1;
+                }
+
+            resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
                                                         ).getPOINT(project.Id,AllPoints);
+
+            okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode!=200) {
+                return -1;
+                } 
+        
+            POINT = okResult.Value as List<POINT>;
+                if (POINT==null) { 
+                return -1;
+                }
 
             MOND = new List<MOND>();
             MONV = new List<MONV>(); 
@@ -340,10 +370,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
 
             DateTime survey_startDT = gINTDateTime(survey.date1_getDT()).Value;
             DateTime survey_endDT = gINTDateTime(survey.time2_getDT()).Value;
-            
+          
             MONV mv = NewMONV(pt,survey);
                
-                mv.MONV_STAR =  survey_startDT;
+                mv.MONV_STAR = survey_startDT;
                 mv.MONV_ENDD = survey_endDT;
                 
                 mv.MONV_DIPR = survey.dip_req;
@@ -381,7 +411,8 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 mv.PIPE_DIA = survey.pipe_diam;
 
                 if(survey.dip_datum_offset != null) {
-                    mv.MONV_DIS = ((float) survey.dip_datum_offset.Value) / 100f;
+                   // mv.MONV_DIS = ((float) survey.dip_datum_offset.Value) / 100f;
+                    mv.MONV_DIS = ((float) survey.dip_datum_offset.Value);
                 }
 
                 mv.MONV_MENG = survey.Creator;
@@ -396,7 +427,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
                 if (survey.dip_time!=null) {
-                    md.DateTime  = gINTDateTime(survey.dip_time_getDT());
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
                 }
                 MOND.Add(md);
             }
@@ -409,6 +440,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_UNIT = "m";
                 md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
                 MOND.Add(md);
             }
             
@@ -420,6 +454,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_UNIT = "m";
                 md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
                 md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
                 MOND.Add(md);
             }    
 
@@ -431,6 +468,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Depth to base of installation";
                 md.MOND_UNIT = "m";
                 md.MOND_INST = IfOther(survey.dip_instr, survey.dip_instr_other);
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
                 MOND.Add(md);
             }
             
@@ -440,7 +480,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "PH";
                 md.MOND_RDNG = Convert.ToString(survey.ph);
                 md.MOND_UNIT = "PH";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -450,7 +493,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_TYPE = "RDX";
                 md.MOND_RDNG = Convert.ToString(survey.redox_potential);
                 md.MOND_UNIT = "mV";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -461,7 +507,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.conductivity);
                 md.MOND_NAME = "Electrical Conductivity";
                 md.MOND_UNIT = "uS/cm";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -472,7 +521,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.temperature);
                 md.MOND_NAME = "Downhole temperature";
                 md.MOND_UNIT = "Deg C";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -483,7 +535,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.dissolved_oxy);
                 md.MOND_NAME = "Dissolved Oxygen";
                 md.MOND_UNIT = "mg/l";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -494,7 +549,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.atmo_temp);
                 md.MOND_NAME = "Atmospheric temperature";
                 md.MOND_UNIT = "Deg C";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -505,7 +563,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_RDNG = Convert.ToString(survey.atmo_pressure);
                 md.MOND_NAME = "Atmospheric pressure";
                 md.MOND_UNIT = "mbar";
-                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -517,7 +578,10 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Peak gas flow rate";
                 md.MOND_UNIT = "l/h";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
-                MOND.Add(md);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+               MOND.Add(md);
             }
 
             // Steady Gas flow
@@ -528,6 +592,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Steady gas flow rate";
                 md.MOND_UNIT = "l/h";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -539,6 +606,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Peak diff barometric pressure";
                 md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -550,6 +620,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Steady diff barometric pressure";
                 md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);;
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
             
@@ -561,6 +634,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Ambient methane concentration";
                 md.MOND_UNIT = "%vol";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
           
@@ -572,6 +648,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Ambient methane concentration";
                 md.MOND_UNIT = "%LEL";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
            
@@ -583,6 +662,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Ambient oxygen concentration";
                 md.MOND_UNIT = "%vol";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
            
@@ -594,6 +676,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Ambient carbon dioxide concentration";
                 md.MOND_UNIT = "%vol";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
             
@@ -605,6 +690,9 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 md.MOND_NAME = "Volatile organic compounds";
                 md.MOND_UNIT = "ppm";
                 md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
                 MOND.Add(md);
             }
 
@@ -617,8 +705,13 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 if (survey2.elapse_t == null) continue;
                 
                 int elapsed = survey2.elapse_t.Value;
+                
                 //DateTime dt = survey_start.Value.AddSeconds(elapsed);
                 DateTime dt = survey_startDT.AddSeconds(elapsed);
+                
+                if (survey.gas_repeat_tstart!=null) {
+                dt  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value.AddSeconds(elapsed);
+                }
 
                 // Gas flow (l/h)
                 // if (survey2.gas_flow_t != null) {
@@ -741,7 +834,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey, LTM_Survey_Data_Repeat2 
 
         MOND md = new MOND {
                         ge_source ="esri_survey2_repeat",
-                        ge_otherid = Convert.ToString(repeat.globalid),
+                        ge_otherId = Convert.ToString(repeat.globalid),
                         gINTProjectID = mg.gINTProjectID,
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,
@@ -759,7 +852,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey, LTM_Survey_Data_Repeat2 
         
         MONV mv = new MONV {
                         ge_source ="esri_survey2",
-                        ge_otherid = Convert.ToString(survey.globalid),
+                        ge_otherId = Convert.ToString(survey.globalid),
                         gINTProjectID = pt.gINTProjectID,
                         PointID = pt.PointID,
                         DateTime = gINTDateTime(survey.date1_getDT()),
@@ -778,7 +871,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey ) {
 
         MOND md = new MOND {
                         ge_source ="esri_survey2",
-                        ge_otherid = Convert.ToString(survey.globalid),
+                        ge_otherId = Convert.ToString(survey.globalid),
                         gINTProjectID = mg.gINTProjectID,
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,

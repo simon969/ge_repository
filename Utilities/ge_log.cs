@@ -272,6 +272,13 @@ namespace ge_repository.OtherDatabase  {
         return readings;
         
         }
+        
+        public void unpack_exist_file() {
+             unpackSearchTemplate();
+             unpackFieldHeaders();
+             unpackFileHeader();
+        }
+
         public void init_new_file() {
 
             packSearchTemplate();

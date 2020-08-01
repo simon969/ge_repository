@@ -220,16 +220,24 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             ViewData["FeatureStatus"] = "Features not written to MOND table";
             
             if (save == true) {
-
-               var existingMOND = await new ge_gINTController (_context,
+                List<MOND> existingMOND;
+                var resp = await new ge_gINTController (_context,
                                                    _authorizationService,
                                                    _userManager,
                                                    _env ,
                                                    _ge_config
-                                                       ).getMOND (_project.Id,"ge_source in ('esri_survey','esri_survey_repeat')");
-                if (existingMOND!=null) {
+                                                       ).getMOND (_project.Id,
+                                                                    null,
+                                                                    null,
+                                                                    null,
+                                                                    "ge_source in ('esri_survey','esri_survey_repeat')",
+                                                                    "");
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    existingMOND = okResult.Value as List<MOND>;
+                    if (existingMOND!=null) {
                     var deleteMOND =  getMONDForDeletion(existingMOND, MOND);
-                    if (deleteMOND!=null) {
+                        if (deleteMOND!=null) {
                         int[] s = deleteMOND.Select (m=>m.GintRecID).ToArray();
                             var delMOND_resp = await new ge_gINTController (_context,
                                                    _authorizationService,
@@ -237,8 +245,10 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                    _env ,
                                                    _ge_config
                                                        ).deleteMOND(_project.Id, s);
+                        }
                     }
                 }
+                
                var saveMOND_resp = await new ge_gINTController (_context,
                                                    _authorizationService,
                                                    _userManager,
@@ -276,18 +286,37 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                                          ge_project project) {
             string[] AllPoints = new string[] {""};
 
-            MONG = await new ge_gINTController (_context,
+            var resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
                                                         ).getMONG(project.Id,AllPoints);
-            POINT = await new ge_gINTController (_context,
+            var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode!=200) {
+                return -1;
+                } 
+        
+            MONG = okResult.Value as List<MONG>;
+                if (MONG==null) { 
+                return -1;
+                }
+            
+            resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
                                                         ).getPOINT(project.Id,AllPoints);
+            okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode!=200) {
+                return -1;
+                } 
+        
+            POINT = okResult.Value as List<POINT>;
+                if (POINT==null) { 
+                return -1;
+                }
 
             MOND = new List<MOND>();
             MONV = new List<MONV>(); 
@@ -697,7 +726,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data survey, LTM_Survey_Data_Repeat re
 
         MOND md = new MOND {
                         ge_source ="esri_survey_repeat",
-                        ge_otherid = Convert.ToString(repeat.globalid),
+                        ge_otherId = Convert.ToString(repeat.globalid),
                         gINTProjectID = mg.gINTProjectID,
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,
@@ -715,7 +744,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data survey, LTM_Survey_Data_Repeat re
         
         MONV mv = new MONV {
                         ge_source ="esri_survey",
-                        ge_otherid = Convert.ToString(survey.globalid),
+                        ge_otherId = Convert.ToString(survey.globalid),
                         gINTProjectID = pt.gINTProjectID,
                         PointID = pt.PointID,
                         DateTime = gINTDateTime(survey.time1_getDT()),
@@ -734,7 +763,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data survey ) {
 
         MOND md = new MOND {
                         ge_source ="esri_survey",
-                        ge_otherid = Convert.ToString(survey.globalid),
+                        ge_otherId = Convert.ToString(survey.globalid),
                         gINTProjectID = mg.gINTProjectID,
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,

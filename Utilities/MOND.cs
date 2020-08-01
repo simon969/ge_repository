@@ -52,7 +52,7 @@ namespace ge_repository.OtherDatabase  {
     public string ge_source {get;set;}
     
     [Display(Name = "Addition field for ESRI feature update (NON AGS)")] 
-    public string ge_otherid {get;set;}
+    public string ge_otherId {get;set;}
  
     [Display (Name = "Survey Round Ref")] 
     	public string RND_REF {get;set;}

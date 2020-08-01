@@ -210,6 +210,9 @@
             public string comments {get;set;} 
             public int found {get;set;} = -1;
             public string format {get;set;} 
+            public string required {get;set;} = "true";
+
+            public Boolean IsRequired() {return required=="true";}
         }
 
         public class search_table {

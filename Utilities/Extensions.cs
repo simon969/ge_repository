@@ -1333,7 +1333,31 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
             return sb.ToString();
 
          }
+    public static string ToDelimString(this Guid[] array, string delimeter,string encapsulate="") {
+            
+            StringBuilder sb = new StringBuilder();
+ 
+            for (int i = 0; i < array.Length; i++) {
+                Guid g1 = array[i];
+                String s1 = encapsulate + g1.ToString() + encapsulate;
+                 if (!String.IsNullOrEmpty(s1)) { 
+                    if (sb.Length>0) {
+                    sb.Append (delimeter);
+                    }
+                    sb.Append (s1);
+                }
+            }
+            if (sb.Length == 0 && encapsulate == null) {
+                return "null";
+            } 
+                       
+            if (sb.Length == 0 && encapsulate.Length > 0) {
+                return encapsulate + encapsulate;
+            }
+            
+            return sb.ToString();
 
+         }
     public static string[] purgeArray(this string[] array, string[] delimeters) {
         List<string> retvar = new List<string>();
 

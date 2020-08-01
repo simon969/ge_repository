@@ -60,7 +60,7 @@ namespace ge_repository.OtherDatabase  {
 //	[ge_source] [nvarchar](255) NULL,    
     
 	[Display(Name = "Addition field for ESRI feature update")] 
-    public string ge_otherid {get;set;}
+    public string ge_otherId {get;set;}
   //	[ge_otherId] [nvarchar](255) NULL,  
    
     [Display(Name = "Gas Meter Serial Number")] 

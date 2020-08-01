@@ -123,12 +123,13 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
         //                         m.MONG_DIS == existM.MONG_DIS &&
         //                         m.DateTime == existM.DateTime &&
         //                         m.MOND_TYPE == existM.MOND_TYPE ).FirstOrDefault(); 
+
         var newM = newMOND.Where(m=>m.PointID == existM.PointID &&
                                 m.MONG_DIS == existM.MONG_DIS &&
                                 m.DateTime == existM.DateTime &&
                                 m.MOND_TYPE == existM.MOND_TYPE &&
                                 m.ge_source == existM.ge_source &&
-                                m.ge_otherid == existM.ge_otherid).FirstOrDefault();
+                                m.ge_otherId == existM.ge_otherId).FirstOrDefault();
         if (newM==null) {
             deleteMOND.Add (existM);
         }

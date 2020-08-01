@@ -183,7 +183,7 @@ namespace ge_repository.Controllers
 				
 				string dataId = transform.dataId.ToString();
 
-				if (String.IsNullOrEmpty(transform.add_data)) {
+				if (!String.IsNullOrEmpty(transform.add_data)) {
 					dataId = dataId + ";" + transform.add_data;
 				}
 

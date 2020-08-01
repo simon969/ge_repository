@@ -166,7 +166,7 @@ namespace ge_repository.Controllers
         Boolean colNotFound=false;
         
         foreach (search_table st in dic.search_tables) {
-
+            
             search_range sh = st.header;
             string header = "";
             search_item si = null;
@@ -178,15 +178,21 @@ namespace ge_repository.Controllers
                 header = new_dic.search_items.Find(e=>e.name==sh.search_item).row_text;
             }
             
+            if (header=="") {
+                new_dic.status=$"table {st.name} header {st.header.search_item} not found";
+                continue;
+            }    
+            
             string[] columns =  header.Split(",");
                 foreach (value_header vh in st.headers) { 
                             if (vh.found == NOT_FOUND) {
                                 int i = columns.findFirstIndexContains(vh.search_text);
-                                if (i == NOT_FOUND) {
-                                    new_dic.status = $"column search text [{vh.search_text}] of table [{name}] not found";
+                                if (i == NOT_FOUND && vh.IsRequired()==true) {
+                                    new_dic.status = $"required column [{vh.id}] search text [{vh.search_text}] of table [{name}] not found";
                                     colNotFound=true;
                                     break;
-                                } else {
+                                } 
+                                if (i!=NOT_FOUND) {
                                 vh.found = i + vh.col_offset;
                                 vh.source = ge_log_constants.SOURCE_ACTUAL;
                                 }
@@ -197,16 +203,12 @@ namespace ge_repository.Controllers
                     if (name == null | name == "" | name == st.name) {
                         new_dic.search_tables.Add (st);
                         new_dic.setFoundTableValues (st);
-                        new_dic.status =$"all columns of table {name} found";
-
+                        new_dic.status =$"all required columns of table {name} found";
                         break; 
                     }
                 }
 
         }
-        
-       
-        
         
         return new_dic;
     }
@@ -793,7 +795,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                 return Json(MOND);
             }
 
-            return Ok();
+            return Ok(MOND);
  }
 
  private async Task<int> createMOND_WQ (ge_log_file log_file, 
@@ -821,13 +823,19 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
 
         string[] SelectPoint = new string[] {holeId};
 
-        POINT = await new ge_gINTController (_context,
+        var resp = await new ge_gINTController (_context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config
                                                     ).getPOINT(project.Id, SelectPoint);
-
+        
+        var okResult = resp as OkObjectResult;   
+        if (okResult.StatusCode!=200) {
+        return -1;
+        } 
+        
+        POINT = okResult.Value as List<POINT>;
         if (POINT == null) {
             return -1;
         }
@@ -837,13 +845,23 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             return -1;
         }
 
-        MONG = await new ge_gINTController (_context,
+        resp = await new ge_gINTController (_context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config
                                                     ).getMONG(project.Id, SelectPoint);
 
+        okResult = resp as OkObjectResult;   
+        
+        if (okResult.StatusCode!=200) {
+        return -1;
+        } 
+        
+        MONG = okResult.Value as List<MONG>;
+        if (MONG==null) { 
+        return -1;
+        }
 
         // Find monitoring point in mong table of gint database
         float probe_depth = log_file.getProbeDepth();
@@ -947,6 +965,12 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                         MOND.Add (md);
                     }
 
+                    if (vh.id == "TURB" && vh.units == "NTU") {
+                        // Add MOND Salinity record 
+                        MOND md = NewMOND (mg, reading, device_name, round_ref, "TURB", mg.MONG_TYPE + " flow meter reading",mond_ref,  vh.db_name, "Turbity", vh.units, vh.format, null,"ge_flow");
+                        MOND.Add (md);
+                    }
+
                 }
             }
 
@@ -977,29 +1001,45 @@ private async Task<int> createMOND_WDEP (ge_log_file log_file,
 
         string[] SelectPoint = new string[] {holeId};
 
-        POINT = await new ge_gINTController (_context,
+        var resp_point = await new ge_gINTController (_context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config
                                                     ).getPOINT(project.Id, SelectPoint);
-
+        var okResult_point = resp_point as OkObjectResult;   
+        
+        if (okResult_point.StatusCode!=200) {
+        return -1;
+        } 
+        
+        POINT = okResult_point.Value as List<POINT>;
         if (POINT == null) {
             return -1;
         }
+
         POINT pt =  POINT.FirstOrDefault();
 
         if (pt==null) {
             return -1;
         }
 
-        MONG = await new ge_gINTController (_context,
+        var resp_mong = await new ge_gINTController (_context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config
                                                     ).getMONG(project.Id, SelectPoint);
-
+        var okResult_mong = resp_mong as OkObjectResult;   
+        
+        if (okResult_mong.StatusCode!=200) {
+        return -1;
+        } 
+        
+        MONG = okResult_mong.Value as List<MONG>;
+        if (MONG==null) { 
+        return -1;
+        }
 
         // Find monitoring point in mong table of gint database
         float probe_depth = log_file.getProbeDepth();
@@ -1132,7 +1172,7 @@ private MOND NewMOND (MONG mg, ge_log_reading read,
                     MOND_REM = mond_rem,
                     RND_REF = round_ref,
                     ge_source = ge_source,
-                    ge_otherid = read.Id.ToString()                    
+                    ge_otherId = read.Id.ToString()                    
         };
 
         return md;
@@ -1141,6 +1181,8 @@ private MOND NewMOND (MONG mg, ge_log_reading read,
 
 [HttpPost]
 public async Task<IActionResult> ProcessWQ( string[] process) {
+
+    List<ge_log_file> processedOk;
 
     for (int i=0; i<process.Count(); i++) {
   
@@ -1152,7 +1194,8 @@ public async Task<IActionResult> ProcessWQ( string[] process) {
         float probe_depth = Single.Parse(line[3]);
         string round_ref = line[4];
 
-        await ProcessWQ (Id,templateId,bh_ref,probe_depth, round_ref, "");
+        var process_rep = await ProcessWQ (Id,templateId,bh_ref,probe_depth, round_ref, "");
+        
 
     }
 
@@ -1470,7 +1513,7 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             ge_log_file log_file = null;
             
             if (exist_log_file==null && templateId==null) {
-                return Json( new {status="error", message=$"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file"});
+               return UnprocessableEntity( new {status="error", message=$"A logger file has not been found for data file: {_data.filename} table: {table} please provide templateId to read this data file"});
             }
 
             if (templateId!=null) {
@@ -1478,16 +1521,15 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
                 var okResult = read_resp as OkObjectResult;   
     
                 if (okResult == null) { 
-                    return Json(read_resp);
+                    return UnprocessableEntity(read_resp);
                 }
 
                 if (okResult.StatusCode!=200) {
-                    return Json(read_resp);
+                    return BadRequest(read_resp);
                 }
                 
-                if (okResult.StatusCode ==200) {
-                   log_file = okResult.Value as ge_log_file;
-                }
+                log_file = okResult.Value as ge_log_file;
+               
             
             }
             
@@ -1887,16 +1929,14 @@ public async Task<ge_log_file> GetFile (Guid dataId,
                             foreach(DataRow rrow in dt_readings.Rows)
                             {    
                                 ge_log_reading r =  new ge_log_reading();
-                                get_logger_reading_values(rrow, r);
+                                get_log_reading_values(rrow, r);
                                 file.readings.Add(r);
                             }  
                         file.OrderReadings();
                         }
 
-                        file.unpackSearchTemplate();
-                        file.unpackFieldHeaders();
-                        file.unpackFileHeader();
-                       
+                        file.unpack_exist_file();
+                                            
                         return file;
                     }   
             });
@@ -2187,7 +2227,7 @@ private async Task<int>  UpdateFile (ge_log_file file, Boolean IncludeReadings) 
         });
 
 } 
-private void get_logger_reading_values(DataRow row, ge_log_reading reading) {
+private void get_log_reading_values(DataRow row, ge_log_reading reading) {
 
                 reading.Id = (Guid) row ["Id"];
                 reading.fileId = (Guid) row["fileId"];     
@@ -2987,16 +3027,17 @@ private DateTime? getDateTime(string s, string format) {
       
         }
        
+        if (line_start==NOT_FOUND) {
+            line_start = find_row(dic.search_items,st.header.search_item,NOT_FOUND); 
+            line_start = line_start + 1;   
+        }
         
         if (line_start==NOT_FOUND) {
             line_start = find_row(dic.search_items,"header",NOT_FOUND); 
             line_start = line_start + 1;
         }
         
-        if (line_start==NOT_FOUND) {
-            line_start = find_row(dic.search_items,st.header.search_item,NOT_FOUND); 
-            line_start = line_start + 1;   
-        }
+
 
         int line_end = find_row(dic.search_items,"data_end",NOT_FOUND);
 
@@ -3040,10 +3081,14 @@ private DateTime? getDateTime(string s, string format) {
     return file;
     
  }
- private int find_row(List<search_item> list, string name, int retIfNotFound) {
+ private int find_row(List<search_item> list, string name, int retIfNotFound, Boolean Exact=true) {
     
     search_item si = list.Find(e=>e.name==name);
     
+    if (si==null && Exact==false) {
+        si = list.Find(e=>e.name.Contains(name));
+    }
+
     if (si==null) {
         return retIfNotFound;
     }
@@ -3159,8 +3204,202 @@ private async Task<int> AddNewFile(ge_log_file file) {
 
                 }
             });
-}
     }
+
+    // private async Task<List<ge_log_reading>> get_mond_log_readings(Guid projectId, List<MOND> mond) {
+    private async Task<IActionResult> get_mond_log_readings(Guid projectId, List<MOND> mond) {
+        
+        dbConnectDetails cd = await getConnectDetails(projectId,logTables.DB_DATA_TYPE);
+        
+        if (cd==null) {
+            return NotFound();
+        }
+
+        if (mond==null) {
+            return NotFound();
+        }
+        string []  selectOtherId = mond.Select (m=>m.ge_otherId).Distinct().ToArray();
+
+        string sql_where = "id in (" + selectOtherId.ToDelimString(",","'") +  ")";
+
+        string dbConnectStr = cd.AsConnectionString();
+
+        return await Task.Run(() =>
+            {
+                using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+                {
+                    dsTable ds_readings = new logTables().reading;
+                    cnn.Open();
+                    ds_readings.setConnection (cnn);
+                    ds_readings.Reset();
+                    ds_readings.sqlWhere(sql_where);
+                    ds_readings.getDataSet();
+                    DataTable dt_readings = ds_readings.getDataTable(); 
+                    List<ge_log_reading> readings =  new List<ge_log_reading>();
+                    foreach(DataRow rrow in dt_readings.Rows)
+                    {    
+                        ge_log_reading r =  new ge_log_reading();
+                        get_log_reading_values(rrow, r);
+                        readings.Add(r);
+                    }
+                    
+                    return Ok(readings);
+                
+                }
+            });
+    }
+
+
+    private async Task<IActionResult> get_mond_log_files (Guid projectId, List<MOND> mond) {
+
+        var resp = await get_mond_log_readings(projectId, MOND);
+        
+        var okResult = resp as OkObjectResult;   
+            
+            if (okResult == null) {
+                    return (resp);
+            }
+
+            if (okResult.StatusCode != 200) {
+                    return (resp);
+            }
+        
+        dbConnectDetails cd = await getConnectDetails(projectId,logTables.DB_DATA_TYPE);
+        
+        if (cd==null) {
+            return null;
+        }
+        
+        List<ge_log_reading> readings = okResult.Value as List<ge_log_reading>;
+
+        Guid []  selectFileId = readings.Select (m=>m.fileId).Distinct().ToArray();
+        
+        string sql_where = "id in (" + selectFileId.ToDelimString(",","'") +  ")";
+
+        string dbConnectStr = cd.AsConnectionString();
+
+        return await Task.Run(() =>
+            {
+                using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+                {
+                    dsTable ds_file = new logTables().file;
+                    cnn.Open();
+                    ds_file.setConnection (cnn);
+                    ds_file.Reset();
+                    ds_file.sqlWhere(sql_where);
+                    ds_file.getDataSet();
+                    DataTable dt_file = ds_file.getDataTable(); 
+                    List<ge_log_file> files =  new List<ge_log_file>();
+                    foreach(DataRow rrow in dt_file.Rows)
+                    {    
+                        ge_log_file r =  new ge_log_file();
+                        get_log_file_values(rrow, r);
+                        r.unpack_exist_file();
+                        files.Add(r);
+                    }
+                    
+                    return Ok(files);
+                
+                }
+            });
+
+    }
+    
+    
+    public async Task<IActionResult> ReadMONDFlowFiles( Guid projectId, string round_ref, string format, bool save) {
+
+
+        string where = $"ge_source='ge_flow' and rnd_ref='{round_ref}'";
+        
+        var resp = await new ge_gINTController (_context,
+                                            _authorizationService,
+                                            _userManager,
+                                            _env ,
+                                            _ge_config
+                                            ).getMOND(projectId,
+                                                       null,
+                                                       null,
+                                                       null, 
+                                                       where,
+                                                       "");
+            var okResult = resp as OkObjectResult;   
+            
+            if (okResult == null) {
+                BadRequest (resp);
+            }
+
+            if (okResult.StatusCode != 200) {
+                BadRequest (resp);
+            }
+            
+            MOND = okResult.Value as List<MOND>;
+
+            if (MOND==null) {
+            return BadRequest();
+            }
+        
+            
+            resp = await get_mond_log_files(projectId, MOND);
+
+            okResult = resp as OkObjectResult;   
+            
+            if (okResult == null) {
+                    return (resp);
+            }
+
+            if (okResult.StatusCode != 200) {
+                    return (resp);
+            }
+        
+        List<ge_log_file> log_files =  okResult.Value as List<ge_log_file>; 
+        
+        List<MOND> updatedMOND = new List<MOND>();
+
+        foreach (ge_log_file log_file in log_files) {
+
+            Guid dataId = log_file.dataId;
+            Guid templateId = log_file.templateId;
+            string bh_ref = log_file.getBoreHoleId();
+            float probe_depth = log_file.getProbeDepth();
+
+            var process_resp = await ProcessFile (dataId,
+                                            templateId,
+                                            "data_waterquality",
+                                            "", 
+                                            bh_ref, 
+                                            probe_depth,
+                                            round_ref,
+                                            "",
+                                            save);
+            var okProcess = process_resp as OkObjectResult;   
+            
+            if (okProcess == null) {
+                    return (process_resp);
+            }
+
+            if (okProcess.StatusCode != 200) {
+                    return (process_resp);
+            }
+        
+            List<MOND> process_files =  okProcess.Value as List<MOND>;
+            updatedMOND.AddRange(process_files); 
+                       
+        }
+
+        if (format == "view") {
+           return View("ViewMOND", updatedMOND);
+        }
+
+        return Ok(updatedMOND);
+        }
+
+
+    
+    
+    }
+
 }
+
+
 
 
