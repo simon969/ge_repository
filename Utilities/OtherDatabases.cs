@@ -18,6 +18,7 @@ public class gINTTables {
         public dsTable SAMP {get;} = new dsTable ("SAMP");
         public static string DB_DATA_TYPE = "gINT";
         public dsTable TRAN {get;} = new dsTable ("TRAN");
+       
 }
 
 public class logTables {
@@ -39,6 +40,7 @@ public class dsTable {
     private SqlCommandBuilder builder;
     private StringBuilder sb;
     private int current = 0;
+    public int COMMAND_TIMEOUT {get;set;} = 1200;
     public string sortOrder {get;set;} = "";
     public dsTable(string TableName, string SortOrder="") {
         tableName = TableName;
@@ -139,6 +141,7 @@ public class dsTable {
         
         if (s1.Length>0) {
             SqlCommand cmd = new SqlCommand(sb.ToString(), connection);
+            cmd.CommandTimeout = COMMAND_TIMEOUT; 
             // Execute the update command.
             var ret = cmd.ExecuteScalar();
         }

@@ -1,0 +1,249 @@
+ @model List<ge_repository.OtherDatabase.SAMP>
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+} *@
+
+<h2>Details</h2>
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].PointID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Depth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TYPE)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_BASE)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_LINK)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_DTIM)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_UBLO)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_CONT)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_PREP)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_DIA)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_WDEP)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_RECV)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TECH)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_MATX)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TYPC)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_WHO)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_WHY)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_REM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_DESC)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_DESD)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_LOG)
+            </th> 
+              <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_COND)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_CLSS)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_BAR)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TEMP)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_PRES)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_FLOW)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_ETIM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_DURN)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_CAPT)
+            </th> 
+              <th>
+                @Html.DisplayNameFor(model => model[0].GEOL_STAT)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_RECL)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].FILE_FSET)
+            </th>
+
+            @* <th>
+                @Html.DisplayNameFor(model => model[0].ge_source)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ge_otherId)
+            </th> *@
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => m.PointID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.Depth)
+            </td>
+            <td>    
+                @Html.DisplayFor(modelItem => m.SAMP_REF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TYPE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_BASE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_LINK)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.SAMP_DTIM)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.SAMP_UBLO)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_CONT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_PREP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_DIA)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_WDEP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_RECV)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TECH)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_MATX)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TYPC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_WHO)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_WHY)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_REM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_DESC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_DESD)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_LOG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_COND)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_CLSS)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_BAR)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TEMP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_PRES)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_FLOW)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_ETIM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_DURN)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_CAPT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.GEOL_STAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_RECL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.FILE_FSET)
+            </td>
+             @* <td>
+                @Html.DisplayFor(modelItem => m.ge_source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ge_otherId)
+            </td> *@
+
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

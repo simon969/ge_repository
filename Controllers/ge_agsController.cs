@@ -31,6 +31,9 @@ namespace ge_repository.Controllers
             public List<POINT> POINT {get;set;}
             public List<ABBR> ABBR {get;set;}
             public List<TRAN> TRAN {get;set;}
+            public List<ERES> ERES {get;set;}
+            public List<SPEC> SPEC {get;set;}
+            public List<SAMP> SAMP {get;set;}
             public List<TYPE> TYPE {get;set;}
             public List<UNIT> UNIT {get;set;}
             public List<DICT> DICT {get;set;}
@@ -287,7 +290,14 @@ namespace ge_repository.Controllers
                 DICT = new List<DICT>();
                 readGroup(lines, DICT);
             }
-
+            if (tables.Contains("SAMP")) {
+                SAMP = new List<SAMP>();
+                readGroup(lines, SAMP);
+            }
+            if (tables.Contains("ERES")) {
+                ERES = new List<ERES>();
+                readGroup(lines, ERES);
+            }
             return Ok();
            }
 
@@ -454,6 +464,60 @@ namespace ge_repository.Controllers
             }
             return 0;
         }
+         private int readGroup(string[] lines, List<ERES> list) {
+
+            int group_start = find_line (lines, "\"GROUP\",\"ERES\"");
+
+            if (group_start==NOT_FOUND) {
+                return -1;
+            }
+
+            string[] header = lines[group_start+1].QuoteSplit();
+            string[] units = lines[group_start+2].QuoteSplit();
+            string[] type = lines[group_start+3].QuoteSplit();
+            
+            addUNITS(units);
+            addTYPES(type);
+            
+            for (int i=group_start + 4; i<lines.Count();i++) {
+                string line = lines[i];
+                if (line.Length==0) {
+                    return i;
+                }
+                string[] values = line.QuoteSplit();
+                ERES e = new ERES();
+                setValues(header, values, e);
+                list.Add (e);
+            }
+            return 0;
+        }
+         private int readGroup(string[] lines, List<SAMP> list) {
+
+            int group_start = find_line (lines, "\"GROUP\",\"SAMP\"");
+
+            if (group_start==NOT_FOUND) {
+                return -1;
+            }
+
+            string[] header = lines[group_start+1].QuoteSplit();
+            string[] units = lines[group_start+2].QuoteSplit();
+            string[] type = lines[group_start+3].QuoteSplit();
+            
+            addUNITS(units);
+            addTYPES(type);
+            
+            for (int i=group_start + 4; i<lines.Count();i++) {
+                string line = lines[i];
+                if (line.Length==0) {
+                    return i;
+                }
+                string[] values = line.QuoteSplit();
+                SAMP s = new SAMP();
+                setValues(header, values, s);
+                list.Add (s);
+            }
+            return 0;
+        }
         private int setValues(string[] header, string[] values, PROJ p) {
          try {
             for (int i=0;i<header.Count();i++) {
@@ -562,6 +626,114 @@ namespace ge_repository.Controllers
          
          return 0;
         }
+        
+         private int setValues(string[] header, string[] values, ERES p) {
+         try {
+            for (int i=0;i<header.Count();i++) {
+                if (header[i] == "LOCA_ID" && values[i] != "") p.PointID = values[i];
+                if (header[i] == "SAMP_TOP" && values[i] != "") p.SAMP_Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_REF" && values[i]!= "") p.SAMP_REF = values[i];
+                if (header[i] == "SAMP_TYPE" && values[i] != "") p.SAMP_TYPE = values[i];
+                if (header[i] == "SAMP_ID" && values[i] != "") p.SAMP_ID = values[i];
+                if (header[i] == "SPEC_DPTH" && values[i] != "") p.Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SPEC_REF" && values[i] != "") p.SPEC_REF = values[i];
+                if (header[i] == "ERES_CODE" && values[i] != "") p.ItemKey = values[i];
+                if (header[i] == "ERES_METH" && values[i] != "") p.ERES_METH = values[i];
+                if (header[i] == "Matrix-Run Type" && values[i] != "") p.Matrix_Run_Type= values[i];
+                if (header[i] == "ERES_MATX" && values[i] != "") p.ERES_MATX = values[i];
+                if (header[i] == "ERES_RTYP" && values[i] != "") p.ERES_RTYP = values[i];
+                if (header[i] == "ERES_TESN" && values[i] != "") p.ERES_TESN = values[i]; 
+                if (header[i] == "ERES_NAME" && values[i] != "") p.ERES_NAME = values[i]; 
+                if (header[i] == "ERES_TNAM" && values[i] != "") p.ERES_TNAM = values[i]; 
+                if (header[i] == "ERES_RVAL" && values[i] != "") p.ERES_RVAL = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_RUNI" && values[i] != "") p.ERES_RUNI = values[i]; 
+                if (header[i] == "ERES_RTXT" && values[i] != "") p.ERES_RTXT = values[i]; 
+                if (header[i] == "ERES_RTCD" && values[i] != "") p.ERES_RTCD = values[i]; 
+                if (header[i] == "ERES_RRES" && values[i] != "") p.ERES_RRES = Convert.ToBoolean(values[i]);  
+                if (header[i] == "ERES_DETF" && values[i] != "") p.ERES_DETF = Convert.ToBoolean(values[i]); 
+                if (header[i] == "ERES_ORG" && values[i] != "") p.ERES_ORG = Convert.ToBoolean(values[i]); 
+                if (header[i] == "ERES_IQLF" && values[i] != "") p.ERES_IQLF = values[i]; 
+                if (header[i] == "ERES_LQLF" && values[i] != "") p.ERES_LQLF = values[i]; 
+                if (header[i] == "ERES_RDLM" && values[i] != "") p.ERES_RDLM =  Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_MDLM" && values[i] != "") p.ERES_MDLM = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_QLM" && values[i] != "") p.ERES_QLM =  Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_DUNI" && values[i] != "") p.ERES_DUNI = values[i]; 
+                if (header[i] == "ERES_TPICP" && values[i] != "") p.ERES_TPICP = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_TICT" && values[i] != "") p.ERES_TICT = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_RDAT" && values[i] != "") p.ERES_RDAT = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_SGRP" && values[i] != "") p.ERES_SGRP = values[i]; 
+                if (header[i] == "SPEC_DESC" && values[i] != "") p.SPEC_DESC = values[i]; 
+                if (header[i] == "SPEC_PREP" && values[i] != "") p.SPEC_PREP = values[i]; 
+                if (header[i] == "ERES_DTIM" && values[i] != "") p.ERES_DTIM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_TEST" && values[i] != "") p.ERES_TEST = values[i]; 
+                if (header[i] == "ERES_TORD" && values[i] != "") p.ERES_TORD = values[i]; 
+                if (header[i] == "ERES_LOCN" && values[i] != "") p.ERES_LOCN = values[i]; 
+                if (header[i] == "ERES_BAS" && values[i] != "") p.ERES_BAS = values[i]; 
+                if (header[i] == "ERES_DIL" && values[i] != "") p.ERES_DIL = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_LMTH" && values[i] != "") p.ERES_LMTH = values[i]; 
+                if (header[i] == "ERES_LDTM" && values[i] != "") p.ERES_LDTM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_IREF" && values[i] != "") p.ERES_IREF = values[i]; 
+                if (header[i] == "ERES_SIZE" && values[i] != "") p.ERES_SIZE = values[i]; 
+                if (header[i] == "ERES_PERP" && values[i] != "") p.ERES_PERP = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_REM" && values[i] != "") p.ERES_REM = values[i]; 
+                if (header[i] == "ERES_LAB" && values[i] != "") p.ERES_LAB = values[i]; 
+                if (header[i] == "ERES_CRED" && values[i] != "") p.ERES_CRED = values[i]; 
+                if (header[i] == "TEST_STAT" && values[i] != "") p.TEST_STAT = values[i]; 
+                if (header[i] == "FILE_FSET") p.FILE_FSET= values[i];
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
+          private int setValues(string[] header, string[] values, SAMP p) {
+         try {
+            for (int i=0;i<header.Count();i++) {
+                if (header[i] == "LOCA_ID" && values[i] != "") p.PointID = values[i];
+                if (header[i] == "SAMP_TOP" && values[i] != "") p.Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_REF" && values[i]!= "") p.SAMP_REF = values[i];
+                if (header[i] == "SAMP_TYPE" && values[i] != "") p.SAMP_TYPE = values[i];
+                if (header[i] == "SAMP_ID" && values[i] != "") p.SAMP_ID = values[i];
+                if (header[i] == "SAMP_BASE" && values[i] != "") p.SAMP_BASE = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_LINK" && values[i] != "") p.SAMP_LINK = values[i];
+                if (header[i] == "SAMP_DTIM" && values[i] != "") p.SAMP_DTIM = Convert.ToDateTime(values[i]);
+                if (header[i] == "SAMP_UBLO" && values[i] != "") p.SAMP_UBLO =Convert.ToInt16(values[i]);
+                if (header[i] == "SAMP_CONT" && values[i] != "") p.SAMP_CONT = values[i];
+                if (header[i] == "SAMP_PREP" && values[i] != "") p.SAMP_PREP = values[i];
+                if (header[i] == "SAMP_DIA" && values[i] != "") p.SAMP_DIA = values[i];
+                if (header[i] == "SAMP_WDEP" && values[i] != "") p.SAMP_WDEP = Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_RECV" && values[i] != "") p.SAMP_RECV = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_TECH" && values[i] != "") p.SAMP_TECH = values[i]; 
+                if (header[i] == "SAMP_MATX" && values[i] != "") p.SAMP_MATX = values[i]; 
+                if (header[i] == "SAMP_TYPC" && values[i] != "") p.SAMP_TYPC = values[i]; 
+                if (header[i] == "SAMP_WHO" && values[i] != "") p.SAMP_WHO = values[i]; 
+                if (header[i] == "SAMP_WHY" && values[i] != "") p.SAMP_WHY = values[i]; 
+                if (header[i] == "SAMP_DESC" && values[i] != "") p.SAMP_DESC = values[i];  
+                if (header[i] == "SAMP_DESD" && values[i] != "") p.SAMP_DESD = Convert.ToDateTime(values[i]); 
+                if (header[i] == "SAMP_LOG" && values[i] != "") p.SAMP_LOG = values[i]; 
+                if (header[i] == "SAMP_COND" && values[i] != "") p.SAMP_COND = values[i]; 
+                if (header[i] == "SAMP_CLSS" && values[i] != "") p.SAMP_CLSS = values[i]; 
+                if (header[i] == "SAMP_BAR" && values[i] != "") p.SAMP_BAR =  Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_TEMP" && values[i] != "") p.SAMP_TEMP = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_PRES" && values[i] != "") p.SAMP_PRES =  Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_FLOW" && values[i] != "") p.SAMP_FLOW = Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_ETIM" && values[i] != "") p.SAMP_ETIM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "SAMP_DURN" && values[i] != "") p.SAMP_DURN = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_CAPT" && values[i] != "") p.SAMP_CAPT = values[i]; 
+                if (header[i] == "GEOL_STAT" && values[i] != "") p.GEOL_STAT = values[i]; 
+                if (header[i] == "SAMP_RECL" && values[i] != "") p.SAMP_RECL = values[i]; 
+                if (header[i] == "FILE_FSET" && values[i] != "") p.FILE_FSET= values[i];
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
+        
     }
 }
 

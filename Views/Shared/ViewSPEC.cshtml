@@ -1,0 +1,92 @@
+ @model List<ge_repository.OtherDatabase.SPEC>
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+} *@
+
+<h2>Details</h2>
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].PointID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_Depth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TYPE)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Depth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_DESC)
+            </th> 
+             <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_REM)
+            </th> 
+
+            @* <th>
+                @Html.DisplayNameFor(model => model[0].ge_source)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ge_otherId)
+            </th> *@
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => m.PointID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_Depth)
+            </td>
+            <td>    
+                @Html.DisplayFor(modelItem => m.SAMP_REF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TYPE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.Depth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_REF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_DESC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_REM)
+            </td>
+             @* <td>
+                @Html.DisplayFor(modelItem => m.ge_source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ge_otherId)
+            </td> *@
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

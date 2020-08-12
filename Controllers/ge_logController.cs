@@ -45,8 +45,7 @@ namespace ge_repository.Controllers
         private static string DP2 = "0.00";
         private static string DP1 = "0.0";
 
-        private static int MAX_SEARCH_LINES = 100;
-     
+       
          public ge_logController(
 
             ge_DbContext context,
@@ -58,160 +57,7 @@ namespace ge_repository.Controllers
         {
            
         }
-    private ge_search findSearchTerms (ge_search dic, string table, ge_log_workbook wb, string sheet) {
     
-        ge_search new_dic = new ge_search();
-
-        new_dic.name = "logger header created:" + DateTime.Now;
-       
-        try {
-            if (sheet!="") {
-                wb.setWorksheet(sheet);
-            } 
-
-            if (sheet=="" && wb.setOnlyWorksheet()==false) {
-                new_dic.status ="Unable to determine which worksheet to get data from";
-                return new_dic;
-            }
-
-            foreach  (search_item si in dic.search_items) {
-                    si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset);
-                    // ge_log_workbook is zero based array of worksheet so will match string[] 
-                    si.row = wb.matchReturnRow(si.search_text);
-                    new_dic.search_items.Add (si);
-            }
-                    
-            foreach (search_table st in dic.search_tables.Where(e=>e.name.Contains(table))) {
-
-                Boolean colNotFound = false;
-                
-                search_range sh = st.header;
-                
-                int header_row = 0;
-                int header_offset = 0;
-                search_item si2 = null;
-                colNotFound = false;
-                
-                if (!String.IsNullOrEmpty(sh.search_item)) {
-                    si2 =  new_dic.search_items.Find(e=>e.name==sh.search_item);
-                    // ge_log_workbook is zero based array of worksheet so will match[]
-                    header_row = si2.row ;
-                    header_offset = si2.row_offset;
-
-                }
-                foreach (value_header vh in st.headers) { 
-        
-                            int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
-                            
-                            if (i == NOT_FOUND) {
-                                new_dic.status = $"column search text [{vh.search_text}] of table [{table}] not found";
-                                colNotFound=true;
-                                break;
-                            } else {
-                                // ge_log_workbook is zero based array of worksheet so 
-                                // add 1 so column is correctly located in the csv file
-                                vh.found = i + vh.col_offset;
-                                vh.source = ge_log_constants.SOURCE_ACTUAL;
-                            }
-                }
-
-                if (colNotFound==false) {
-                        st.name = table;
-                        st.id = table;
-                        new_dic.search_tables.Add (st);
-                        new_dic.setFoundTableValues (st);
-                        new_dic.status =$"all columns of table {table} found";
-                        break; 
-                }
-            }
-        } catch (Exception e) {
-        new_dic.status = e.Message;
-        }
-
-        return new_dic;
-    }
-
-    private ge_search findSearchTerms(ge_search dic, string name, string[] lines) {
-        
-        ge_search new_dic = new ge_search();
-
-        new_dic.name = "logger header created:" + DateTime.Now;
-        int max_line = lines.Count()-1;
-        int max_search_lines = Math.Min(max_line, MAX_SEARCH_LINES);
-
-        foreach  (search_item si in dic.search_items) {
-            for (int i = 0; i<max_search_lines; i++) {
-                if (lines[i].Contains(si.search_text)) {
-                     si.row = i;
-                     si.row_text = lines[i + si.row_offset];
-                     si.value_string();
-                     new_dic.search_items.Add (si);
-                     break;
-                }
-            }
-
-        }
-        
-        search_item end_line = dic.search_items.Find(i=>i.name=="data_end");
-        
-        if (end_line!=null) {
-            if (lines[max_line].Contains(end_line.search_text))
-            end_line.row_text = lines[max_line];
-            end_line.row = max_line;
-            new_dic.search_items.Add (end_line);
-        }
-        
-        new_dic.array_items = new_dic.getSplitItems();
-        
-        Boolean colNotFound=false;
-        
-        foreach (search_table st in dic.search_tables) {
-            
-            search_range sh = st.header;
-            string header = "";
-            search_item si = null;
-            colNotFound = false;
-            if (sh.row>0) {header = lines[sh.row];}
-            if (!String.IsNullOrEmpty(sh.search_item)) {
-                si =  new_dic.search_items.Find(e=>e.name==sh.search_item);
-                if (si==null) { continue;}
-                header = new_dic.search_items.Find(e=>e.name==sh.search_item).row_text;
-            }
-            
-            if (header=="") {
-                new_dic.status=$"table {st.name} header {st.header.search_item} not found";
-                continue;
-            }    
-            
-            string[] columns =  header.Split(",");
-                foreach (value_header vh in st.headers) { 
-                            if (vh.found == NOT_FOUND) {
-                                int i = columns.findFirstIndexContains(vh.search_text);
-                                if (i == NOT_FOUND && vh.IsRequired()==true) {
-                                    new_dic.status = $"required column [{vh.id}] search text [{vh.search_text}] of table [{name}] not found";
-                                    colNotFound=true;
-                                    break;
-                                } 
-                                if (i!=NOT_FOUND) {
-                                vh.found = i + vh.col_offset;
-                                vh.source = ge_log_constants.SOURCE_ACTUAL;
-                                }
-                            }
-                }
-
-                if (colNotFound==false) {
-                    if (name == null | name == "" | name == st.name) {
-                        new_dic.search_tables.Add (st);
-                        new_dic.setFoundTableValues (st);
-                        new_dic.status =$"all required columns of table {name} found";
-                        break; 
-                    }
-                }
-
-        }
-        
-        return new_dic;
-    }
 private async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,
                                           string table = "",
@@ -245,7 +91,8 @@ private async Task<IActionResult> ReadFile(Guid Id,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config).getDataByLines(Id);
-                template_loaded = findSearchTerms(template,table, lines);
+                SearchTerms st = new SearchTerms();
+                template_loaded = st.findSearchTerms(template,table, lines);
                 if (template_loaded.search_tables.Count==0) {
                     return BadRequest(template_loaded);
                 }
@@ -257,8 +104,9 @@ private async Task<IActionResult> ReadFile(Guid Id,
                                                 _userManager,
                                                 _env ,
                                                 _ge_config).GetMemoryStream(Id)) {
-                    ge_log_workbook wb = new ge_log_workbook(ms);  
-                    template_loaded  =  findSearchTerms (template, table, wb, sheet);
+                    ge_log_workbook wb = new ge_log_workbook(ms);
+                    SearchTerms st = new SearchTerms();  
+                    template_loaded  =  st.findSearchTerms (template, table, wb, sheet);
                     if (template_loaded.search_tables.Count==0) {
                         return BadRequest(template_loaded);
                     }
@@ -751,7 +599,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).UploadMOND (_data.projectId, MOND , "ge_source='ge_flow'");
+                                                        ).Upload (_data.projectId, MOND , "ge_source='ge_flow'");
                 }
            } 
            
@@ -782,7 +630,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).UploadMOND (_data.projectId, MOND , "ge_source='ge_logger'");
+                                                        ).Upload (_data.projectId, MOND , "ge_source='ge_logger'");
                 }
 
             }
@@ -920,41 +768,41 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                         // Add MOND WDEP record
                        
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Water Depth", vh.units,vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                 
                         if (gl!=null && addWLEV==true) {           
                         // Add MOND WLEV record
                         MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name,"Water Level", vh.units, vh.format, gl,"ge_flow");
-                        MOND.Add (md2);
+                        if (md2!=null) MOND.Add (md2);
                         }
                     }
                     
                     if (vh.id == "PH" ) {
                         // Add MOND Potential Hydrogen
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "PH", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                     }
                     
                     if (vh.id == "DO" && vh.units == "mg/L") {
                         // Add MOND Disolved Oxygen
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "DO", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Dissolved Oxygen", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null)  MOND.Add (md);
                     }
    
                     if (vh.id == "EC" && vh.units == "uS/cm") {
                         // Add MOND Electrical Conductivity 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "EC", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Electrical Conductivity", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                     }
                     
                     if (vh.id == "SAL" && vh.units == "g/cm3") {
                         // Add MOND Salinity record 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "SAL", mg.MONG_TYPE + " flow meter reading",mond_ref,  vh.db_name, "Salinity", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                     }
                     
                     if (vh.id == "TEMP" && vh.units == "Deg C") {
-                        // Add MOND Salinity record 
+                        // Add MOND Temp record 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "DOWNTEMP", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Downhole Temperature", vh.units, vh.format, null,"ge_flow");
                         MOND.Add (md);
                     }
@@ -962,13 +810,13 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                     if (vh.id == "RDX" && vh.units == "mV") {
                         // Add MOND Redox Salinity record 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "RDX", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Redox Potential", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                     }
 
                     if (vh.id == "TURB" && vh.units == "NTU") {
                         // Add MOND Salinity record 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "TURB", mg.MONG_TYPE + " flow meter reading",mond_ref,  vh.db_name, "Turbity", vh.units, vh.format, null,"ge_flow");
-                        MOND.Add (md);
+                        if (md!=null) MOND.Add (md);
                     }
 
                 }
@@ -1099,12 +947,12 @@ private async Task<int> createMOND_WDEP (ge_log_file log_file,
             
             // Add MOND WDEP record
             MOND md = NewMOND (mg, reading, device_name, round_ref, "WDEP", mg.MONG_TYPE + " datalogger reading","", log_wdepth.db_name, "Water Depth", "m", DP3, null,"ge_logger");
-            MOND.Add (md);
+            if (md!=null) MOND.Add (md);
             
             if (gl!=null && addWLEV==true) {           
             // Add MOND WLEV record
             MOND md2 = NewMOND (mg, reading, device_name, round_ref, "WLEV", mg.MONG_TYPE + " datalogger reading","", log_wdepth.db_name,"Water Level", "m", DP3, gl,"ge_logger");
-            MOND.Add (md2);
+            if (md2!=null) MOND.Add (md2);
             }
 
         }
@@ -1156,7 +1004,11 @@ private MOND NewMOND (MONG mg, ge_log_reading read,
         if (!String.IsNullOrEmpty(read.Remark)) {
             mond_rem += " " + read.Remark;
         }
-    
+        
+        if (String.IsNullOrEmpty(value)) {
+            return null;
+        }
+
         MOND md =  new MOND {
                     gINTProjectID = mg.gINTProjectID,
                     PointID = mg.PointID,
@@ -3019,31 +2871,10 @@ private DateTime? getDateTime(string s, string format) {
 
         file.readings =  new List<ge_log_reading>();
         
-        int line_start = find_row(dic.search_items,"data_start",NOT_FOUND);
+        int line_start = dic.data_start_row(NOT_FOUND);
         
-        if (line_start != NOT_FOUND) {
-            search_item si = dic.search_items.Find(e=>e.name=="data_start");
-            line_start = si.row + si.row_offset;
-      
-        }
-       
-        if (line_start==NOT_FOUND) {
-            line_start = find_row(dic.search_items,st.header.search_item,NOT_FOUND); 
-            line_start = line_start + 1;   
-        }
-        
-        if (line_start==NOT_FOUND) {
-            line_start = find_row(dic.search_items,"header",NOT_FOUND); 
-            line_start = line_start + 1;
-        }
-        
+        int line_end = dic.data_end_row(lines.Count());
 
-
-        int line_end = find_row(dic.search_items,"data_end",NOT_FOUND);
-
-        if (line_end == NOT_FOUND) {
-          line_end = lines.Count();
-        }
         
         int readlines = addReadingsAny(file.readings, 
                                     lines, 
@@ -3081,6 +2912,8 @@ private DateTime? getDateTime(string s, string format) {
     return file;
     
  }
+
+ 
  private int find_row(List<search_item> list, string name, int retIfNotFound, Boolean Exact=true) {
     
     search_item si = list.Find(e=>e.name==name);

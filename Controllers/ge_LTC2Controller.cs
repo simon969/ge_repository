@@ -239,7 +239,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                    _userManager,
                                                    _env ,
                                                    _ge_config
-                                                       ).UploadMOND (_project.Id, MOND,"ge_source in ('esri_survey2','esri_survey2_repeat')");
+                                                       ).Upload (_project.Id, MOND,"ge_source in ('esri_survey2','esri_survey2_repeat')");
 
                 ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
                 var saveMONV_resp = await new ge_gINTController (_context,
@@ -247,7 +247,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).UploadMONV (_project.Id, MONV);
+                                                        ).Upload (_project.Id, MONV);
                 ViewData["FeatureStatus"] = $"Features attributes({saveMONV_resp}) written to MONV table";
             }  
             
@@ -390,7 +390,7 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data2>>  survey_data,
                 mv.MONV_TEMP = survey.temp;
                 mv.MONV_WIND = survey.wind;
                 
-                mv.DIP_SRLN = survey.dip_instr;
+                mv.DIP_SRLN = IfOther(survey.dip_instr,survey.dip_instr_other);
                 mv.DIP_CLBD = null;
                 
                 mv.FLO_SRLN = IfOther(survey.purg_meter, survey.purg_meter_other);

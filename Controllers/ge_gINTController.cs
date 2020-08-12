@@ -48,6 +48,9 @@ namespace ge_repository.Controllers
         public List<TYPE> TYPE {get;set;}
         public List<UNIT> UNIT {get;set;}
         public List<PROJ> PROJ {get;set;}
+        public List<ERES> ERES {get;set;}
+        public List<SPEC> SPEC {get;set;}
+        public List<SAMP> SAMP {get;set;}
       
          public ge_gINTController(
 
@@ -60,94 +63,76 @@ namespace ge_repository.Controllers
         {
            
         }
-    
+     
 
-     public async Task<IActionResult> ReadCSVFile(Guid Id,
-                                             Guid dicId, 
-                                             string table,
-                                             string format = "view", 
-                                             Boolean save = false ) {
-
-            if (Id == null)
+public async Task<IActionResult> getERES(Guid projectId, string[] points, string where = "", string format="") {
+            
+            if (projectId == null) {
+                return BadRequest("No projectId provided");
+            }
+            
+            var project = await _context.ge_project
+                                        .Include(p=>p.group)
+                                        .SingleOrDefaultAsync(m => m.Id == projectId);
+            
+            if (project == null)
             {
-                return NotFound();
+                return BadRequest("project not found");
             }
-            
-            var _data = await _context.ge_data
-                                    .Include(d =>d.project)
-                                    .SingleOrDefaultAsync(m => m.Id == Id);
-            if (_data == null)
-            {
-                return NotFound();
-            }
-            ge_data empty_data = new ge_data();
-            
-            var user = GetUserAsync().Result;
-            
-            if (user != null) {
-                    int IsDownloadAllowed = _context.IsOperationAllowed(Constants.DownloadOperationName, _data.project, _data);
-                    Boolean CanUserDownload = _context.DoesUserHaveOperation(Constants.DownloadOperationName,_data.project,user.Id);
-                    
-                    int IsCreateAllowed = _context.IsOperationAllowed(Constants.CreateOperationName, _data.project, empty_data);
-                    Boolean CanUserCreate = _context.DoesUserHaveOperation(Constants.CreateOperationName,_data.project,user.Id);
 
-                    if (IsDownloadAllowed!=geOPSResp.Allowed) {
-                        return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_PROHIBITED);
-                    }
-                    
-                    if (!CanUserDownload) {
-                    return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_USER_PROHIBITED);
-                    }
 
-                    if (IsCreateAllowed!=geOPSResp.Allowed) {
-                        return RedirectToPageMessage (msgCODE.DATA_CREATE_PROHIBITED);
-                    }
-                    if (!CanUserCreate) {
-                    return RedirectToPageMessage (msgCODE.DATA_CREATE_USER_PROHIBITED);
-                    }
-            }
-            
-            var dic = await new ge_dataController(  _context,
-                                                    _authorizationService,
-                                                    _userManager,
-                                                    _env ,
-                                                    _ge_config).getDataAsClass<ge_search>(dicId);
-
-                      
-            var lines = await new ge_dataController( _context,
-                                                _authorizationService,
-                                                _userManager,
-                                                _env ,
-                                                _ge_config).getDataByLines(Id);
-
-          
-            dbConnectDetails cd = await GetDbConnectDetails(_data.projectId, gINTTables.DB_DATA_TYPE);
+            dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
             if (cd==null) {
-                return null;
+                return BadRequest($"There is a problem with {project.name} gINT connection file");
             }
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
             
-            SqlConnection cnn = new SqlConnection(dbConnectStr);
-            cnn.Open();
+            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
+            
+            if (!String.IsNullOrEmpty(points [0])) {
+                sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+            }
+            
+            if (where!=null) {
+                sql_where += " " + where;                
+            }
 
-            switch (table) {
-                case "MOND":
-                    // ReadMOND (lines, dic, gINTProjectId);
-                    break;
+           
+            ERES = await Task.Run(() =>
+                    {
+                    using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+                    {
+                         cnn.Open();
+                        dsTable ds_ERES = new gINTTables().ERES;
+                        ds_ERES.setConnection (cnn);        
+                        ds_ERES.getDataTable ();  
+                        ds_ERES.sqlWhere(sql_where);
+                        ds_ERES.getDataSet();
+                        DataTable dt_ERES = ds_ERES.getDataTable();
+                        
+                        if (dt_ERES==null) {
+                            return null;
+                        } 
+                        
+                        if (dt_ERES.Rows.Count==0) {
+                            return null;
+                        }
+                        
+                        return ConvertDataTable<ERES>(dt_ERES);
+                    }
+            }
+            );
 
+            if (format=="view") {
+                return View(ERES);
+            }
 
+            return Ok(ERES);
 
-
-           }
-
-            cnn.Close();
-
-      return Ok();
  }
-
 
  
  public async Task<IActionResult> getMONG(Guid projectId, string[] points, string format="") {
@@ -383,7 +368,7 @@ public async Task<int> deleteMOND (Guid projectId,
 
 //  }
 
-public async Task<IActionResult> getMOND( Guid projectId, 
+public async Task<IActionResult> getMOND(Guid projectId, 
                                         DateTime? fromDT, 
                                         DateTime? toDT,
                                         string[] points = null,
@@ -419,7 +404,7 @@ public async Task<IActionResult> getMOND( Guid projectId,
             
             points = points ?? new string[0];
 
-            if (!String.IsNullOrEmpty(points [0])) {
+            if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             }
             
@@ -432,7 +417,7 @@ public async Task<IActionResult> getMOND( Guid projectId,
             }
 
             if (where!=null) {
-                sql_where += " " + where;                
+                sql_where += " AND " + where;                
             }
 
             MOND = await Task.Run(() =>
@@ -727,6 +712,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                                            DateTime? fromDT, 
                                            DateTime? toDT,  
                                            Guid? appendId,
+                                           string where = null,
                                            string version = "4.04", 
                                            string format = "view", 
                                            Boolean save = false) {
@@ -765,7 +751,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             
               
             if (tables.Contains("MOND")) {
-            var resp = await getMOND (Id, fromDT, toDT, holes,"","");
+            var resp = await getMOND (Id, fromDT, toDT, holes, where,"");
             var okResult = resp as OkObjectResult;   
                 if (okResult.StatusCode==200) {
                     MOND = okResult.Value as List<MOND>;
@@ -991,6 +977,104 @@ private string getAGSTable(List<MONG> rows,
     
     return sb.ToString();
 }
+private string getAGSTable(List<GRAT> rows, 
+                        string version, Boolean min = false) {
+    
+    if (version!=AGS404  && version!=AGS403) {
+        return "";
+    } 
+    
+    //"GROUP","GRAT"
+    //"HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SPEC_REF","SPEC_DPTH","GRAT_SIZE","GRAT_PERP","GRAT_TYPE","GRAT_REM","FILE_FSET"
+    //"UNIT","","m","","","","","m","mm","%","","",""
+    //"TYPE","ID","2DP","X","PA","ID","X","2DP","3SF","0DP","PA","X","X"
+
+    string table_name =     "\"GROUP\",\"GRAT\"";
+    string table_headings = "\"HEADING\",\"LOCA_ID\",\"SAMP_TOP\",\"SAMP_REF\",\"SAMP_TYPE\",\"SAMP_ID\",\"SPEC_REF\",\"SPEC_DPTH\",\"GRAT_SIZE\",\"GRAT_PERP\",\"GRAT_TYPE\",\"GRAT_REM\",\"FILE_FSET\"";
+    string table_units =  "\"UNIT\",\"\",\"m\",\"\",\"\",\"\",\"\",\"m\",\"mm\",\"%\",\"\",\"\",\"\"";
+    string table_types =    "\"TYPE\",\"ID\",\"2DP\",\"X\",\"PA\",\"ID\",\"X\",\"2DP\",\"3SF\",\"0DP\",\"PA\",\"X\",\"X\"";
+    
+    StringBuilder sb = new StringBuilder();
+    sb.Append (table_name);
+    sb.AppendLine();
+    sb.Append (table_headings);
+    sb.AppendLine();
+    sb.Append (table_units);
+    sb.AppendLine();
+    sb.Append (table_types);
+    sb.AppendLine();
+
+    foreach (GRAT row in rows) {
+        string line = $"\"DATA\",\"{row.PointID}\",\"{row.SAMP_Depth}\",\"{row.SAMP_REF}\",\"{row.SAMP_TYPE}\",\"{row.SAMP_ID}\",\"{row.SPEC_REF}\",\"{row.Depth}\",\"{row.Reading}\",\"{row.GRAT_PERP}\",\"{row.GRAT_TYPE}\",\"{row.GRAT_REM}\",\"{row.FILE_FSET}\"";
+        sb.Append(line);
+        sb.AppendLine();
+    }
+    
+    return sb.ToString();
+}
+private string getAGSTable(List<GRAG> rows, 
+                        string version, Boolean min = false) {
+    
+    if (version!=AGS404  && version!=AGS403) {
+        return "";
+    } 
+    // "GROUP","GRAG"
+    // "HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SPEC_REF","SPEC_DPTH","SPEC_DESC","SPEC_PREP","GRAG_UC","GRAG_VCRE","GRAG_GRAV","GRAG_SAND","GRAG_SILT","GRAG_CLAY","GRAG_FINE","GRAG_REM","GRAG_METH","GRAG_LAB","GRAG_CRED","TEST_STAT","FILE_FSET"
+    // "UNIT","","m","","","","","m","","","","%","%","%","%","%","%","","","","","",""
+    // "TYPE","ID","2DP","X","PA","ID","X","2DP","X","X","1SF","1DP","1DP","1DP","1DP","1DP","1DP","X","X","X","X","X","X"
+
+    string table_name =     "\"GROUP\",\"GRAG\"";
+    string table_headings = "\"HEADING\",\"LOCA_ID\",\"SAMP_TOP\",\"SAMP_REF\",\"SAMP_TYPE\",\"SAMP_ID\",\"SPEC_REF\",\"SPEC_DPTH\",\"SPEC_DESC\",\"SPEC_PREP\",\"GRAG_UC\",\"GRAG_VCRE\",\"GRAG_GRAV\",\"GRAG_SAND\",\"GRAG_SILT\",\"GRAG_CLAY\",\"GRAG_FINE\",\"GRAG_REM\",\"GRAG_METH\",\"GRAG_LAB\",\"GRAG_CRED\",\"TEST_STAT\",\"FILE_FSET\"";
+    string table_units =  "\"UNIT\",\"\",\"m\",\"\",\"\",\"\",\"\",\"m\",\"\",\"\",\"\",\"%\",\"%\",\"%\",\"%\",\"%\",\"%\",\"\",\"\",\"\",\"\",\"\",\"\"";
+    string table_types =    "\"TYPE\",\"ID\",\"2DP\",\"X\",\"PA\",\"ID\",\"X\",\"2DP\",\"X\",\"X\",\"1SF\",\"1DP\",\"1DP\",\"1DP\",\"1DP\",\"1DP\",\"1DP\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\"";
+    
+    StringBuilder sb = new StringBuilder();
+    sb.Append (table_name);
+    sb.AppendLine();
+    sb.Append (table_headings);
+    sb.AppendLine();
+    sb.Append (table_units);
+    sb.AppendLine();
+    sb.Append (table_types);
+    sb.AppendLine();
+
+    foreach (GRAG row in rows) {
+        string line = $"\"DATA\",\"{row.PointID}\",\"{row.SAMP_Depth}\",\"{row.SAMP_REF}\",\"{row.SAMP_TYPE}\",\"{row.SAMP_ID}\",\"{row.SPEC_REF}\",\"{row.Depth}\",\"{row.SPEC_DESC}\",\"{row.SPEC_PREP}\",\"{row.GRAG_UC}\",\"{row.GRAG_VCRE}\",\"{row.GRAG_GRAV}\",\"{row.GRAG_SAND}\",\"{row.GRAG_SILT}\",\"{row.GRAG_CLAY}\",\"{row.GRAG_FINE}\",\"{row.GRAG_REM}\",\"{row.GRAG_METH}\",\"{row.GRAG_LAB}\",\"{row.GRAG_CRED}\",\"{row.TEST_STAT}\",\"{row.FILE_FSET}\"";
+        sb.Append(line);
+        sb.AppendLine();
+    }
+    
+    return sb.ToString();
+}
+public async Task<IActionResult>  getAGSTable(List<GRAG_WC> rows, string[] tables,
+                        string version, Boolean min = false) {
+        
+        List<POINT> pt = new List<POINT>();
+        List<SAMP> smp = new List<SAMP>();
+        List<GRAG> gg = new List<GRAG>();
+        List<GRAT> gt = new List<GRAT>();
+ 
+        foreach (GRAG_WC row in rows) {
+            GRAG g =  (GRAG) row;
+                gg.Add (g);
+            foreach(GRAT row2 in row.GRAT) {
+                gt.Add (row2);    
+            }
+        }
+        
+        string grag =  getAGSTable(gg, version, min);
+        string grat =  getAGSTable(gt, version, min);
+
+        StringBuilder sb = new StringBuilder();
+        
+        sb.Append (grag);
+        sb.AppendLine();
+        sb.Append (grat);
+
+        return Ok(sb.ToString());
+
+}
+
 private string getAGSTable(List<ABBR> rows, 
                         string version, bool min = false) {
     
@@ -1274,7 +1358,7 @@ private string getAGS404Table(dsTable ds) {
 
     return sb.ToString();
 }
-public async Task<int> UploadMOND(Guid projectId, 
+public async Task<int> Upload(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null
                                 )
@@ -1282,13 +1366,27 @@ public async Task<int> UploadMOND(Guid projectId,
 
 
     if (where == null) {
-    return await uploadMOND_Single(projectId, save_items);
+    return await uploadSingle(projectId, save_items);
     }
 
-    return await uploadMOND_Bulk(projectId,save_items, where);
+    return await uploadBulk(projectId,save_items, where);
     
     }
-private async Task<int> uploadMOND_Single(Guid projectId, 
+    public async Task<int> Upload(Guid projectId, 
+                                 List<MONV> save_items, 
+                                 string where = null
+                                )
+                                 {   
+
+
+ //   if (where == null) {
+    return await uploadSingle(projectId, save_items);
+ //   }
+
+  //  return await uploadBulk(projectId, save_items, where);
+    
+    }
+private async Task<int> uploadSingle(Guid projectId, 
                                  List<MOND> save_items) 
                                  {   
 
@@ -1348,7 +1446,131 @@ private async Task<int> uploadMOND_Single(Guid projectId,
         });
  
 }
+private int getBITValue(Boolean value) {
+    if (value==true) { 
+    return 1;
+    }
+    return 0;
+}
+private void setValues(ERES item, DataRow row) {
+                        row["gINTProjectID"] = item.gINTProjectID;
+                        row["PointID"] = item.PointID;
+                        row["SAMP_Depth"] = item.SAMP_Depth;
+                        row["SAMP_REF"] = item.SAMP_REF;
+                        row["SAMP_TYPE"] = item.SAMP_TYPE;    
+                        row["SAMP_ID"] = item.SAMP_ID;
+                        row["Depth"] = item.Depth;
+                        row["SPEC_REF"] = item.SPEC_REF;
+                        row["ItemKey"] = item.ItemKey;
+                        row["ERES_METH"] = item.ERES_METH; 
+                        row["Matrix-Run Type"] = item.Matrix_Run_Type;
+                        row["ERES_MATX"] = item.ERES_MATX;
+                        row["ERES_RTYP"] = item.ERES_RTYP;
+                        row["ERES_TESN"] = item.ERES_TESN;
+                        row["ERES_NAME"] = item.ERES_NAME;
+                        row["ERES_TNAM"] = item.ERES_TNAM;
+                        if (item.ERES_RVAL == null) {row["ERES_RVAL"] = DBNull.Value;} else {row["ERES_RVAL"] = item.ERES_RVAL;}     
+                        row["ERES_RUNI"] = item.ERES_RUNI;
+                        row["ERES_RTXT"] = item.ERES_RTXT;
+                        row["ERES_RTCD"] = item.ERES_RTCD; 
+                        if (item.ERES_RRES == null) {row["ERES_RRES"] = DBNull.Value;} else {row["ERES_RRES"] = getBITValue (item.ERES_RRES.Value);}    
+                        if (item.ERES_DETF == null) {row["ERES_DETF"] = DBNull.Value;} else {row["ERES_DETF"] = getBITValue (item.ERES_DETF.Value);}    
+                        if (item.ERES_ORG == null) {row["ERES_ORG"] = DBNull.Value;} else {row["ERES_ORG"] = getBITValue (item.ERES_ORG.Value);}    
+                        row["ERES_IQLF"] = item.ERES_IQLF;     
+                        row["ERES_LQLF"] = item.ERES_LQLF;  
+                        if (item.ERES_RDLM == null) {row["ERES_RDLM"] = DBNull.Value;} else {row["ERES_RDLM"] = item.ERES_RDLM;}      
+                        if (item.ERES_MDLM == null) {row["ERES_MDLM"] = DBNull.Value;} else {row["ERES_MDLM"] = item.ERES_MDLM;}   
+                        if (item.ERES_QLM == null) {row["ERES_QLM"] = DBNull.Value;} else {row["ERES_QLM"] = item.ERES_QLM;}   
+                        row["ERES_DUNI"] = item.ERES_DUNI;
+                        if (item.ERES_TPICP == null) {row["ERES_TPICP"] = DBNull.Value;} else {row["ERES_TPICP"] = item.ERES_TPICP;} 
+                        if (item.ERES_TICT == null) {row["ERES_TICT"] = DBNull.Value;} else {row["ERES_TICT"] = item.ERES_TICT;} 
+                        if (item.ERES_RDAT == null) {row["ERES_RDAT"] = DBNull.Value;} else {row["ERES_RDAT"] = item.ERES_RDAT;} 
+                        row["ERES_SGRP"] = item.ERES_SGRP; 
+                        row["SPEC_DESC"] = item.SPEC_DESC;
+                        row["SPEC_PREP"] = item.SPEC_PREP;       
+                        if (item.ERES_DTIM == null) {row["ERES_DTIM"] = DBNull.Value;} else {row["ERES_DTIM"] = item.ERES_DTIM;} 
+                        row["ERES_TEST"] = item.ERES_TEST;
+                        row["ERES_TORD"] = item.ERES_TORD;
+                        row["ERES_LOCN"] = item.ERES_LOCN; 
+                        row["ERES_BAS"] = item.ERES_BAS;
+                        if (item.ERES_DIL == null) {row["ERES_DIL"] = DBNull.Value;} else {row["ERES_DIL"] = item.ERES_DIL;} 
+                        row["ERES_LMTH"] = item.ERES_LMTH;
+                        if (item.ERES_LDTM == null) {row["ERES_LDTM"] = DBNull.Value;} else {row["ERES_LDTM"] = item.ERES_LDTM;} 
+                        row["ERES_IREF"] = item.ERES_IREF;
+                        if (item.ERES_SIZE == null) {row["ERES_SIZE"] = DBNull.Value;} else {row["ERES_SIZE"] = item.ERES_SIZE;} 
+                        if (item.ERES_PERP == null) {row["ERES_PERP"] = DBNull.Value;} else {row["ERES_PERP"] = item.ERES_PERP;} 
+                        row["ERES_REM"] = item.ERES_REM;
+                        row["ERES_LAB"] = item.ERES_LAB; 
+                        row["ERES_CRED"] = item.ERES_CRED;
+                        row["TEST_STAT"] = item.TEST_STAT;                        
+                        row["FILE_FSET"] = item.FILE_FSET;
 
+                        //Non standard LTC  fields
+                        // row["ge_source"] = item.ge_source;
+                        // row["ge_otherId"] = item.ge_otherId;
+                        // row["RND_REF"] = item.RND_REF;
+}
+private void setValues(SAMP item, DataRow row) {
+                        row["gINTProjectID"] = item.gINTProjectID;
+                        row["PointID"] = item.PointID;
+                        row["SAMP_TOP"] = item.Depth;
+                        row["SAMP_REF"] = item.SAMP_REF;
+                        row["SAMP_TYPE"] = item.SAMP_TYPE;    
+                        row["SAMP_ID"] = item.SAMP_ID;
+                        if (item.SAMP_BASE == null) {row["SAMP_BASE"] = DBNull.Value;} else {row["SAMP_BASE"] = item.SAMP_BASE;}
+                        row["SAMP_LINK"] = item.SAMP_LINK;
+                        if (item.SAMP_DTIM == null) {row["SAMP_DTIM"] = DBNull.Value;} else {row["SAMP_DTIM"] = item.SAMP_DTIM;}
+                        if (item.SAMP_UBLO == null) {row["SAMP_UBLO"] = DBNull.Value;} else {row["SAMP_UBLO"] = item.SAMP_UBLO;}
+                        row["SAMP_CONT"] = item.SAMP_CONT;
+                        row["SAMP_PREP"] = item.SAMP_PREP;
+                        if (item.SAMP_DIA == null) {row["SAMP_DIA"] = DBNull.Value;} else {row["SAMP_DIA"] = item.SAMP_DIA;}
+                        if (item.SAMP_WDEP == null) {row["SAMP_WDEP"] = DBNull.Value;} else {row["SAMP_WDEP"] = item.SAMP_WDEP;}
+                        if (item.SAMP_RECV == null) {row["SAMP_RECV"] = DBNull.Value;} else {row["SAMP_RECV"] = item.SAMP_RECV;}
+                        row["SAMP_TECH"] = item.SAMP_TECH; 
+                        row["SAMP_MATX"] = item.SAMP_MATX;
+                        row["SAMP_TYPC"] = item.SAMP_TYPC;
+                        row["SAMP_WHO"] = item.SAMP_WHO;
+                        row["SAMP_WHY"] = item.SAMP_WHY;
+                        row["SAMP_REM"] = item.SAMP_REM;
+                        row["SAMP_DESC"] = item.SAMP_DESC;
+                        if (item.SAMP_DESD == null) {row["SAMP_DESD"] = DBNull.Value;} else {row["SAMP_DESD"] = item.SAMP_DESD;}
+                        row["SAMP_LOG"] = item.SAMP_LOG;
+                        row["SAMP_COND"] = item.SAMP_COND;
+                        row["SAMP_CLSS"] = item.SAMP_CLSS;
+                        if (item.SAMP_BAR == null) {row["SAMP_BAR"] = DBNull.Value;} else {row["SAMP_BAR"] = item.SAMP_BAR;}
+                        if (item.SAMP_TEMP == null) {row["SAMP_TEMP"] = DBNull.Value;} else {row["SAMP_TEMP"] = item.SAMP_TEMP;}
+                        if (item.SAMP_PRES == null) {row["SAMP_PRES"] = DBNull.Value;} else {row["SAMP_PRES"] = item.SAMP_PRES;}
+                        if (item.SAMP_FLOW == null) {row["SAMP_FLOW"] = DBNull.Value;} else {row["SAMP_FLOW"] = item.SAMP_FLOW;}
+                        if (item.SAMP_ETIM == null) {row["SAMP_ETIM"] = DBNull.Value;} else {row["SAMP_ETIM"] = item.SAMP_ETIM;}
+                        if (item.SAMP_DURN == null) {row["SAMP_DURN"] = DBNull.Value;} else {row["SAMP_DURN"] = item.SAMP_DURN;}
+                        row["SAMP_CAPT"] = item.SAMP_CAPT;
+                        row["GEOL_STAT"] = item.GEOL_STAT;
+                        if (item.SAMP_RECL == null) {row["SAMP_RECL"] = DBNull.Value;} else {row["SAMP_RECL"] = item.SAMP_RECL;}
+                        row["FILE_FSET"] = item.FILE_FSET;
+
+                       // Non standard LTC  fields
+                       // row["ge_source"] = item.ge_source;
+                       // row["ge_otherId"] = item.ge_otherId;
+                       // row["RND_REF"] = item.RND_REF;
+}
+private void setValues(SPEC item, DataRow row) {
+                        row["gINTProjectID"] = item.gINTProjectID;
+                        row["PointID"] = item.PointID;
+                        row["SAMP_Depth"] = item.SAMP_Depth;
+                        row["SAMP_REF"] = item.SAMP_REF;
+                        row["SAMP_TYPE"] = item.SAMP_TYPE;    
+                        row["SAMP_ID"] = item.SAMP_ID;
+                        row["Depth"] = item.Depth;
+                        row["SPEC_REF"] = item.SPEC_REF;
+                        row["SPEC_DESC"] = item.SPEC_DESC;
+                        row["SPEC_REM"] = item.SPEC_REM;
+                       // row["SPEC_PREP"] = item.SPEC_PREP;        
+                    
+                    //Non standard LTC  fields
+                    //    row["ge_source"] = item.ge_source;
+                    //    row["ge_otherId"] = item.ge_otherId;
+                    //    row["RND_REF"] = item.RND_REF;
+}
 
 private void setValues(MOND item, DataRow row) {
                         
@@ -1376,9 +1598,99 @@ private void setValues(MOND item, DataRow row) {
                         row["ge_otherId"] = item.ge_otherId;
                         row["RND_REF"] = item.RND_REF;
 }
+private async Task<int> uploadBulk(Guid projectId, 
+                                 List<ERES> save_items, 
+                                 string where = null )
+                                 {   
+
+    int NOT_OK = -1;
+    int ret = 0;
+    
+    dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+
+    if (cd==null) {
+        return NOT_OK;
+    }
+
+    var holes = save_items.Select(e => new {e.PointID})
+                      .Distinct().ToList();
+        
+    string dbConnectStr = cd.AsConnectionString();
+    int gINTProjectID = cd.ProjectId;
+
+        
+        return await Task.Run(() =>
+        
+        {
+            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+            {
+                cnn.Open();
+                dsTable dsMOND = new gINTTables().MOND;
+                dsMOND.setConnection (cnn);
 
 
-private async Task<int> uploadMOND_Bulk(Guid projectId, 
+                DataTable dtMOND = null;
+
+                // reduce the dataset, all logger records could be massive
+                for (int i=0; i < holes.Count; i++) {
+                
+                    string wherePointID = holes[i].PointID;
+
+                    if (where != null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                    }
+                    
+                    if (where == null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                    }
+
+                    if (where != null && wherePointID !="") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                    }
+                    
+                    dsMOND.getDataSet();
+                    dtMOND = dsMOND.getDataTable();
+                    Boolean checkExisting = false;
+
+                    if (dtMOND.Rows.Count>0) {
+                        checkExisting=true;
+                    }
+
+                    foreach (ERES item in save_items) {
+
+                            DataRow row = null;
+                            
+                            if (checkExisting==true) {
+                                //check for existing records
+                                if (item.GintRecID>0) {
+                                row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                }
+
+                                //check for unique records
+                                // primary unique key gINTProjectID, PointID, SAMP_Depth, SAMP_REF, SAMP_TYPE, SAMP_ID, Depth, SPEC_REF
+                                if (row == null) {
+                                    if (item.SPEC_REF !=null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF='{item.SPEC_REF}'").SingleOrDefault();
+                                    if (item.SPEC_REF == null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF is null").SingleOrDefault();
+                                }
+                            }
+
+                            if (row == null) {
+                                row = dsMOND.NewRow();
+                                dsMOND.addRow (row);
+                            }
+
+                            setValues(item, row);                        
+                    } 
+                
+                    ret = dsMOND.BulkUpdate();
+
+                }
+            } 
+           return ret;
+        });
+ }
+
+private async Task<int> uploadBulk(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null )
                                  {   
@@ -1511,7 +1823,7 @@ return newM;
 
 }
 [HttpPost]
-public async Task<int> UploadMONV(Guid projectId, List<MONV> save_items){   
+public async Task<int> uploadSingle(Guid projectId, List<MONV> save_items){   
 
     int NOT_OK = -1;
     int ret = 0;

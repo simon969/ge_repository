@@ -254,7 +254,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                    _userManager,
                                                    _env ,
                                                    _ge_config
-                                                       ).UploadMOND (_project.Id, MOND,"ge_source in ('esri_survey','esri_survey_repeat')");
+                                                       ).Upload (_project.Id, MOND,"ge_source in ('esri_survey','esri_survey_repeat')");
 
                 ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
                 var saveMONV_resp = await new ge_gINTController (_context,
@@ -262,7 +262,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).UploadMONV (_project.Id, MONV);
+                                                        ).Upload (_project.Id, MONV);
                 ViewData["FeatureStatus"] = $"Features attributes({saveMONV_resp}) written to MONV table";
             }  
             

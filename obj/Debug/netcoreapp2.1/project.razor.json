@@ -2987,6 +2987,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\ViewERES.cshtml",
+      "TargetPath": "Views\\Shared\\ViewERES.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
       "TargetPath": "Areas\\Identity\\Pages\\_ValidationScriptsPartial.cshtml",
       "FileKind": "mvc"
@@ -3127,6 +3132,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\ViewSPEC.cshtml",
+      "TargetPath": "Views\\Shared\\ViewSPEC.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\User\\Delete.cshtml",
       "TargetPath": "Pages\\User\\Delete.cshtml",
       "FileKind": "mvc"
@@ -3164,6 +3174,11 @@
     {
       "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Shared\\_DetailsBase.cshtml",
       "TargetPath": "Pages\\Shared\\_DetailsBase.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\ViewSAMP.cshtml",
+      "TargetPath": "Views\\Shared\\ViewSAMP.cshtml",
       "FileKind": "mvc"
     },
     {

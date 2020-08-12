@@ -614,3 +614,6 @@ C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcorea
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\ge_repository.RazorTargetAssemblyInfo.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\ge_repository.Views.pdb
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\ge_repository.csproj.CopyComplete
+C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\Shared\ViewERES.g.cshtml.cs
+C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\Shared\ViewSAMP.g.cshtml.cs
+C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\Shared\ViewSPEC.g.cshtml.cs

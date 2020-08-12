@@ -1,0 +1,342 @@
+ @model List<ge_repository.OtherDatabase.ERES>
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+} *@
+
+<h2>Details</h2>
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].PointID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_Depth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_TYPE)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SAMP_ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Depth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_REF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ItemKey)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_METH)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].Matrix_Run_Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_MATX)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RTYP)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TESN)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_NAME)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TNAM)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RVAL)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RUNI)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RTXT)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RTCD)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RRES)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_DETF)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_ORG)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_IQLF)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_LQLF)
+            </th> 
+              <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RDLM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_MDLM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_QLM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_DUNI)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TPICP)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TICT)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_RDAT)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_SGRP)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_DESC)
+            </th> 
+              <th>
+                @Html.DisplayNameFor(model => model[0].SPEC_PREP)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_DTIM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TEST)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_TORD)
+            </th> 
+                        <th>
+                @Html.DisplayNameFor(model => model[0].ERES_LOCN)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_BAS)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_DIL)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_LMTH)
+            </th> 
+              <th>
+                @Html.DisplayNameFor(model => model[0].ERES_LDTM)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_IREF)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_SIZE)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_PERP)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_REM)
+            </th>
+                        <th>
+                @Html.DisplayNameFor(model => model[0].ERES_LAB)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].ERES_CRED)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].TEST_STAT)
+            </th> 
+            <th>
+                @Html.DisplayNameFor(model => model[0].FILE_FSET)
+            </th>
+
+            @* <th>
+                @Html.DisplayNameFor(model => model[0].ge_source)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].ge_otherId)
+            </th> *@
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => m.PointID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_Depth)
+            </td>
+            <td>    
+                @Html.DisplayFor(modelItem => m.SAMP_REF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_TYPE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SAMP_ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.Depth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_REF)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.ItemKey)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.ERES_METH)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.Matrix_Run_Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_MATX)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RTYP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_TESN)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_NAME)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => m.ERES_TNAM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RVAL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RVAL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RUNI)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RTXT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RTCD)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RRES)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_DETF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_ORG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_IQLF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_LQLF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RDLM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_MDLM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_QLM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_DUNI)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_TPICP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_TICT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_RDAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_SGRP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_DESC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.SPEC_PREP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_DTIM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_TEST)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_TORD)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_LOCN)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_BAS)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_DIL)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_LMTH)
+            </td>
+                        <td>
+                @Html.DisplayFor(modelItem => m.ERES_LDTM)
+            </td>
+                        <td>
+                @Html.DisplayFor(modelItem => m.ERES_IREF)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_SIZE)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_PERP)
+            </td>
+                        <td>
+                @Html.DisplayFor(modelItem => m.ERES_REM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ERES_LAB)
+            </td>
+                        <td>
+                @Html.DisplayFor(modelItem => m.ERES_CRED)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.TEST_STAT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.FILE_FSET)
+            </td>
+             @* <td>
+                @Html.DisplayFor(modelItem => m.ge_source)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.ge_otherId)
+            </td> *@
+
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

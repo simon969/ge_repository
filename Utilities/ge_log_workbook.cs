@@ -99,6 +99,11 @@ namespace ge_repository.OtherDatabase
 
     public object getValue(int row, int column) {
         ICell cell = worksheet.GetRow(row).GetCell(column);
+        
+        if (cell==null) {
+            return null;
+        }
+
         return getCellValue(cell);
     }
 
@@ -110,7 +115,7 @@ namespace ge_repository.OtherDatabase
         worksheet = workbook.GetSheetAt(0); 
         return workbook.NumberOfSheets == 1;
     }
-    public int matchReturnColumn(string find_string, int row_start, int row_offset) {
+    public int matchReturnColumn(string find_string, int row_start, int row_offset, Boolean exact = false) {
 
         for (int row = row_start; row <= row_start + row_offset; row++) {
             ICell cell = findCellContainsValue(find_string, row); 
@@ -122,9 +127,9 @@ namespace ge_repository.OtherDatabase
         return -1;
     }
 
-    public int matchReturnRow(string find_string) {
+    public int matchReturnRow(string find_string, Boolean exact = false) {
 
-        ICell cell = findCellContainsValue(find_string); 
+        ICell cell = findCellContainsValue(find_string, exact); 
         
         if (cell!=null) {
            return cell.RowIndex;
@@ -134,9 +139,9 @@ namespace ge_repository.OtherDatabase
 
     }
    
-    public int matchReturnColumn(string find_string) {
+    public int matchReturnColumn(string find_string, Boolean exact = false) {
 
-        ICell cell = findCellContainsValue(find_string); 
+        ICell cell = findCellContainsValue(find_string, exact); 
         
         if (cell!=null) {
            return cell.ColumnIndex;
@@ -190,9 +195,9 @@ namespace ge_repository.OtherDatabase
             return "";
 
     }
-    public string matchReturnValue(string find_string, int ret_offset_col, int ret_offset_row) {
+    public string matchReturnValue(string find_string, int ret_offset_col, int ret_offset_row, Boolean exact = false) {
        
-        ICell cell = findCellContainsValue(find_string); 
+        ICell cell = findCellContainsValue(find_string, exact); 
         
         if (cell!=null) {
             ICell val_cell = worksheet.GetRow(cell.RowIndex + ret_offset_row).GetCell(cell.ColumnIndex + ret_offset_col);
@@ -203,27 +208,33 @@ namespace ge_repository.OtherDatabase
 
         return "";
     }
-    public ICell findCellContainsValue(string value) {
+    public ICell findCellContainsValue(string value,Boolean exact = false) {
         
         foreach (IRow row in worksheet) {
             foreach (ICell cell in row) {
                 string s1 = DataFormatter(cell);
-                  if (s1.Contains(value)) {
+                  if (s1.Equals(value)) {
                   return cell;
-                }
+                  }
+                  if (s1.Contains(value) & exact==false) {
+                  return cell;
+                  }
             }
         }
 
         return null;
     }
-    public ICell findCellContainsValue(string value, int row_index) {
+    public ICell findCellContainsValue(string value, int row_index, Boolean exact = false) {
         
         IRow row  = worksheet.GetRow(row_index);
         
         if (row!=null) { 
             foreach (ICell cell in row) {
                 string s1 = DataFormatter(cell);
-                if (s1.Contains(value)) {
+                 if (s1.Equals(value)) {
+                  return cell;
+                }
+                if (s1.Contains(value) & exact==false) {
                     return cell;
                 }
             }
