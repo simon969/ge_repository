@@ -73,11 +73,13 @@ namespace ge_repository.Pages.Data
      public void setViewData(){
          if (data.project!=null) {
             ViewData["ProjectName"] =  data.project.name;
+            var projects = _context.ge_project.Where(m=>m.groupId==data.project.groupId);
+            ViewData["selectProjectId"] = projects.Select (x => new SelectListItem() { Text = x.name, Value = x.Id.ToString(), Selected = x.Id == data.projectId });
          }
        //     ViewData["selectCRUDDOperations"]= Constants.CRUDD_OperationsArray.Select(x => new SelectListItem() { Text = x, Value = x, Selected = x == data.operations });
             ViewData["selectRUDDOperations"]= Constants.RUDD_OperationsArray.Select(x => new SelectListItem() { Text = x, Value = x, Selected = x == data.operations });
             ViewData["pstatus"] = new SelectList(Enum.GetValues(typeof(Constants.PublishStatus))); 
-     
+           
         }
          public string getFilenameNoPath(string filename)
     {

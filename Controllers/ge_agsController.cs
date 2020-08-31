@@ -23,7 +23,8 @@ namespace ge_repository.Controllers
        public class ge_agsController : ge_Controller
         {
             public IOptions<ags_config> _agsConfig { get; }
-            public ge_data data;
+            public ge_data data {get;set;}
+            public string[] lines {get;set;}
             public string userId;
             public List<MOND> MOND {get; set;}
             public List<MONV> MONV {get; set;}
@@ -293,15 +294,69 @@ namespace ge_repository.Controllers
             if (tables.Contains("SAMP")) {
                 SAMP = new List<SAMP>();
                 readGroup(lines, SAMP);
+                if (save == true) { 
+                    var resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).Upload (_data.projectId, SAMP , "ge_source='ge_ags'");
+                }
             }
             if (tables.Contains("ERES")) {
                 ERES = new List<ERES>();
-                readGroup(lines, ERES);
+                readGroup(lines, ERES); 
+                if (save == true) { 
+                    var resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).Upload (_data.projectId, ERES , "ge_source='ge_ags'");
+                }
+
+                SPEC =  new List<SPEC>();
+                addSPEC(ERES);
+                if (save == true) { 
+                    var resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).Upload (_data.projectId, SPEC , "ge_source='ge_ags'");
+                }
+
+               
             }
             return Ok();
            }
 
-        private int find_line(string[] lines, string value) {
+        private int addSPEC(List<ERES> list) {
+
+            foreach (ERES row in list) {
+                SPEC newRow = newSPEC(row);
+                SPEC.Add (newRow);
+            } 
+            return SPEC.Count();
+        }
+
+        private SPEC newSPEC(ERES p) {
+
+            SPEC spec = new SPEC {
+                                gINTProjectID=p.gINTProjectID,
+                                PointID = p.PointID,
+                                SAMP_Depth = p.SAMP_Depth,
+                                SAMP_ID = p.SAMP_ID, 
+                                SAMP_TYPE = p.SAMP_TYPE,
+                                SAMP_REF = p.SAMP_REF,
+                                SPEC_DESC = p.SPEC_DESC,
+                                SPEC_REF = p.SPEC_REF
+                                };
+
+            return spec;
+
+        }
+         private int find_line(string[] lines, string value) {
             for (int i=0; i<lines.Count();i++) {
                 if (lines[i]==value){
                 return i;
@@ -485,7 +540,9 @@ namespace ge_repository.Controllers
                     return i;
                 }
                 string[] values = line.QuoteSplit();
-                ERES e = new ERES();
+                ERES e = new ERES {ge_source = "ge_ags",
+                                   ge_otherId= data.Id.ToString() 
+                                };
                 setValues(header, values, e);
                 list.Add (e);
             }

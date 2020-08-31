@@ -30,6 +30,14 @@ namespace ge_repository.OtherDatabase  {
 	[Display(Name = "SPEC_REM")] public string SPEC_REM {get;set;}    
     // [SPEC_REM] [ntext] NULL
 
-
+    [Display(Name = "ge_source Addition field (NON AGS)")] 
+    public string ge_source {get;set;}
+    
+    [Display(Name = "ge_otherId Addition field for ESRI feature update (NON AGS)")] 
+    public string ge_otherId {get;set;}
+ 
+    [Display (Name = "Survey Round Ref")] 
+    public string RND_REF {get;set;}
+	  // RND_REF [nvarchar](255) NULL,
     }
 }

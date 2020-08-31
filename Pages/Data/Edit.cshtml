@@ -14,11 +14,22 @@
         <form method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="data.Id" />
-            <input type="hidden" asp-for="data.projectId" />
             <input type="hidden" asp-for="data.createdDT"/>
             <input type="hidden" asp-for="data.createdId"/>
             <input type="hidden" asp-for="data.editedDT"/>
             <input type="hidden" asp-for="data.editedId"/>    
+           
+            <div class="form-group">
+                <label asp-for="data.projectId" class="control-label"></label>
+                @if (@Model.IsUserAdmin()){
+                <select asp-for="data.projectId" asp-items="ViewBag.selectProjectId" class="form-control"></select>
+                <span asp-validation-for="data.projectId" class="text-danger"></span>
+                } else {
+                <input asp-for="data.projectId" class="form-control" readonly/>    
+                }
+              
+            </div> 
+           
            <partial name="_InputData"
                     for="data"
                     view-data="ViewData" />
@@ -46,6 +57,7 @@
                
             </div> 
             
+           
 
             <div class="form-group">
                 <label asp-for="data.filename" class="control-label"></label>

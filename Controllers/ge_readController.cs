@@ -118,12 +118,16 @@ namespace ge_repository.Controllers
 
     private GRAT newGRAT(GRAG gg) {
         GRAT gt = new GRAT {
-                        PointID=gg.PointID,
-
+                        PointID    = gg.PointID,
+                        Depth = gg.Depth,
+                        SAMP_Depth = gg.SAMP_Depth,
+                        SAMP_ID = gg.SAMP_ID,
+                        SAMP_REF = gg.SAMP_REF,
+                        SPEC_REF = gg.SPEC_REF,
                         };
         return gt;
     }
-    private Double? getDouble(object obj, int? retError = null) {
+    private Double? getDouble(object obj, Double? retError = null) {
 
         try {
         return Convert.ToDouble (obj);
@@ -142,9 +146,12 @@ namespace ge_repository.Controllers
                 int sand_row =  template.search_items.Find(e=>e.name=="sand").row;
                 int silt_row =  template.search_items.Find(e=>e.name=="silt").row;
                 int clay_row =  template.search_items.Find(e=>e.name=="clay").row;
+                int sampid_row =  template.search_items.Find(e=>e.name=="sample_ref").row;
+                int depth_row = template.search_items.Find(e=>e.name=="sample_depth").row;
+
                 int line_start = template.data_start_row(-1);
                 int line_end = template.data_end_row(40);
-
+                
                 List<GRAG_WC> GRAG_WC =  new List<GRAG_WC>();
                 
                 foreach (value_header vh in st.headers) {
@@ -153,7 +160,11 @@ namespace ge_repository.Controllers
                     
                     GRAG_WC gg = new GRAG_WC();
                     gg.PointID = vh.id;
+                    gg.SAMP_Depth = getDouble(wb.getValue(depth_row, vh.found)).Value;
+                    gg.Depth = getDouble(wb.getValue(depth_row, vh.found)).Value;
+                    gg.SAMP_ID = Convert.ToString(wb.getValue(sampid_row,vh.found));
                     gg.SPEC_DESC = Convert.ToString(wb.getValue(descr_row,vh.found));
+                    gg.SAMP_TYPE = "EB";
                     gg.GRAG_VCRE = getDouble(wb.getValue(cobble_row, vh.found));
                     gg.GRAG_GRAV = getDouble(wb.getValue(gravel_row,vh.found));
                     gg.GRAG_SAND =  getDouble(wb.getValue(sand_row,vh.found));

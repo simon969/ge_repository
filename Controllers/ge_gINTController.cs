@@ -65,7 +65,11 @@ namespace ge_repository.Controllers
         }
      
 
-public async Task<IActionResult> getERES(Guid projectId, string[] points, string where = "", string format="") {
+public async Task<IActionResult> getERES(Guid projectId, 
+                                        string[] points,  
+                                        string[] othergINTProjectId =  null, 
+                                        string where = "", 
+                                        string format="") {
             
             if (projectId == null) {
                 return BadRequest("No projectId provided");
@@ -89,8 +93,18 @@ public async Task<IActionResult> getERES(Guid projectId, string[] points, string
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
+            string sql_where = "";
             
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
+            if (gINTProjectId == null) {
+                return UnprocessableEntity("There is a problem with the gINTProjectId for {project.name} in gINT connection file");
+            }
+
+            if (othergINTProjectId != null) {
+                othergINTProjectId = othergINTProjectId.Concat(new [] { Convert.ToString(gINTProjectId.Value)}).ToArray();
+            } else {
+                othergINTProjectId = new string[] {Convert.ToString(gINTProjectId.Value)};
+            }
+           
             
             if (!String.IsNullOrEmpty(points [0])) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
@@ -135,7 +149,10 @@ public async Task<IActionResult> getERES(Guid projectId, string[] points, string
  }
 
  
- public async Task<IActionResult> getMONG(Guid projectId, string[] points, string format="") {
+ public async Task<IActionResult> getMONG(Guid projectId, 
+                                          string[] points,  
+                                          string[] othergINTProjectId =  null,
+                                          string format="") {
             
             if (projectId == null) {
                 return BadRequest("No projectId provided");
@@ -159,13 +176,27 @@ public async Task<IActionResult> getERES(Guid projectId, string[] points, string
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
+            string sql_where = "";
             
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
-            
-            if (!String.IsNullOrEmpty(points [0])) {
-                sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+            if (gINTProjectId == null) {
+                return UnprocessableEntity("There is a problem with the gINTProjectId for {project.name} in gINT connection file");
+            }
+
+            if (othergINTProjectId != null) {
+                othergINTProjectId = othergINTProjectId.Concat(new [] { Convert.ToString(gINTProjectId.Value)}).ToArray();
+            } else {
+                othergINTProjectId = new string[] {Convert.ToString(gINTProjectId.Value)};
             }
             
+            sql_where = "gINTProjectId in (" + othergINTProjectId.ToDelimString(",","") + ")";
+            
+            points = points ?? new string[0];
+
+            if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
+               sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+            }
+            
+                       
             // if (mongs.Count>0) {
             //     sql_where +=" and (";
             //         foreach (MONG m in mongs) {
@@ -367,11 +398,25 @@ public async Task<int> deleteMOND (Guid projectId,
 //             );
 
 //  }
-
 public async Task<IActionResult> getMOND(Guid projectId, 
                                         DateTime? fromDT, 
                                         DateTime? toDT,
                                         string[] points = null,
+                                        string where = "",
+                                        string format = "") {
+return await getMOND (  projectId, 
+                        fromDT, 
+                        toDT,
+                        points,
+                        null,
+                        where,
+                        format);
+}
+private async Task<IActionResult> getMOND(Guid projectId, 
+                                        DateTime? fromDT, 
+                                        DateTime? toDT,
+                                        string[] points = null,
+                                        string[] othergINTProjectId =  null,
                                         string where = "",
                                         string format = "") {
             
@@ -399,25 +444,37 @@ public async Task<IActionResult> getMOND(Guid projectId,
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
+            string sql_where = "";
             
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
+            if (gINTProjectId == null) {
+                return UnprocessableEntity("There is a problem with the gINTProjectId for {project.name} in gINT connection file");
+            }
+
+            if (othergINTProjectId != null) {
+                othergINTProjectId = othergINTProjectId.Concat(new [] { Convert.ToString(gINTProjectId.Value)}).ToArray();
+            } else {
+                othergINTProjectId = new string[] {Convert.ToString(gINTProjectId.Value)};
+            }
+           
+            sql_where = "gINTProjectId in (" + othergINTProjectId.ToDelimString(",","") + ")";
             
+
             points = points ?? new string[0];
 
             if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
-                sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+               sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             }
             
             if (fromDT!=null) {
-                sql_where += String.Format(" and DateTime>='{0:yyyy-MM-dd HH:mm:ss}'",fromDT.Value);
+                sql_where += " and " + String.Format("DateTime>='{0:yyyy-MM-dd HH:mm:ss}'",fromDT.Value);
             }
             
             if (toDT!=null) {
-                sql_where += String.Format(" and DateTime<='{0:yyyy-MM-dd HH:mm:ss}'",toDT.Value);
+                sql_where += " and " + String.Format("DateTime<='{0:yyyy-MM-dd HH:mm:ss}'",toDT.Value);
             }
 
             if (where!=null) {
-                sql_where += " AND " + where;                
+                sql_where += " and " + where;                
             }
 
             MOND = await Task.Run(() =>
@@ -634,7 +691,10 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
  }
 
 
-  public async Task<IActionResult> getPOINT(Guid projectId, string[] points, string format="") {
+  public async Task<IActionResult> getPOINT(Guid projectId, 
+                                            string[] points = null, 
+                                            string[] othergINTProjectId = null, 
+                                            string format="") {
             
             if (projectId == null)
             {
@@ -659,14 +719,23 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
 
             string dbConnectStr = cd.AsConnectionString();
             int? gINTProjectId = cd.ProjectId;
+            string sql_where = "";
             
-            if (gINTProjectId==null) {
-                return null;
+            if (gINTProjectId == null) {
+                return UnprocessableEntity("There is a problem with the gINTProjectId for {project.name} in gINT connection file");
             }
 
-            string sql_where = "gINTProjectId=" + gINTProjectId.Value;
-           
-            if (!String.IsNullOrEmpty(points [0])) {
+            if (othergINTProjectId != null) {
+                othergINTProjectId = othergINTProjectId.Concat(new [] { Convert.ToString(gINTProjectId.Value)}).ToArray();
+            } else {
+                othergINTProjectId = new string[] {Convert.ToString(gINTProjectId.Value)};
+            }
+            
+            sql_where = "gINTProjectId in (" + othergINTProjectId.ToDelimString(",","") + ")";
+                 
+            points = points ?? new string[0];
+
+            if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             }
 
@@ -712,6 +781,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                                            DateTime? fromDT, 
                                            DateTime? toDT,  
                                            Guid? appendId,
+                                           string[] othergINTProjectId = null,
                                            string where = null,
                                            string version = "4.04", 
                                            string format = "view", 
@@ -751,7 +821,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             
               
             if (tables.Contains("MOND")) {
-            var resp = await getMOND (Id, fromDT, toDT, holes, where,"");
+            var resp = await getMOND (Id, fromDT, toDT, holes, othergINTProjectId, where,"");
             var okResult = resp as OkObjectResult;   
                 if (okResult.StatusCode==200) {
                     MOND = okResult.Value as List<MOND>;
@@ -798,7 +868,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             }
             
             if (tables.Contains("POINT-min")) {
-                var resp = await getPOINT (Id, SelectPoints);  
+                var resp = await getPOINT (Id, SelectPoints, othergINTProjectId);  
                 var okResult = resp as OkObjectResult;   
                 if (okResult.StatusCode==200) {
                     POINT = okResult.Value as List<POINT>;
@@ -810,7 +880,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             }
             
             if (tables.Contains("POINT")) {
-                var resp = await getPOINT (Id, SelectPoints);  
+                var resp = await getPOINT (Id, SelectPoints, othergINTProjectId);  
                 var okResult = resp as OkObjectResult;   
                 if (okResult.StatusCode==200) {
                     POINT = okResult.Value as List<POINT>;
@@ -834,7 +904,7 @@ public async Task<IActionResult> createAGS(Guid Id,
             }
             
             if (tables.Contains("MONG")) {
-                var resp = await getMONG(Id, SelectPoints);
+                var resp = await getMONG(Id, SelectPoints, othergINTProjectId);
                 var okResult = resp as OkObjectResult;   
                 if (okResult.StatusCode==200) { 
                     MONG = okResult.Value as List<MONG>;
@@ -1359,6 +1429,49 @@ private string getAGS404Table(dsTable ds) {
     return sb.ToString();
 }
 public async Task<int> Upload(Guid projectId, 
+                                 List<ERES> save_items, 
+                                 string where = null
+                                )
+                                 {   
+
+
+   // if (where == null) {
+   // return await uploadSingle(projectId, save_items);
+   // }
+
+    return await uploadBulk(projectId,save_items, where);
+    
+    }
+public async Task<int> Upload(Guid projectId, 
+                                 List<SPEC> save_items, 
+                                 string where = null
+                                )
+                                 {   
+
+
+   // if (where == null) {
+   // return await uploadSingle(projectId, save_items);
+   // }
+
+    return await uploadBulk(projectId,save_items, where);
+    
+    }
+public async Task<int> Upload(Guid projectId, 
+                                 List<SAMP> save_items, 
+                                 string where = null
+                                )
+                                 {   
+
+
+   // if (where == null) {
+   // return await uploadSingle(projectId, save_items);
+   // }
+
+    return await uploadBulk(projectId,save_items, where);
+    
+    }
+
+public async Task<int> Upload(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null
                                 )
@@ -1417,6 +1530,8 @@ private async Task<int> uploadSingle(Guid projectId,
 
                         DataRow row = null;
                         
+                        if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
+
                         //check for unique records
                         if (item.MOND_REF !=null) {
                          sqlWhere = $"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF='{item.MOND_REF}'";
@@ -1599,6 +1714,193 @@ private void setValues(MOND item, DataRow row) {
                         row["RND_REF"] = item.RND_REF;
 }
 private async Task<int> uploadBulk(Guid projectId, 
+                                 List<SPEC> save_items, 
+                                 string where = null )
+                                 {   
+
+    int NOT_OK = -1;
+    int ret = 0;
+    
+    dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+
+    if (cd==null) {
+        return NOT_OK;
+    }
+
+    var holes = save_items.Select(e => new {e.PointID})
+                      .Distinct().ToList();
+        
+    string dbConnectStr = cd.AsConnectionString();
+    int gINTProjectID = cd.ProjectId;
+
+        
+        return await Task.Run(() =>
+        
+        {
+            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+            {
+                cnn.Open();
+                dsTable dsMOND = new gINTTables().MOND;
+                dsMOND.setConnection (cnn);
+
+
+                DataTable dtMOND = null;
+
+                // reduce the dataset, all logger records could be massive
+                for (int i=0; i < holes.Count; i++) {
+                
+                    string wherePointID = holes[i].PointID;
+
+                    if (where != null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                    }
+                    
+                    if (where == null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                    }
+
+                    if (where != null && wherePointID !="") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                    }
+                    
+                    dsMOND.getDataSet();
+                    dtMOND = dsMOND.getDataTable();
+                    Boolean checkExisting = false;
+
+                    if (dtMOND.Rows.Count>0) {
+                        checkExisting=true;
+                    }
+
+                    foreach (SPEC item in save_items) {
+
+                            DataRow row = null;
+                            
+                            if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
+                            
+                            if (checkExisting==true) {
+                                //check for existing records
+                                if (item.GintRecID>0) {
+                                row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                }
+
+                                //check for unique records
+                                // primary unique key gINTProjectID, PointID, SAMP_Depth, SAMP_REF, SAMP_TYPE, SAMP_ID, Depth, SPEC_REF
+                                if (row == null) {
+                                    if (item.SPEC_REF !=null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF='{item.SPEC_REF}'").SingleOrDefault();
+                                    if (item.SPEC_REF == null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF is null").SingleOrDefault();
+                                }
+                            }
+
+                            if (row == null) {
+                                row = dsMOND.NewRow();
+                                dsMOND.addRow (row);
+                            }
+
+                            setValues(item, row);                        
+                    } 
+                
+                    ret = dsMOND.BulkUpdate();
+
+                }
+            } 
+           return ret;
+        });
+ }
+private async Task<int> uploadBulk(Guid projectId, 
+                                 List<SAMP> save_items, 
+                                 string where = null )
+                                 {   
+
+    int NOT_OK = -1;
+    int ret = 0;
+    
+    dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+
+    if (cd==null) {
+        return NOT_OK;
+    }
+
+    var holes = save_items.Select(e => new {e.PointID})
+                      .Distinct().ToList();
+        
+    string dbConnectStr = cd.AsConnectionString();
+    int gINTProjectID = cd.ProjectId;
+
+        
+        return await Task.Run(() =>
+        
+        {
+            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+            {
+                cnn.Open();
+                dsTable dsMOND = new gINTTables().MOND;
+                dsMOND.setConnection (cnn);
+
+
+                DataTable dtMOND = null;
+
+                // reduce the dataset, all logger records could be massive
+                for (int i=0; i < holes.Count; i++) {
+                
+                    string wherePointID = holes[i].PointID;
+
+                    if (where != null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                    }
+                    
+                    if (where == null && wherePointID == "") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                    }
+
+                    if (where != null && wherePointID !="") {
+                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                    }
+                    
+                    dsMOND.getDataSet();
+                    dtMOND = dsMOND.getDataTable();
+                    Boolean checkExisting = false;
+
+                    if (dtMOND.Rows.Count>0) {
+                        checkExisting=true;
+                    }
+
+                    foreach (SAMP item in save_items) {
+
+                            DataRow row = null;
+                            
+                            if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
+                            
+                            if (checkExisting==true) {
+                                //check for existing records
+                                if (item.GintRecID>0) {
+                                row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                }
+
+                                //check for unique records
+                                // primary unique key gINTProjectID, PointID, SAMP_Depth, SAMP_REF, SAMP_TYPE, SAMP_ID, Depth, SPEC_REF
+                                if (row == null) {
+                                //    if (item.SPEC_REF !=null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF='{item.SPEC_REF}'").SingleOrDefault();
+                                //    if (item.SPEC_REF == null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF is null").SingleOrDefault();
+                                }
+                            }
+
+                            if (row == null) {
+                                row = dsMOND.NewRow();
+                                dsMOND.addRow (row);
+                            }
+
+                            setValues(item, row);                        
+                    } 
+                
+                    ret = dsMOND.BulkUpdate();
+
+                }
+            } 
+           return ret;
+        });
+ }
+
+private async Task<int> uploadBulk(Guid projectId, 
                                  List<ERES> save_items, 
                                  string where = null )
                                  {   
@@ -1659,6 +1961,8 @@ private async Task<int> uploadBulk(Guid projectId,
                     foreach (ERES item in save_items) {
 
                             DataRow row = null;
+                            
+                            if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
                             
                             if (checkExisting==true) {
                                 //check for existing records
@@ -1763,6 +2067,8 @@ private async Task<int> uploadBulk(Guid projectId,
                 foreach (MOND item in save_items) {
 
                         DataRow row = null;
+                        
+                        if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
                         
                         if (checkExisting==true) {
                             //check for existing records

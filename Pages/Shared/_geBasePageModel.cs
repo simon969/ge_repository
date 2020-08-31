@@ -15,6 +15,18 @@ using ge_repository.DAL;
 namespace ge_repository.Pages.Shared
 {
 
+
+    public abstract class _ge_baseLayout {
+
+        public Guid? groupId {get;set;}
+        public ge_group group {get;set;}
+        public Guid? projectId {get;set;}
+        public ge_project project {get;set;}
+
+
+
+    }
+
     public abstract class _geBasePageModel : PageModel 
     {
         protected ge_DbContext _context { get; }

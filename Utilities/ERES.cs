@@ -110,7 +110,15 @@ namespace ge_repository.OtherDatabase  {
 // 	[TEST_STAT] [nvarchar](255) NULL,
    [Display(Name = "FILE_FSET")] public string FILE_FSET {get;set;}  
 // 	[FILE_FSET] [nvarchar](255) NULL,
-
+    [Display(Name = "ge_source Addition field (NON AGS)")] 
+    public string ge_source {get;set;}
+    
+    [Display(Name = "ge_otherId Addition field for ESRI feature update (NON AGS)")] 
+    public string ge_otherId {get;set;}
+ 
+    [Display (Name = "Survey Round Ref")] 
+    	public string RND_REF {get;set;}
+	  // RND_REF [nvarchar](255) NULL,
     }
     
 }
