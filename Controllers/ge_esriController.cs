@@ -216,6 +216,63 @@ namespace ge_repository.Controllers
         return Json (result2,settings);
 
     }
+
+      public async  Task<IActionResult> updateFeatures(Guid projectId, string name, string features) {
+            
+        if (projectId==null) {
+        return  BadRequest("projectId is null");
+        }
+    
+        var project = await _context.ge_project
+                    .FirstOrDefaultAsync(m => m.Id == projectId);
+
+        if (project == null) {
+            return BadRequest("project is null");
+        }        
+
+        var cs = await getEsriConnection(projectId);
+        
+        if (cs==null) {
+        return Json ("No EsriConnectionSettings found");
+        }
+
+        EsriAppClient eaClient = cs.EsriAppClient;
+        
+        if (eaClient == null) {
+        return Json ("No EsriAppClient found");
+        }
+
+        EsriFeatureTable eft = cs.features.FirstOrDefault(f=>f.Name==name);
+        
+        if (eft==null) {
+        return Json ($"Esri feature table {name} not found in connection file");
+        }
+
+        EsriService es = eft.services.FirstOrDefault(s=>s.geServiceAction=="updateFeatures");
+        
+        if (es==null) {
+        return Json ($"Esri feature table {name} does not have update service in connection file");
+        }
+
+        HttpClient client = new HttpClient();
+        
+        var token2 = eaClient.GetToken(client);
+
+        EsriFeatureUpdateRequest  eFeature = new EsriFeatureUpdateRequest(client, token2.Result.AccessToken,es.Url);
+
+        var result = await eFeature.updateFeatures(features);
+        
+        Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
+        settings.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+        return Json (result,settings);
+
+        // return View(result);
+
+        // return result;
+
+    }
+    
     // public IActionResult Start()
     // {
 

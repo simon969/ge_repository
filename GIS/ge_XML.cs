@@ -141,7 +141,23 @@ namespace ge_repository.spatial {
          return false; 
       }
    }
-  
+   private bool write_object (object o, string name, XmlNode parent) {
+      try {
+         return true;
+      } catch {
+         return false;
+      }
+   }
+   private bool write_object (object o, XmlSerializer serializer, XmlNode parent) {
+      try {
+         StringWriter writer = new StringWriter();
+         serializer.Serialize(writer, o);
+         
+         return true;
+      } catch {
+         return false;
+      }
+   }
 }
 
 }

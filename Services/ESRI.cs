@@ -18,7 +18,7 @@ namespace ge_repository.Services
         }
         
         public static long getEpoch(DateTime datetime) {
-                return (datetime - new DateTime(1970,1,1,0,0,0)).Seconds;
+                return (datetime - new DateTime(1970,1,1,0,0,0)).Seconds * 1000;
         }
  
         public static DateTime setDateWithTime(DateTime date, String time) {
@@ -262,16 +262,21 @@ namespace ge_repository.Services
             }
         }
         public async Task<string> updateFeatures(string Features) {
+            
+            // https://developers.arcgis.com/rest/services-reference/update-features.htm
             if (!String.IsNullOrWhiteSpace(Features)) {
                 features = Features;
             }
-        // https://developers.arcgis.com/rest/services-reference/update-features.htm
-            var url =
-                $"{updateFeatureUrl}?f={f}&features={features}&token={token}";
-            var response = await _httpClient.PostAsync(url, null);
-            var result =
-                await response.Content.ReadAsStringAsync();
-           return result;
+             var values = new List<KeyValuePair<string, string>>();
+             values.Add(new KeyValuePair<string, string>("features", features));
+             values.Add(new KeyValuePair<string, string>("token", token));
+             values.Add(new KeyValuePair<string, string>("f", f));
+             var content = new FormUrlEncodedContent(values);
+
+          //  var url = $"{updateFeatureUrl}?f={f}&features={features}&token={token}";
+            var response = await _httpClient.PostAsync(updateFeatureUrl, content);
+            var result =  await response.Content.ReadAsStringAsync();
+            return result;
         }
         
         }
@@ -321,7 +326,8 @@ public class codedValues {
 }
 
 public class items<T> {
-     public T attributes {get;set;}
+    public T attributes {get;set;}
+    public EsriGeometry geometry {get;set;}
 }
 
 public class EsriFeatureTable {

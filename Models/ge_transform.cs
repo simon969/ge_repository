@@ -38,6 +38,7 @@ using ge_repository.Authorization;
         public string host_esri {get;set;}
         public string host_logger {get;set;}
         public string host_gint {get;set;}
+        public string host_transform {get;set;}
         public string user {get;set;}
         public string version {get;set;}
         public string[] projects {get; set;}
@@ -45,6 +46,7 @@ using ge_repository.Authorization;
         public string[] tables {get; set;}
         public string[] geols {get; set;}
         public string[] options {get;set;}
+        public string transformId {get;set;}
         public string projectId {get;set;}
         public string groupId {get;set;}
         public string Id {get;set;}
@@ -58,6 +60,7 @@ using ge_repository.Authorization;
         public string dictionary {get;set;}
         public string script {get;set;}
         public string css {get;set;}
+        public string arg_vals {get;set;}
 
      }
  }

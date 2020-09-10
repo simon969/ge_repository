@@ -1254,16 +1254,19 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
  					args.AddParam(arg.Key, namespaceUri, val);
 				} */
 		  }
+        // Create the XsltSettings object with script enabled.
+        XsltSettings xsltsettings = new XsltSettings(false,true);
 
         // Create XslCompiledTransform object to loads and compile XSLT string. 
         XslCompiledTransform tranformObj = new XslCompiledTransform();  
-        tranformObj.Load(new XmlTextReader(new StringReader(xslt)));  
-           
+        //tranformObj.Load(new XmlTextReader(new StringReader(xslt)));
+        tranformObj.Load(new XmlTextReader(new StringReader(xslt)),xsltsettings, new XmlUrlResolver());  
+              
         // Create XMLReaderSetting object to assign DtdProcessing, Validation type  
         XmlReaderSettings xmlSettings = new XmlReaderSettings();  
         xmlSettings.DtdProcessing = DtdProcessing.Parse;  
         xmlSettings.ValidationType = ValidationType.DTD;  
-  
+        
         // Create XMLReader object to Transform xml value with XSLT setting   
         using (XmlReader reader = XmlReader.Create(new StringReader(xml), xmlSettings))  
         {  
@@ -1273,8 +1276,19 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
             // Generate HTML string from StringWriter  
             HtmlString htmlString = new HtmlString(writer.ToString());  
             return htmlString;  
-        }  
+        } 
+        
     } 
+    public static string EpochToDate(string s)
+     {
+         try {
+		 long epoch = Convert.ToInt64(s);
+         DateTime dt =  new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoch/1000);
+         return dt.ToString("MM/dd/yyyy hh:mm:ss.fff");
+		 } catch {
+		 return s;
+		 }
+     }
     public static string Replace (this string rawSQL, string data, string hole, string table, string user, string version) {
 
                 string rdata = rawSQL.Replace( "@data", data);

@@ -55,11 +55,11 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[2.1.4, )"
+              "version": "[2.1.14, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[2.1.4, )"
+              "version": "[2.1.11, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",

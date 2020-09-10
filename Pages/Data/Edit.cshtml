@@ -21,13 +21,14 @@
            
             <div class="form-group">
                 <label asp-for="data.projectId" class="control-label"></label>
-                @if (@Model.IsUserAdmin()){
+                <select asp-for="data.projectId" asp-items="ViewBag.selectProjectId" class="form-control"></select>
+                <span asp-validation-for="data.projectId" class="text-danger"></span>
+                @* @if (@Model.IsUserAdmin()){
                 <select asp-for="data.projectId" asp-items="ViewBag.selectProjectId" class="form-control"></select>
                 <span asp-validation-for="data.projectId" class="text-danger"></span>
                 } else {
                 <input asp-for="data.projectId" class="form-control" readonly/>    
-                }
-              
+                } *@
             </div> 
            
            <partial name="_InputData"

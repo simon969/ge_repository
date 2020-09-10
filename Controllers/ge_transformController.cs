@@ -59,6 +59,7 @@ namespace ge_repository.Controllers
 		public static string ge_gis_xmlGet_Endpoint = "ge_gis/xmlGet";
 		public static string ge_data_xmlGetData_Endpoint ="ge_data/xmlGetData";
 		public static string ge_data_xmlGetProjects_Endpoint ="ge_data/xmlGetProjects";
+		
 
     public ge_transformController(
 
@@ -126,8 +127,39 @@ namespace ge_repository.Controllers
 				return RedirectToPageMessage (msgCODE.TRANSFORM_RUN_STOREDPROCEDURE_NOTSUCCESSFULL);
 			}
 		  //  return new OkResult();
-        }	
+        }
+[HttpPost]	
+ public async Task<ActionResult> ViewPost(Guid transformId, 
+		 							Guid? Id,
+									Guid? projectId,
+									Guid? groupId,
+									string[] projects,
+									string[] holes,
+									string[] tables, 
+									string[] geols,
+									string[] options,
+									string[] args,
+									string[] vals,
+									string flwor,
+									string xpath,
+									string version) {
+	return await View(transformId, 
+		 				Id,
+						projectId,
+						groupId,
+						projects,
+						holes,
+						tables, 
+						geols,
+						options,
+						args,
+						vals,
+						flwor,
+						xpath,
+						version);
+									
 
+	}
 
          public async Task<ActionResult> View(Guid transformId, 
 		 							Guid? Id,
@@ -138,6 +170,8 @@ namespace ge_repository.Controllers
 									string[] tables, 
 									string[] geols,
 									string[] options,
+									string[] args,
+									string[] vals,
 									string flwor,
 									string xpath,
 									string version)
@@ -148,20 +182,47 @@ namespace ge_repository.Controllers
 			}
 
 			transform = _context.ge_transform.
+									Include(t=>t.project).
 									Where (t=>t.Id == transformId).FirstOrDefault();
 			
 			if (transform == null) {
-				new EmptyResult();
+				return new EmptyResult();
+			}
+			
+			string arg_val = "";
+
+			for (int i=0; i<args.Length; i++) {
+				if (arg_val.Length>0) arg_val += "&";
+				arg_val += args[i] + "=" + vals[i];
 			}
 
-			ge_transform_parameters transform_params = getTransformParameters(Id,projectId,groupId,projects, holes, tables, geols, options, flwor, xpath, version);
+			if (projectId==null) {
+				projectId=transform.projectId;
+			}
+
+			if (groupId==null) {
+				groupId=transform.project.groupId;
+			}
+
+			ge_transform_parameters transform_params = getTransformParameters(transformId, Id,projectId,groupId,projects, holes, tables, geols, options, arg_val, flwor, xpath, version);
+			
 			/* Convert JSON back to string to pass via ViewBag */
 			string parameters =  JsonConvert.SerializeObject(transform_params);
 
 			if (transform.service_endpoint !=null) {
 				string endpoint = getEndPointURL(transform.service_endpoint);
-				xml_data  = await getServiceEndPointData(endpoint,transform_params);
-			}
+				var resp  = await getServiceEndPointData(endpoint,transform_params);
+				var xmlResult = resp as XmlActionResult;
+				if (xmlResult!=null) {
+					xml_data = xmlResult.Value();
+				}
+				var okResult = resp as OkObjectResult;
+				if (okResult !=null) {   
+					if (okResult.StatusCode==200) {
+						xml_data = okResult.Value as string;
+					}
+				} 
+            }
 			
 			if (transform.dataId !=null && transform.storedprocedure==null) {
 			xml_data  = await new ge_dataController(  _context,
@@ -204,7 +265,7 @@ namespace ge_repository.Controllers
 			ViewBag.xsl_stylesheet = xsl_data;
 			ViewBag.xlt_arguments = parameters;
 
-            return View();
+            return View("View");
         }
 		private string getEndPointURL(string url) {
 
@@ -215,6 +276,7 @@ namespace ge_repository.Controllers
 			ret = ret.Replace("$host_view", host_ref + constHref_transform);
 			ret = ret.Replace("$host_file", host_ref + constHref_dataVIEW);
 			ret = ret.Replace("$host_download", host_ref + constHref_dataDOWNLOAD);
+			ret = ret.Replace("$host_transform", host_ref + constHref_transform);
 			ret = ret.Replace ("$host_esri",host_ref + constHref_esriFEATURE);
 			ret = ret.Replace ("$host_logger", host_ref + constHref_Logger);
 			ret = ret.Replace("$host_gint",host_ref + constHref_gINT);
@@ -222,7 +284,7 @@ namespace ge_repository.Controllers
 
 			return ret;
 		}
-		public async Task<string> getServiceEndPointData(string url, ge_transform_parameters transform_params)
+		public async Task<IActionResult> getServiceEndPointData(string url, ge_transform_parameters transform_params)
         {
             Guid? Id = null;
 			Guid? projectId = null;
@@ -241,7 +303,7 @@ namespace ge_repository.Controllers
                                                         _ge_config).xmlGet(projectId); 
 
 				if (res==null) {
-					return "";
+					return NotFound();
 				}
 				
 				return res;
@@ -255,14 +317,14 @@ namespace ge_repository.Controllers
                                                         _ge_config).xmlGetData(Id,projectId,groupId); 
 
 				if (res==null) {
-					return "";
+					return UnprocessableEntity("data is null for projectid {} groupid {}");
 				}
 			
 				var serializer = new XmlSerializer(typeof(List<ge_data>),
                                    new XmlRootAttribute("ge_root"));
 				using(var stream = new StringWriter()) {
     				serializer.Serialize(stream, res);
-    					return stream.ToString();
+    					return Ok(stream.ToString());
 				}
 			
 			}
@@ -274,7 +336,7 @@ namespace ge_repository.Controllers
                                                         _ge_config).xmlGetProjects(groupId); 
 
 				if (res==null) {
-					return "";
+					return UnprocessableEntity("ge_project is null for groupid {}");
 				}
 				
 
@@ -287,24 +349,51 @@ namespace ge_repository.Controllers
 				}
 				using(var stream = new StringWriter()) {
     				serializer.Serialize(stream, res);
-    					return stream.ToString();
+    					return Ok(stream.ToString());
 				}
 			
 			}
 
+			if (url.Contains("ge_LTC2/ViewSurvey123")) {
 
+				string hole_id = null;
+				if (!String.IsNullOrEmpty(transform_params.arg_vals)) {
+					string[] args = transform_params.arg_vals.Split("&");
+					foreach(string arg in args) {
+						if (arg.Contains("hole_id")) {
+							string[] arg_val = arg.Split("=");
+							hole_id = arg_val[1]; 
+						}
+					}
+				}
+				var res  = await new ge_LTC2Controller(  _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config).ViewSurvey123(projectId.Value,hole_id); 
+				
+				return res;
+				
+			}
 
+			string url2 = transform_params.host + "/" + url;
+			
+			if (!String.IsNullOrEmpty(transform_params.arg_vals)) {
+				url2 += "\\?" + transform_params.arg_vals;
+			} 
 
-
-
-			HttpClient _httpClient = new HttpClient();
-            var response = await _httpClient.PostAsync(url, null);
-            var result =
-                await response.Content.ReadAsStringAsync();
+			var resp =  Redirect(url2);
+			return resp;
+			
+						
+			// HttpClient _httpClient = new HttpClient();
+            // var response = await _httpClient.PostAsync(url2, null);
+            // var result =  await response.Content.ReadAsStringAsync();
            
-		    return result;
+		    // return StatusCode((int)response.StatusCode, response);;
 
         }
+
 		// private string getSeriveEndPointData(string service_end_point) {
 
 		// Uri baseAddress = new Uri("http://localhost:8000/HelloService");
@@ -350,7 +439,7 @@ namespace ge_repository.Controllers
 				return rawSQL;
 
 		}
-		private ge_transform_parameters getTransformParameters(
+		private ge_transform_parameters getTransformParameters( Guid transformId,
 									Guid? Id,
 									Guid? projectId,
 									Guid? groupId,
@@ -359,6 +448,7 @@ namespace ge_repository.Controllers
 									string[] tables, 
 									string[] geols,
 									string[] options,
+									string arg_vals,
 									string flwor,
 									string xpath,
 									string version){
@@ -372,7 +462,6 @@ namespace ge_repository.Controllers
  					Console.WriteLine (e.Message );
 				}
 			}
-
 
 			/* Incase all parameters are passed in first element of parameters array purgeArray for delimiters*/
 			string[] delims = new string[] {",",";"};
@@ -403,7 +492,11 @@ namespace ge_repository.Controllers
 			options = options.purgeArray(delims);
 			transform_params.options = options;	
 			}
-
+			
+			if (!String.IsNullOrEmpty(arg_vals)) {
+			/* To be added process FLO string */
+			transform_params.arg_vals = arg_vals;
+			}
 			if (!String.IsNullOrEmpty(flwor)) {
 			/* To be added process FLO string */
 			transform_params.flwor = flwor;
@@ -414,6 +507,10 @@ namespace ge_repository.Controllers
 			transform_params.xpath = xpath;
 			}
 			
+			if (transformId!=null & transformId!=Guid.Empty) {
+			transform_params.transformId = transformId.ToString();
+			}
+
 			if (Id!=null & Id!=Guid.Empty) {
 			transform_params.Id = Id.ToString();
 			}
@@ -435,9 +532,15 @@ namespace ge_repository.Controllers
 			transform_params.host_logger = getHostHref() + constHref_Logger;
 			transform_params.host_gint = getHostHref() + constHref_gINT;
 			transform_params.host_esri = getHostHref() + constHref_esriFEATURE;
-			transform_params.user = _userManager.GetUserName(User);
 			transform_params.version = version;
 			
+			var user = GetUserAsync();
+
+			if (user!=null) {
+				ge_user u = user.Result as ge_user;
+				transform_params.user = u.FirstName + ' ' + u.LastName + '(' + u.Email + ')';
+			}
+
 			return transform_params;
 		}
 

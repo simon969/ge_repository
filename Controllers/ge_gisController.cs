@@ -33,10 +33,10 @@ namespace ge_repository.Controllers
         {
         }
 
-        public async Task<string> xmlGet(Guid? projectId) {
+        public async Task<IActionResult> xmlGet(Guid? projectId) {
             
             if (projectId==null) {
-                return ""; 
+                return BadRequest(); 
             }
             
             project = await _context.ge_project
@@ -44,14 +44,14 @@ namespace ge_repository.Controllers
                                     .FirstAsync(p => p.Id == projectId);
             
             if (project==null) {
-                return ""; 
+                return UnprocessableEntity("project is null"); 
             }
 
             string data_string = "";
            
             data_string = createXML(project);
 
-            return data_string;
+            return Ok(data_string);
 
         }
         
@@ -74,7 +74,7 @@ namespace ge_repository.Controllers
                 return NotFound(); 
             }
 
-            var user = GetUserAsync().Result;
+            var user = await GetUserAsync();
             
             if (user!=null) {
               return RedirectToPageMessage (msgCODE.USER_NOTFOUND);

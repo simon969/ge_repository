@@ -203,15 +203,16 @@ public void spare_dateTime3_setDT(DateTime? value) { if (value==null){spare_date
 
 public long? CreationDate {get;set;}	// CreationDate, esriFieldTypeDate, CreationDate, sqlTypeOther, 8
 public DateTime? CreationDate_getDT() {if (CreationDate==null) {return null;} return new DateTime(CreationDate.Value);}
-public void CreationDate_setDT(DateTime? value) { if (value==null){CreationDate=null; return;} CreationDate = value.Value.Ticks;}        
+public void CreationDate_setDT(DateTime? value) { if (value==null){CreationDate=null; return;} CreationDate = Esri.getEpoch(value.Value);}        
 
 public string Creator {get;set;}	// Creator, esriFieldTypeString, Creator, sqlTypeOther, 128
 public long? EditDate {get;set;}	// EditDate, esriFieldTypeDate, EditDate, sqlTypeOther, 8
 public DateTime? EditDate_getDT() {if (EditDate==null) {return null;} return new DateTime(EditDate.Value);}
-public void EditDate_setDT(DateTime? value) { if (value==null){EditDate=null; return;} EditDate = value.Value.Ticks;}       
+public void EditDate_setDT(DateTime? value) { if (value==null){EditDate=null; return;} EditDate = Esri.getEpoch(value.Value);}       
 public string Editor {get;set;}	// Editor, esriFieldTypeString, Editor, sqlTypeOther, 128
 
-
+public string dip_or_pressure {get;set;} // dip_or_pressure (type: esriFieldTypeString, alias: Type of water level reading taken, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
+public double? water_pressure {get;set;} // water_pressure (type: esriFieldTypeDouble, alias: Water pressure (bar), SQL Type: sqlTypeOther, nullable: true, editable: true)
  
 }
 
