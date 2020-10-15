@@ -150,7 +150,7 @@ public double? redox_potential {get;set;}	// redox_potential, esriFieldTypeDoubl
 public double? conductivity {get;set;}	// conductivity, esriFieldTypeDouble, Specific conductivity (μS/cm @25 degC), sqlTypeOther, 
 public double? temperature {get;set;}	// temperature, esriFieldTypeDouble, Temperature (°C), sqlTypeOther, 
 public double? dissolved_oxy {get;set;}	// dissolved_oxy, esriFieldTypeDouble, Dissolved oxygen (mg/l), sqlTypeOther, 
-public double? turbitity {get;set;}	// turbitity, esriFieldTypeDouble, Turbidity (NTU), sqlTypeOther, 
+public double? turbitity {get;set;}	// turbitity, esriFieldTypeDouble, Turbitity (NTU), sqlTypeOther, 
 public string water_quality {get;set;}	// water_quality, esriFieldTypeString, Water quality parameters stabilised?, sqlTypeOther, 255
 public double? actual_volume {get;set;}	// actual_volume, esriFieldTypeDouble, Volume purged (l), sqlTypeOther, 
 public string purg_time_fin {get;set;}	// purg_time_fin, esriFieldTypeString, Time purging finished, sqlTypeOther, 255

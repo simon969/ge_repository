@@ -25,6 +25,7 @@ public static class FileExtension {
     		public const string AGS = ".ags";
     		public const string XML = ".xml";
     		public const string XSL = ".xsl";
+            public const string XQ = ".xq";
 }
 public static class ge_AGS {
     	public const string AGS_ATTRIBUTE_VERSION = "agsversion";

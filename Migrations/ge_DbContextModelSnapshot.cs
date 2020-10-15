@@ -193,6 +193,9 @@ namespace ge_repository.Migrations
 
                     b.Property<double?>("locNorth");
 
+                    b.Property<string>("locOtherDb")
+                        .HasMaxLength(255);
+
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
 
@@ -303,6 +306,9 @@ namespace ge_repository.Migrations
 
                     b.Property<double?>("locNorth");
 
+                    b.Property<string>("locOtherDb")
+                        .HasMaxLength(255);
+
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
 
@@ -389,6 +395,9 @@ namespace ge_repository.Migrations
 
                     b.Property<double?>("locNorth");
 
+                    b.Property<string>("locOtherDb")
+                        .HasMaxLength(255);
+
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
 
@@ -461,6 +470,8 @@ namespace ge_repository.Migrations
 
                     b.Property<int>("qstatus");
 
+                    b.Property<Guid?>("queryId");
+
                     b.Property<string>("service_endpoint");
 
                     b.Property<string>("storedprocedure");
@@ -481,6 +492,8 @@ namespace ge_repository.Migrations
                     b.HasIndex("editedId");
 
                     b.HasIndex("projectId");
+
+                    b.HasIndex("queryId");
 
                     b.HasIndex("styleId");
 
@@ -713,6 +726,10 @@ namespace ge_repository.Migrations
                     b.HasOne("ge_repository.Models.ge_project", "project")
                         .WithMany("transform")
                         .HasForeignKey("projectId");
+
+                    b.HasOne("ge_repository.Models.ge_data", "query")
+                        .WithMany()
+                        .HasForeignKey("queryId");
 
                     b.HasOne("ge_repository.Models.ge_data", "style")
                         .WithMany()

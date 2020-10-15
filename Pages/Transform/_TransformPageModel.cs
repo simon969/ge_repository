@@ -88,6 +88,11 @@ namespace ge_repository.Pages.Transform
             var css_data = _context.ge_data
                                         .Where(d=>d.projectId==transform.projectId || libraryId.Contains(d.projectId)) 
                                         .Where(d=>d.filetype.Contains("css"));                        
+             // .xq, .xql, .xqm, .xqy, and .xquery.
+            var xqy_data =  _context.ge_data
+                                        .Where(d=>d.projectId==transform.projectId || libraryId.Contains(d.projectId))
+                                        .Where(d=>d.filetype.Contains("xq"));      
+            
             var xlt_data =  _context.ge_data
                                         .Where(d=>d.projectId==transform.projectId || libraryId.Contains(d.projectId))
                                         .Where(d=>d.fileext == AGS.FileExtension.XSL);        
@@ -95,11 +100,12 @@ namespace ge_repository.Pages.Transform
                                         .Include (t=>t.style)
                                         .Where(t=>t.projectId==transform.projectId);
         
-        setViewData(xml_data, xlt_data, image_data, script_data, css_data, transforms);                                   
+        setViewData(xml_data, xlt_data, xqy_data, image_data, script_data, css_data, transforms);                                   
 
     }
      public void setViewData(   IQueryable<ge_data> xml_data, 
                                 IQueryable<ge_data> xlt_data, 
+                                IQueryable<ge_data> xqy_data,
                                 IQueryable<ge_data> image_data, 
                                 IQueryable<ge_data> script_data,
                                 IQueryable<ge_data> css_data, 
@@ -107,6 +113,7 @@ namespace ge_repository.Pages.Transform
 
             ViewData["dataId"] = new SelectList(xml_data, "Id","filename");
             ViewData["styleId"] = new SelectList(xlt_data, "Id", "filename");
+            ViewData["queryId"] = new SelectList(xqy_data, "Id", "filename");
             ViewData["selectId"] = getMergedList(image_data, script_data, css_data, transforms);
             ViewData["selectSP"] = new SelectList(_config.stored_procedures);
             string[] p = new [] {"project","projectId","hole","table","group","groupId","data","Id","image","dictionary","script","css"};

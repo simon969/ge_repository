@@ -2,10 +2,11 @@ using System;
 using System.Net.Http;
 using System.Globalization;
 using Newtonsoft.Json;
+using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-
+using ge_repository.Extensions;
 namespace ge_repository.Services
 {
 // Courtesy of 
@@ -212,6 +213,7 @@ namespace ge_repository.Services
            private readonly string f="json";
            private string where ="1=1"; 
            private string outFields="*";
+           private string globalid="globalid";
            private readonly string token;
            
         public EsriFeatureQueryRequest(HttpClient httpClient, string Token, string QueryFeatureUrl)
@@ -227,7 +229,49 @@ namespace ge_repository.Services
             queryFeatureUrl = QueryFeatureUrl;    
             }
         }
-        public async Task<string> getFeature(string Where) {
+         public async Task<string> getFeatureIdsOnly(string Where) {
+            
+            if (!String.IsNullOrEmpty(Where)) {
+                where = Where;
+            }
+
+        // https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm
+
+            var url =
+                $"{queryFeatureUrl}?f={f}&where={where}&token={token}&returnIdsOnly=true";
+            var response = await _httpClient.PostAsync(url, null);
+            var result =
+                await response.Content.ReadAsStringAsync();
+           return result;
+
+        }
+        
+        public async Task<string[]> getFeaturesArray(string Where, int max_records=250) {
+                
+                var t1 = await getFeatureIdsOnly(Where);
+                var globalids  = JsonConvert.DeserializeObject<EsriGlobalIdOnly>(t1);
+                
+                int[] array = globalids.objectIds;
+                
+                int pages = Convert.ToInt32(array.Length / max_records + 1);
+                string[] resp = new string[pages];
+
+                for (int page = 0; page < pages; page++) {
+                    int offset = page * max_records;
+                    int length = max_records;
+                    if (offset + length > array.Length) {
+                    length = array.Length-offset;
+                    }
+                    int[] list = array.sub_array(offset,length);
+                    string where2 = "objectid in (" + list.ToDelimString(",") + ")"; 
+                    var s1 = await getFeatures (where2);
+                    resp[page] = (s1);
+                }
+
+                return resp;
+
+        }
+        public async Task<string> getFeatures(string Where) {
             
             if (!String.IsNullOrEmpty(Where)) {
                 where = Where;
@@ -292,7 +336,12 @@ namespace ge_repository.Services
             
         }
 }
+public class EsriGlobalIdOnly {
+    public string objectIdFieldName {get;set;}
+    public int[] objectIds {get;set;}
+    public serverGen serverGens {get;set;}
 
+}
 
 public class uniqueField {
     string name {get;set;}

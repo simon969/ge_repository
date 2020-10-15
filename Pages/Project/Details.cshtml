@@ -9,7 +9,7 @@
     @Model.project.name Details
  </h2>
 <div>
-        <h4>
+        <h5>
         @if (@Model.project.homepageId!=null){
         <a asp-controller="ge_transform" asp-action="View" asp-route-transformId=@Model.project.homepageId>Home Page</a>  
         }
@@ -23,7 +23,7 @@
         |<a asp-page="../UserOperations/Create" asp-route-projectId="@Model.project.Id">User Add</a>
         |<a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@Model.project.Id asp-route-format="kml" >Create KML</a>        
         |<a asp-controller="ge_gis" asp-action="CreateGIS" asp-route-projectId=@Model.project.Id asp-route-format="xml" >Create XML</a>  
-        </h4>
+        </h5>
 </div>
 <div>
     <dl class="dl-horizontal">
@@ -44,11 +44,11 @@
                     view-data="ViewData" />
         </dl>
 </div>
-        <h4>
+        <h5>
         <a asp-page="./Edit" asp-route-id="@Model.project.Id">Edit</a>
         |<a asp-page="./Delete" asp-route-id="@Model.project.Id">Delete</a>
         |<a asp-page="./Index">Back to List</a>
-        </h4>
+        </h5>
 <!-- @if (Model.project.pstatus != Constants.PublishStatus.Approved && Model.IsUserApprover())
 {
     {

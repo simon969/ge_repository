@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.1",
-    "signature": "41a4d1ea3d9a6fca5e82cf5bb5134a1e41f07a6d"
+    "signature": "71f557ab868393c83c9138a1128660e8435bfd8b"
   },
   "compilationOptions": {
     "defines": [
@@ -35,7 +35,9 @@
           "NPOI": "2.5.1",
           "Newtonsoft.Json": "12.0.1",
           "Okta.AspNetCore": "1.1.1",
+          "Saxon-HE-fixedrefs": "9.7.0.13",
           "System.Linq.Dynamic.Core": "1.0.9",
+          "bootstrap": "4.5.2",
           "jQuery.filedrop": "1.0.1"
         },
         "runtime": {
@@ -45,7 +47,14 @@
           "ge_repository.dll": {}
         }
       },
+      "bootstrap/4.5.2": {
+        "dependencies": {
+          "jQuery": "3.0.0",
+          "popper.js": "1.16.1"
+        }
+      },
       "BuildBundlerMinifier/2.9.406": {},
+      "jQuery/3.0.0": {},
       "jQuery.filedrop/1.0.1": {},
       "MailKit/2.1.2": {
         "dependencies": {
@@ -495,6 +504,7 @@
           "lib/netstandard2.0/Okta.AspNetCore.dll": {}
         }
       },
+      "popper.js/1.16.1": {},
       "Portable.BouncyCastle/1.8.6": {
         "runtime": {
           "lib/netstandard2.0/BouncyCastle.Crypto.dll": {
@@ -534,6 +544,52 @@
         "dependencies": {
           "Microsoft.NETCore.Platforms": "2.1.0",
           "Microsoft.NETCore.Targets": "2.1.0"
+        }
+      },
+      "Saxon-HE-fixedrefs/9.7.0.13": {
+        "runtime": {
+          "lib/net40/IKVM.OpenJDK.Charsets.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/IKVM.OpenJDK.Core.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/IKVM.OpenJDK.Text.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/IKVM.OpenJDK.Util.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/IKVM.OpenJDK.XML.API.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/IKVM.Runtime.dll": {
+            "assemblyVersion": "7.2.4630.5",
+            "fileVersion": "7.2.4630.5"
+          },
+          "lib/net40/saxon9he-api.dll": {
+            "assemblyVersion": "9.7.0.13",
+            "fileVersion": "9.7.0.13"
+          },
+          "lib/net40/saxon9he.dll": {
+            "assemblyVersion": "9.7.0.13",
+            "fileVersion": "9.7.0.13"
+          }
+        },
+        "compile": {
+          "lib/net40/IKVM.OpenJDK.Charsets.dll": {},
+          "lib/net40/IKVM.OpenJDK.Core.dll": {},
+          "lib/net40/IKVM.OpenJDK.Text.dll": {},
+          "lib/net40/IKVM.OpenJDK.Util.dll": {},
+          "lib/net40/IKVM.OpenJDK.XML.API.dll": {},
+          "lib/net40/IKVM.Runtime.dll": {},
+          "lib/net40/saxon9he-api.dll": {},
+          "lib/net40/saxon9he.dll": {}
         }
       },
       "SharpZipLib/1.2.0": {
@@ -4089,12 +4145,26 @@
       "serviceable": false,
       "sha512": ""
     },
+    "bootstrap/4.5.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aO6V1YQtUqSBm+ClDdS5MkQoY6FtNjRvm2wBUesc4COvCFW9wZUE3OoHbJeuhNNOQxokMQALFHcQNJUNH9YoWw==",
+      "path": "bootstrap/4.5.2",
+      "hashPath": "bootstrap.4.5.2.nupkg.sha512"
+    },
     "BuildBundlerMinifier/2.9.406": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-jNgso4DDVEDTmM2O41WWI8OMC5CV0yMqMK/cRMJldO64XzC2PDdg+FV/GHqN6qh3KDuTKcDlB/t7F2WBWrNOgQ==",
       "path": "buildbundlerminifier/2.9.406",
       "hashPath": "buildbundlerminifier.2.9.406.nupkg.sha512"
+    },
+    "jQuery/3.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xFfntV19HzCtKdJWOp/XT9PUY3SslokTDDLFJZdBug36j1XVhw1+vPQ/n7Gd5y+jdpesn5B1m1yn1qIUq57jlA==",
+      "path": "jquery/3.0.0",
+      "hashPath": "jquery.3.0.0.nupkg.sha512"
     },
     "jQuery.filedrop/1.0.1": {
       "type": "package",
@@ -4299,6 +4369,13 @@
       "path": "okta.aspnetcore/1.1.1",
       "hashPath": "okta.aspnetcore.1.1.1.nupkg.sha512"
     },
+    "popper.js/1.16.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6GiVZho0vwBnId7pK7NLTjMGq4F0/VE65I08CCeKlarVoUt1w8SGTtJmhNo/0pK38EGUP/xbT4+OkWB8UTMPBw==",
+      "path": "popper.js/1.16.1",
+      "hashPath": "popper.js.1.16.1.nupkg.sha512"
+    },
     "Portable.BouncyCastle/1.8.6": {
       "type": "package",
       "serviceable": true,
@@ -4319,6 +4396,13 @@
       "sha512": "sha512-ARfgeRYF2AnYIcqEvy9VE0agN/3zexMMPtcegq1THpOMS63rIGMi706vCo6pbv9Xzw4qhdX1Gu1zyLZHj2WtLA==",
       "path": "runtime.native.system.net.security/4.3.0",
       "hashPath": "runtime.native.system.net.security.4.3.0.nupkg.sha512"
+    },
+    "Saxon-HE-fixedrefs/9.7.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jPFATJXQpBgND4LwW8k/LLj1E0e1MbHuOcJ/8Oo8CDoseygxaMbo7gGIXs9/CX8h0Mq0DVMPumozJfyAP6wZJg==",
+      "path": "saxon-he-fixedrefs/9.7.0.13",
+      "hashPath": "saxon-he-fixedrefs.9.7.0.13.nupkg.sha512"
     },
     "SharpZipLib/1.2.0": {
       "type": "package",

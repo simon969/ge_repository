@@ -10,7 +10,6 @@
 
 <h2>Details</h2>
 
-<div>
     <h4>Logger File</h4>
       @Html.ActionLink("View Original File", "View", "ge_data",  new { id = Model.dataId }) 
     <h1> </h1>
@@ -153,56 +152,57 @@
             </tbody>
         </table>
     }
-<table class="table">
+ <div class="table-wrapper-scroll-y my-custom-scrollbar">   
+ <table class="table table-bordered table-striped mb-0">
     <thead>
         <tr>
-            <th>
+           <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].ReadingDatetime)
             </th>
-            <th>
+           <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Duration)
             </th>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value1)
             </th>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value2)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value3)
             </th>
-             <th>
+             <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value4)
             </th> 
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value5)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value6)
             </th>   
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value7)
             </th>
             @if (Model.field_headers.Count > 7) {
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value8)
             </th>
-            <th>
+             <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value9)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value10)
             </th>
-             <th>
+             <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value11)
             </th> 
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value12)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value13)
             </th>   
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value14)
             </th>
             }
@@ -265,10 +265,18 @@
     }
     </tbody>
 </table>
-
-
 </div>
+
 <p>
     @Html.ActionLink("Save", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
+
+
+$(document).ready(function () {
+$('#dtVerticalScrollExample').DataTable({
+"scrollY": "200px",
+"scrollCollapse": true,
+});
+$('.dataTables_length').addClass('bs-select');
+});

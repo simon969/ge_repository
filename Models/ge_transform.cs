@@ -17,6 +17,8 @@ using ge_repository.Authorization;
             [Display(Name = "Transform description")]  public string description {get;set;}
             [Display(Name = "Primary Xml data")]  public Guid? dataId {get; set;}
             public virtual ge_data data {get;set;}
+            [Display(Name = "Xquery query")]  public Guid? queryId {get; set;}
+            public virtual ge_data query {get;set;}
             [Display(Name = "Xlst transform")]  public Guid? styleId {get; set;}
             public virtual ge_data style {get;set;}
             [Display(Name = "Additional Xml data")] public string add_data {get;set;}

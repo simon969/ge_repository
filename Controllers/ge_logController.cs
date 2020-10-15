@@ -2065,12 +2065,23 @@ private async Task<int>  UpdateFile (ge_log_file file, Boolean IncludeReadings) 
                             reading.Id = (Guid) row["Id"];
                             reading.fileId = file.Id;
                         }
-                        //what if there are other records (more) in dt_readings from a previous version of the ge_log_file? 
-                        // file.readings.count<dt_readings.count this will still be present
+                       
                         set_log_reading_values (reading,row);
                     }
 
+                    //what if there are other records (more) in dt_readings from a previous version of the ge_log_file? 
+                    // mark for deletion all records not 'new' or 'updated'
+                    if (file.readings.Count() < dt_readings.Rows.Count) {
+                        foreach (DataRow row in dt_readings.Rows) {
+                        if (row.RowState == DataRowState.Added | 
+                            row.RowState != DataRowState.Modified) {
+                                row.Delete();
+                            }
 
+                        } 
+                    }
+
+                    
                     ret = ret + ds_readings.Update();
                     return ret;
                 } 

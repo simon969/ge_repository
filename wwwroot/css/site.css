@@ -4,9 +4,9 @@ for details on configuring this project to bundle and minify static web assets. 
 /*green navbar */
 
 .navbar-inverse { 
-    background-color:#2c721a !important;  
+    background-color:hsl(108, 72%, 43%) !important;  
 }
-/*
+
 a.mynav {
     background-color:#5ea36e !important;
 }
@@ -14,10 +14,8 @@ a.mynav {
     color: #143814;
 }
 
- end of green navbar*/
-
 body {
-    padding-top: 50px;
+    padding-top: 20px;
     padding-bottom: 20px;
 }
 
@@ -54,3 +52,11 @@ body {
 .ge_warning {
     color: red;
 }
+.my-custom-scrollbar {
+    position: relative;
+    height: 600px;
+    overflow: auto;
+    }
+    .table-wrapper-scroll-y {
+    display: block;
+    }

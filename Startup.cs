@@ -152,11 +152,12 @@ namespace ge_repository
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
+          
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
+            
         //    app.UseMvcWithDefaultRoute();
 
             app.UseMvc(routes =>

@@ -76,7 +76,11 @@ namespace ge_repository.Pages.Transform
                                         .Where(d=>d.filetype.Contains("css"));                        
             var xlt_data =  _context.ge_data
                                         .Where(d=>d.projectId==transform.projectId || libraryId.Contains(d.projectId))
-                                        .Where(d=>d.fileext == AGS.FileExtension.XSL);        
+                                        .Where(d=>d.fileext == AGS.FileExtension.XSL);
+            // .xq, .xql, .xqm, .xqy, and .xquery.
+            var xq_data =  _context.ge_data
+                                        .Where(d=>d.projectId==transform.projectId || libraryId.Contains(d.projectId))
+                                        .Where(d=>d.fileext == AGS.FileExtension.XQ);                                     
             var transforms = _context.ge_transform
                                         .Include (t=>t.style)
                                         .Where(t=>t.projectId==transform.projectId);
@@ -85,7 +89,7 @@ namespace ge_repository.Pages.Transform
             return RedirectToPageMessage(msgCODE.TRANSFORM_NO_MATCHING);
             }
                    
-            setViewData(xml_data, xlt_data, image_data, script_data, css_data, transforms);
+            setViewData(xml_data, xlt_data, xq_data, image_data, script_data, css_data, transforms);
 
             return Page();
         }

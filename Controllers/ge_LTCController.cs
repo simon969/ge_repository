@@ -26,6 +26,7 @@ namespace ge_repository.Controllers
 {
     public class ge_LTCController: _ge_LTCController  {     
         public List<LTM_Survey_Data> Survey_Data;
+        public List<EsriGeometry> Survey_Geom;
         public List<LTM_Survey_Data_Repeat> Survey_Repeat_Data;
 
         public Guid[] IgnoreDataRepeat_GlobalId =  new Guid[]  {new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a"),
@@ -119,6 +120,44 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
             return Json(t1);
 
 }
+private async Task<int> ReadFeature (List<items<LTM_Survey_Data>>  survey_data) {
+        
+        if (Survey_Data == null) Survey_Data = new List<LTM_Survey_Data>();
+        if (Survey_Geom == null) Survey_Geom = new List<EsriGeometry>();
+        
+        foreach (items<LTM_Survey_Data> survey_items in survey_data) {
+            
+            LTM_Survey_Data survey = survey_items.attributes;
+            EsriGeometry geom =  survey_items.geometry;
+
+            if (survey==null) {
+               continue; 
+            }
+            
+            Survey_Data.Add (survey);
+            Survey_Geom.Add (geom);
+        }
+
+        return Survey_Data.Count();
+}
+
+private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat>> survey_data_repeat) {
+        
+            if (Survey_Repeat_Data == null) Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat>();
+            
+            foreach (items<LTM_Survey_Data_Repeat> repeat_items in survey_data_repeat) {
+                
+                LTM_Survey_Data_Repeat survey2 = repeat_items.attributes;
+                
+                if (survey2 == null) {
+                    continue; 
+                }
+
+                Survey_Repeat_Data.Add (survey2);
+            }
+
+        return Survey_Repeat_Data.Count();
+}
 
 public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     string dataset,
@@ -193,17 +232,25 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             String table1 = ds.tables[0];
             String table2 = ds.tables[1];
             string where = "";
-
+            int page_size = 250;
             var t1 = await new ge_esriController(  _context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config).getFeatures(projectId,
                                                                 table1,
-                                                                where
+                                                                where,
+                                                                page_size
                                                                 );
             
-            var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data>>( (string) t1.Value);
+            Survey_Data = new List<LTM_Survey_Data>();
+            Survey_Geom = new List<EsriGeometry>();
+            
+            foreach (string s1 in (string[]) t1.Value) {
+            var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data>>(s1);
+            var survey_resp = ReadFeature(survey_data.features);
+            }
+
 
             var t2 = await new ge_esriController(  _context,
                                                     _authorizationService,
@@ -211,11 +258,17 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     _env ,
                                                     _ge_config).getFeatures(projectId,
                                                                 table2,
-                                                                where
+                                                                where,
+                                                                page_size
                                                                 );
-            var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat>>((string) t2.Value);
+            Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat>();
             
-            var mond_resp = await ReadFeature (survey_data.features, survey_repeat.features, _project);
+            foreach (string s1 in (string[]) t2.Value) {
+            var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat>>(s1);
+            var repeat_resp = ReadFeature(survey_repeat.features);
+            }
+
+            var mond_resp = await AddMOND(_project);
 
             ViewData["FeatureStatus"] = "Features not written to MOND table";
             
@@ -281,9 +334,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
  }
 
  
-private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data, 
-                                         List<items<LTM_Survey_Data_Repeat>> survey_data_repeat,  
-                                         ge_project project) {
+private async Task<int> AddMOND(ge_project project) {
             string[] AllPoints = new string[] {""};
 
             var resp = await new ge_gINTController (_context,
@@ -323,18 +374,12 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
             
             int projectId = POINT.FirstOrDefault().gINTProjectID;
 
-            List<LTM_Survey_Data> Survey_Data = new List<LTM_Survey_Data>();
-
-        foreach (items<LTM_Survey_Data> survey_items in survey_data) {
-            
-            LTM_Survey_Data survey = survey_items.attributes;
+            foreach (LTM_Survey_Data survey in Survey_Data) {
             
             if (survey==null) {
                continue; 
             }
             
-            Survey_Data.Add (survey);
-          
             POINT pt = POINT.Find(p=>p.PointID==survey.hole_id);
             
             if (pt==null) {
@@ -593,12 +638,11 @@ private async Task<int> ReadFeature(List<items<LTM_Survey_Data>>  survey_data,
                 MOND.Add(md);
             }
 
-            List<items<LTM_Survey_Data_Repeat>> repeat = survey_data_repeat.FindAll(r=>r.attributes.parentglobalid==survey.globalid); 
+            List<LTM_Survey_Data_Repeat> repeat = Survey_Repeat_Data.FindAll(r=>r.parentglobalid==survey.globalid); 
           
-            foreach (items<LTM_Survey_Data_Repeat> survey2_items in repeat) {
+            foreach (LTM_Survey_Data_Repeat survey2 in repeat) {
                 
-                LTM_Survey_Data_Repeat survey2 = survey2_items.attributes;
-                
+                              
                 if (survey2.elapse_t == null) continue;
                 
                 int elapsed = survey2.elapse_t.Value;

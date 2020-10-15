@@ -9,12 +9,12 @@
     @Model.group.name Details
  </h2>
 <div>
-        <h4>
+        <h5>
         <a asp-page="../Project/Index" asp-route-groupId="@Model.group.Id">Project Index</a>
         | <a asp-page="../Project/Create" asp-route-groupId="@Model.group.Id">Project Create</a>
         | <a asp-page="../UserOperations/Index" asp-route-groupId="@Model.group.Id">User Index</a> 
         | <a asp-page="../UserOperations/Create" asp-route-groupId="@Model.group.Id">User Create</a>
-        </h4>
+        </h5>
 </div>
 <div>
     <dl class="dl-horizontal">
@@ -49,8 +49,8 @@
     </dl>
 </div>
 
-    <h4>
+    <h5>
         <a asp-page="./Edit" asp-route-id="@Model.group.Id">Edit</a>
         | <a asp-page="./Delete" asp-route-id="@Model.group.Id">Delete</a>
         | <a asp-page="./Index">Back to List</a>
-    </h4>
+    </h5>

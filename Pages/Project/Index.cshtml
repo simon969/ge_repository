@@ -6,11 +6,11 @@
     <h2>
         @Model.group.name Project Index
     </h2>
-    <h4>
+    <h5>
     <a asp-page="../Group/Details" asp-route-id="@Model.group.Id">Group Details</a>   
     |<a asp-page="Create" asp-route-groupId="@Model.groupId">Create New Project</a>
     |<a asp-controller="ge_data" asp-action="Get" asp-route-groupId=@Model.group.Id>JSON</a> 
-    </h4>
+    </h5>
 } else { 
 ViewData["Title"] = "All Project Index";
 <h2>All Project Index</h2>

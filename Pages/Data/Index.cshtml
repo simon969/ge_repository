@@ -8,30 +8,27 @@
         <h2>
         @Model.project.name Data Index
         </h2>
-        <h4>
+        <h5>
         <a asp-page="../Project/Details" asp-route-id="@Model.project.Id">Project Details</a> 
         |<a asp-page="../Data/Create" asp-route-projectId="@Model.project.Id">Data Add</a>
         |<a asp-controller="ge_data" asp-action="Get" asp-route-projectId=@Model.project.Id>JSON</a> 
-  
-        </h4>
+          </h5>
  } else {
-ViewData["Title"] = "Data Index";
-<h2>Data Index</h2>
+ViewData["Title"] = "All Data Index";
+<h2>All Data Index</h2>
 }
 
 @* <partial name="_PagingHeaderPartial" /> *@
 
-<form class="form-inline" asp-page="./Index" method="get">
+<form class="form-inline my-2 my-lg-0" asp-page="./Index" method="get">
   <input type="hidden" asp-for="@(Model.pageSort)">
   <input type="hidden" asp-for="@(Model.pageSize)">
   <input type="hidden" asp-for="@(Model.groupId)">
   <input type="hidden" asp-for="@(Model.projectId)">
-    <div class="form-group">
-        <label class="sr-only">Search</label>
-        <input type="text" class="form-control" name="pageFilter" value="@(Model.pageFilter)" />
-        <select type="text" class="form-control" asp-for="@(Model.fileext)" asp-items="Model.filetypes"></select> 
-        <input type="submit" value="Search" class="btn btn-default"/>
-    </div>
+    <label class="sr-only">Search</label>
+     <input type="text" class="form-control mr-sm-2" name="pageFilter" value="@(Model.pageFilter)" placeholder="Search text"/>
+     <select type="text" class="form-control mr-sm-2" asp-for="@(Model.fileext)" asp-items="Model.filetypes"></select> 
+     <button class="btn btn-outline-success my-2 my-sm-2" type="submit">Search</button>
 </form>
       
 <table class="table">

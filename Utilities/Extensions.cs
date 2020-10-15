@@ -1347,6 +1347,12 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
             return sb.ToString();
 
          }
+     public static T[] sub_array<T> (this T[] array, int offset, int length) {
+            T[] result = new T[length];
+            Array.Copy(array,offset,result, 0,length);
+            return result;
+
+        }    
     public static string ToDelimString(this Guid[] array, string delimeter,string encapsulate="") {
             
             StringBuilder sb = new StringBuilder();
@@ -1372,6 +1378,31 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
             return sb.ToString();
 
          }
+            public static string ToDelimString<T>(this T[] array, string delimeter,string encapsulate="") {
+            
+            StringBuilder sb = new StringBuilder();
+ 
+            for (int i = 0; i < array.Length; i++) {
+                T g1 = array[i];
+                String s1 = encapsulate + g1.ToString() + encapsulate;
+                 if (!String.IsNullOrEmpty(s1)) { 
+                    if (sb.Length>0) {
+                    sb.Append (delimeter);
+                    }
+                    sb.Append (s1);
+                }
+            }
+            if (sb.Length == 0 && encapsulate == null) {
+                return "null";
+            } 
+                       
+            if (sb.Length == 0 && encapsulate.Length > 0) {
+                return encapsulate + encapsulate;
+            }
+            
+            return sb.ToString();
+
+         } 
     public static string[] purgeArray(this string[] array, string[] delimeters) {
         List<string> retvar = new List<string>();
 
@@ -1690,6 +1721,8 @@ public class OrderCoordinator<TItem>
                 Add (".html", "text/html");
                 Add (".css", "text/css");
                 Add (".js", "application/javascript");
+                Add (".xq", "application/xquery");
+                Add (".xqy", "application/xquery");
 
                 Add (".mdb", "application/vnd.ms-access");
                 Add (".accdb", "application/vnd.ms-access");

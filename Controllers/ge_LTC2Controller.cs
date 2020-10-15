@@ -56,9 +56,10 @@ public async Task<IActionResult> ViewSurvey123 (Guid projectId,
     string table  = "LTM_Survey_Data_R06";
 
     if (!String.IsNullOrEmpty(hole_id)) {
-        where = "hole_id='" + hole_id + "'";
+     //   where = "hole_id='" + hole_id + "'";
+        where = "hole_id like '%" + hole_id + "%'";
     }
-
+ 
     return await ViewFeature (projectId, table, where, format);
 
 }
@@ -152,35 +153,40 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                                                                 table,
                                                                 where
                                                                 );
-            
             if (table == "LTM_Survey_Data_R06") {
-                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>( (string) t1.Value);
-                if (survey_data.features==null) {
-                return NotFound();
-                }
+                foreach (string s1 in (string[]) t1.Value) {
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
+                    if (survey_data.features==null) {
+                        return NotFound();
+                    }
                 await ReadFeature(survey_data.features); 
+                }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data2>(Survey_Data);
                  return new XmlActionResult("<root>" + xml + "</root>");
                 }
             } 
             if (table == "Geometry") {
-                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>( (string) t1.Value);
+                foreach (string s1 in (string[]) t1.Value) {
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
                 if (survey_data.features==null) {
                 return NotFound();
                 }
                 await ReadFeature(survey_data.features); 
+                }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<EsriGeometry>(Survey_Geom);
                  return new XmlActionResult("<root>" + xml + "</root>");
                 }
             } 
             if (table == "gas_repeat_R06") {
-                var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>((string) t1.Value);
+                foreach (string s1 in (string[]) t1.Value) {
+                var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
                 if (survey_repeat.features==null) {
                 return NotFound();
                 }
                 await ReadFeature(survey_repeat.features);
+                }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data_Repeat2>(Survey_Repeat_Data);
                  return new XmlActionResult("<root>" + xml + "</root>");
@@ -192,6 +198,10 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
     private string XmlSerializeToString<T>(List<T> list)
     
     {
+        if (list.Count == 0) {
+            return "";
+        }
+
         var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
         var serializer = new XmlSerializer(list[0].GetType());
         var settings = new XmlWriterSettings();
@@ -281,30 +291,42 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             String table1 = ds.tables[0];
             String table2 = ds.tables[1];
             string where = "";
-
+            int page_size = 250;
+            
             var t1 = await new ge_esriController(  _context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config).getFeatures(projectId,
                                                                 table1,
-                                                                where
+                                                                where,
+                                                                page_size
                                                                 );
+            Survey_Data = new List<LTM_Survey_Data2>();
+            Survey_Geom = new List<EsriGeometry>();
             
-            var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>( (string) t1.Value);
+            foreach (string s1 in (string[]) t1.Value) {
+            var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
             var survey_resp = ReadFeature(survey_data.features);
-            
+            }
+
             var t2 = await new ge_esriController(  _context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config).getFeatures(projectId,
                                                                 table2,
-                                                                where
+                                                                where,
+                                                                page_size
                                                                 );
-            var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>((string) t2.Value);
+                       
+            Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
+            
+            foreach (string s1 in (string[]) t2.Value) {
+            var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
             var repeat_resp = ReadFeature(survey_repeat.features);
-           
+            }
+
            // var mond_resp = await ReadFeatureMOND (survey_data.features, survey_repeat.features, _project);
            
             var mond_resp = await AddMOND(_project);
@@ -409,9 +431,9 @@ private string IfOther(string s1, string other) {
 // }
 private async Task<int> ReadFeature (List<items<LTM_Survey_Data2>>  survey_data) {
         
-        Survey_Data = new List<LTM_Survey_Data2>();
-        Survey_Geom = new List<EsriGeometry>();
-
+        if (Survey_Data == null) Survey_Data = new List<LTM_Survey_Data2>();
+        if (Survey_Geom == null) Survey_Geom = new List<EsriGeometry>();
+        
         foreach (items<LTM_Survey_Data2> survey_items in survey_data) {
             
             LTM_Survey_Data2 survey = survey_items.attributes;
@@ -430,8 +452,8 @@ private async Task<int> ReadFeature (List<items<LTM_Survey_Data2>>  survey_data)
 
 private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat) {
         
-            Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
-
+            if (Survey_Repeat_Data == null) Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
+            
             foreach (items<LTM_Survey_Data_Repeat2> repeat_items in survey_data_repeat) {
                 
                 LTM_Survey_Data_Repeat2 survey2 = repeat_items.attributes;
@@ -1097,6 +1119,8 @@ private async Task<int> AddMOND(ge_project project) {
 
             if (survey_start==null) continue;
 
+                    AddVisit (pt, survey);
+            
             if (survey.QA_status.Contains("Dip_Approved")) {
                     AddDip(mg, survey);
             }
@@ -1266,6 +1290,20 @@ private int AddPurge(MONG mg, LTM_Survey_Data2 survey) {
                 }
                 MOND.Add(md);
             }
+
+              //Turbidity
+            if (survey.turbitity != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "TURB";
+                md.MOND_RDNG = Convert.ToString(survey.turbitity);
+                md.MOND_NAME = "Turbidity";
+                md.MOND_UNIT = "NTU";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
 return 0;
 
 }
@@ -1302,7 +1340,7 @@ private int AddDip(MONG mg, LTM_Survey_Data2 survey) {
             }
             
             // Water depth below gl (m)
-            if (survey.depth_gwl_bgl == null && survey.dip_req == "yes" && survey.dip_datum_offset!=null) {
+            if (survey.depth_gwl_bgl == null && survey.dip_req == "yes" && survey.dip_datum_offset!=null && survey.dip_or_pressure != "PressureGauge") {
                 MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "WDEP";
                 md.MOND_RDNG = "Dry";
@@ -1329,7 +1367,7 @@ private int AddDip(MONG mg, LTM_Survey_Data2 survey) {
                 MOND.Add(md);
             }
             
-            // Sub aquifer Water pressure (m)
+            // Sub aquifer Water pressure (bar)
             if (survey.water_pressure != null) {
              MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "PRES";

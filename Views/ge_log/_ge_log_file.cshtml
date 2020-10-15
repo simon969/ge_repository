@@ -25,26 +25,26 @@
             @ViewBag.fileStatus
         </dd>  
     </dl>
-      
-<table class="table">
+ <div class="table-wrapper-scroll-y my-custom-scrollbar">
+  <table class="table table-bordered table-striped mb-0">   
     <thead>
         <tr>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].ReadingDatetime)
             </th>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Duration)
             </th>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value1)
             </th>
-            <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value2)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value3)
             </th>
-             <th>
+            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Value4)
             </th>   
         </tr>
@@ -83,9 +83,8 @@
     }
     </tbody>
 </table>
-
-
 </div>
+
 <p>
     @Html.ActionLink("Save", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")

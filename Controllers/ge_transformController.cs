@@ -19,7 +19,6 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +31,7 @@ using ge_repository.Extensions;
 using ge_repository.Authorization;
 using ge_repository.DAL;
 using ge_repository.AGS;
+using Saxon.Api;
 
 namespace ge_repository.Controllers 
 {
@@ -41,6 +41,8 @@ namespace ge_repository.Controllers
        
 		protected string xsl_data = "";
 		protected string xml_data = "";
+		protected string qry_data = "";
+
      	
 		public ge_transform transform;
 
@@ -240,6 +242,14 @@ namespace ge_repository.Controllers
                                                         _ge_config).getDataAsString(transform.styleId.Value); 
 			}
 
+			if (transform.queryId !=null) {
+			qry_data  = await new ge_dataController(  _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config).getDataAsString(transform.queryId.Value); 
+			}
+
 			if (transform.dataId !=null && transform.storedprocedure != null) {
 				
 				string dataId = transform.dataId.ToString();
@@ -255,12 +265,20 @@ namespace ge_repository.Controllers
 				ge_data_big task_xml_data_big = await _context.ge_data_big.FromSql (rawSQL).SingleOrDefaultAsync();
 				xml_data = task_xml_data_big.getString();
 			}
-						
+
+			if (!String.IsNullOrEmpty(qry_data)) {
+				string res = XQuery(xml_data, qry_data);
+
+				if (!String.IsNullOrEmpty(res)) {
+					xml_data = res;
+				}
+			}	
+
+
 			if (xml_data == null || xsl_data == null) {
 				new EmptyResult();
 			}
-				
-						
+							
 			ViewBag.xml_data = xml_data;
 			ViewBag.xsl_stylesheet = xsl_data;
 			ViewBag.xlt_arguments = parameters;
@@ -709,8 +727,85 @@ namespace ge_repository.Controllers
 			return false;
 		}
     }
+// https://www.nuget.org/packages/Saxon-HE/
 
-	
+public string XQuery (string xml, string query) {
+			Processor processor = new Processor();
+
+            XmlDocument input = new XmlDocument();
+            input.LoadXml(xml);
+            
+			XdmNode indoc = processor.NewDocumentBuilder().Build(new XmlNodeReader(input));
+			DomDestination qout = new DomDestination();
+            
+			XQueryCompiler compiler = processor.NewXQueryCompiler();
+            XQueryExecutable exp = compiler.Compile(query);
+            XQueryEvaluator eval = exp.Load();
+            eval.ContextItem = indoc;
+            eval.Run(qout);
+            XmlDocument outdoc = qout.XmlDocument;
+
+			using (var stringWriter = new StringWriter())
+			using (var xmlTextWriter = XmlWriter.Create(stringWriter))
+			{
+    		outdoc.WriteTo(xmlTextWriter);
+    		xmlTextWriter.Flush();
+    		return stringWriter.GetStringBuilder().ToString();
+			}
+
+}
+
+    
+
+	// using (StreamWriter streamWriter = 
+    //    new StreamWriter("books_xq.html", false, Encoding.UTF8))
+	// 	{
+    // // Load the input doc
+    // XmlDocument xmlDoc = new XmlDocument();
+    // xmlDoc.Load("books.xml");
+
+    // // Create the output XmlWriter
+    // XmlTextWriter xmlWriter = new XmlTextWriter(streamWriter);
+
+    // // Do the transformation
+    // XQueryCompiler xp = new Processor().NewXQueryCompiler();
+    // xp.LoadFromFile("books-to-html.xq");
+    // xp.RunQuery(xmlDoc, xmlWriter);   
+	// return   
+
+// public XDocument Query(string xml, string qry) {
+
+
+
+// XQueryNavigatorCollection col = new XQueryNavigatorCollection();
+//             col.AddNavigator("C:\\Users\\matea\\workspace\\test\\my-file.xml", "doc");
+
+//             string query = "for $x in document(\"doc\")/dsKurs/KursZbir return (<p>{$x/Oznaka/text(), \" \", $x/Nomin/text(), \" \", $x/Sreden/text()}</p>)";
+
+//             XQueryExpression xepr = new XQueryExpression(query);
+//             string result = xepr.Execute(col).ToXml();
+//             String html = "<html>" + result + "</html>";
+
+//             using (FileStream fs = new FileStream("D:\\test.htm", FileMode.Create))
+//             {
+//                 using (StreamWriter w = new StreamWriter(fs, Encoding.UTF8))
+//                 {
+//                     w.WriteLine(html);
+//                 }
+//             }
+
+//             Console.Write(result);
+//             Console.ReadKey();
+// string query = "for $x in document('foo')//bar " +
+//         "where $x/something = 4 " +
+//         "return $x/somethingElse";
+
+// XQuery expr = new XQueryExpression(query);
+
+// string rawXML = (expr.Execute(col)).ToXml();
+
+
+// }	
 
 /*
 public void test_stored_procedure () {
@@ -873,6 +968,7 @@ var userType = dbContext.Set().FromSql("dbo.SomeSproc @Id = {0}, @Name = {1}", 4
 				}
  */
 
+}
 
 }
-}
+
