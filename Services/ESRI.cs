@@ -12,7 +12,8 @@ namespace ge_repository.Services
 // Courtesy of 
 //https://gist.github.com/glenhallworthreadify/c9c377720de165103a73b06afa0a151b
     public static class Esri {
-        
+        private static Boolean AdjustForBST = false;
+
         public static DateTime getDate(long epoch) {
                 //https://community.esri.com/thread/215861-how-do-you-convert-epoch-dates-in-excel-power-bi-query-access-from-geodatabase
                 return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoch/1000);
@@ -21,20 +22,34 @@ namespace ge_repository.Services
         public static long getEpoch(DateTime datetime) {
                 return (datetime - new DateTime(1970,1,1,0,0,0)).Seconds * 1000;
         }
- 
-        public static DateTime setDateWithTime(DateTime date, String time) {
-       
-        DateTime t = DateTime.ParseExact(time, "HH:mm",
-                                            CultureInfo.InvariantCulture);
-        DateTime dt = new DateTime( date.Year, 
-                                    date.Month,
-                                    date.Day,
-                                    t.Hour,
-                                    t.Minute,
-                                    t.Second);
-        return dt;
-     
+        public static DateTime getDateTimeWithTime(DateTime date, String time) {
+        
+            DateTime t = DateTime.ParseExact(time, "HH:mm",
+                                                CultureInfo.InvariantCulture);
+            DateTime dt = new DateTime( date.Year, 
+                                        date.Month,
+                                        date.Day,
+                                        t.Hour,
+                                        t.Minute,
+                                        t.Second);
+
+            if (AdjustForBST == false) {
+                return dt;
+            }
+            
+            TimeZoneInfo utcZone =  TimeZoneInfo.FindSystemTimeZoneById("UTC");
+            TimeZoneInfo bstZone = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+        
+            if (bstZone.IsDaylightSavingTime (dt)) { 
+            Console.Write (dt);
+            }
+
+            DateTime dt2  = TimeZoneInfo.ConvertTime(dt,  bstZone, utcZone);
+            
+            return dt2;
+
         }
+
     }
 
     public class EsriTokenResponse {

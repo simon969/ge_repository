@@ -967,7 +967,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                             fileext = ".ags",
                             filetype = "text/plain",
                             filedate = DateTime.Now,
-                            encoding ="ascii",
+                            encoding ="utf-16",
                             datumProjection = datumProjection.NONE,
                             pstatus = PublishStatus.Uncontrolled,
                             cstatus = ConfidentialityStatus.RequiresClientApproval,
@@ -984,15 +984,19 @@ public async Task<IActionResult> createAGS(Guid Id,
                  _project.data.Add(_data);
                  _context.SaveChanges();
             }
-           
-            byte[] ags = Encoding.ASCII.GetBytes(s1);
 
+            byte[] ags_utf16 = Encoding.Unicode.GetBytes(s1); 
+                      
             if (format =="download") {
-            return File ( ags, "text/plain", _data.filename );
+             // download to file can be utf-16  
+            return File ( ags_utf16, "text/plain", _data.filename );
             }
 
+            
             if (format == null || format=="view") {
-            return File ( ags, "text/plain");
+            //viewing in browser can only be ASCII
+            byte[] ags_ascii = Encoding.Convert(Encoding.Unicode, Encoding.ASCII, ags_utf16);        
+            return File (ags_ascii, "text/plain");
             }
 
             return NotFound();
@@ -1241,6 +1245,9 @@ private string getAGSTable(List<MOND> rows,
 
     foreach (MOND row in rows) {
         string line = $"\"DATA\",\"{row.PointID}\",\"{row.ItemKey}\",\"{String.Format(DP2_FORMAT_AGS,row.MONG_DIS)}\",\"{String.Format(DATETIME_FORMAT_AGS,row.DateTime)}\",\"{row.MOND_TYPE}\",\"{row.MOND_REF}\",\"{row.MOND_INST}\",\"{row.MOND_RDNG}\",\"{row.MOND_UNIT}\",\"{row.MOND_METH}\",\"{row.MOND_LIM}\",\"{row.MOND_ULIM}\",\"{row.MOND_NAME}\",\"{row.MOND_CRED}\",\"{row.MOND_CONT}\",\"{REM_Clean(row.MOND_REM)}\",\"{row.FILE_FSET}\"";
+        if (row.MOND_TYPE =="EC") {
+            Console.Write (line);
+        }
         sb.Append(line);
         sb.AppendLine();
     }

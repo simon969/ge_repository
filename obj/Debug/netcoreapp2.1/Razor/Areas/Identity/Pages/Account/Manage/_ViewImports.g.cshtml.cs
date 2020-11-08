@@ -13,13 +13,8 @@ namespace ge_repository.Areas.Identity.Pages.Account.Manage
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#line 3 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
+#line 1 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
 using Microsoft.AspNetCore.Identity;
-
-#line default
-#line hidden
-#line 2 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
-using ge_repository.Areas.Identity;
 
 #line default
 #line hidden
@@ -34,7 +29,7 @@ using ge_repository.Areas.Identity.Pages.Account.Manage;
 #line default
 #line hidden
     [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"12cb7c1b364740e318fe533284b287d5e2972194", @"/Areas/Identity/Pages/Account/Manage/_ViewImports.cshtml")]
-    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"2afb395434e797869352258b99c154e4ab244a5a", @"/Areas/Identity/Pages/_ViewImports.cshtml")]
+    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"b53886262926aaeb897ee802f1795b4f56ab2562", @"/Areas/Identity/Pages/_ViewImports.cshtml")]
     [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"913d5819cadd2db8eeefbf4a5ce773d9da91fbdd", @"/Areas/Identity/Pages/Account/_ViewImports.cshtml")]
     public class Areas_Identity_Pages_Account_Manage__ViewImports : global::Microsoft.AspNetCore.Mvc.Razor.RazorPage<dynamic>
     {

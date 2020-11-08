@@ -343,7 +343,7 @@
         
                             int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
                             
-                            if (i == NOT_FOUND) {
+                            if (i == NOT_FOUND && vh.IsRequired() == true) {
                                 new_dic.status = $"column search text [{vh.search_text}] of table [{table}] not found";
                                 colNotFound=true;
                                 break;

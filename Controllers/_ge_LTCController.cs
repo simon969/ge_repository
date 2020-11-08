@@ -21,6 +21,8 @@ using ge_repository.OtherDatabase;
 using ge_repository.LowerThamesCrossing;
 using ge_repository.Services;
 using Newtonsoft.Json;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace ge_repository.Controllers
 {
@@ -93,6 +95,14 @@ namespace ge_repository.Controllers
      ESRIzone = getTimeZoneInfo(esriTimeZone);
  }
  
+ public DateTime? ConvertBST_to_UTC(DateTime? dateTime) {
+    
+    TimeZoneInfo destinationZone =  TimeZoneInfo.FindSystemTimeZoneById("UTC");
+    TimeZoneInfo sourceZone = TimeZoneInfo.FindSystemTimeZoneById("British Summer Time");
+
+    return TimeZoneInfo.ConvertTime(dateTime.Value,  sourceZone, destinationZone);
+
+ }
  protected DateTime? gINTDateTime (DateTime? esriDateTime) {
         //    Console.WriteLine("{0} {1} is {2} local time.",
         //    esriDateTime,
@@ -159,5 +169,29 @@ private async Task<int> ReadAttributes<T> (List<items<T>> read, List<T> store) {
 
         return store.Count();
 }
+
+protected string XmlSerializeToString<T>(List<T> list)
+    
+    {
+        if (list.Count == 0) {
+            return "";
+        }
+
+        var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+        var serializer = new XmlSerializer(list[0].GetType());
+        var settings = new XmlWriterSettings();
+        settings.Indent = true;
+        settings.OmitXmlDeclaration = true;
+        settings.ConformanceLevel = ConformanceLevel.Fragment;
+        using (var stream = new StringWriter())
+        using (var writer = XmlWriter.Create(stream, settings))
+        {
+            writer.WriteWhitespace("");
+            foreach (T value in list)  {
+            serializer.Serialize(writer, value, emptyNamespaces);
+            }
+            return stream.ToString();
+        }
+    }
 }
 }

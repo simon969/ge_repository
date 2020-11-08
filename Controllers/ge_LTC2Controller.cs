@@ -21,8 +21,7 @@ using ge_repository.OtherDatabase;
 using ge_repository.LowerThamesCrossing;
 using ge_repository.Services;
 using Newtonsoft.Json;
-using System.Xml;
-using System.Xml.Serialization;
+
 
 namespace ge_repository.Controllers
 {
@@ -90,6 +89,7 @@ public async Task<IActionResult> UpdateSurvey123 (Guid projectId,
 
 }
 
+[AllowAnonymous]   
 public async Task<IActionResult> ViewFeature(Guid projectId,
                                                     string table,
                                                     string where,
@@ -155,69 +155,52 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                                                                 );
             if (table == "LTM_Survey_Data_R06") {
                 foreach (string s1 in (string[]) t1.Value) {
-                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
-                    if (survey_data.features==null) {
-                        return NotFound();
-                    }
-                await ReadFeature(survey_data.features); 
+                    var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
+                        if (survey_data.features==null) {
+                            return NotFound();
+                        }
+                    await ReadFeature(survey_data.features); 
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data2>(Survey_Data);
                  return new XmlActionResult("<root>" + xml + "</root>");
                 }
+                return Json(Survey_Data);
             } 
             if (table == "Geometry") {
                 foreach (string s1 in (string[]) t1.Value) {
                 var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
-                if (survey_data.features==null) {
-                return NotFound();
-                }
-                await ReadFeature(survey_data.features); 
+                    if (survey_data.features==null) {
+                    return NotFound();
+                    }
+                    await ReadFeature(survey_data.features); 
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<EsriGeometry>(Survey_Geom);
                  return new XmlActionResult("<root>" + xml + "</root>");
                 }
+                return Json(Survey_Geom);
             } 
             if (table == "gas_repeat_R06") {
                 foreach (string s1 in (string[]) t1.Value) {
-                var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
-                if (survey_repeat.features==null) {
-                return NotFound();
-                }
-                await ReadFeature(survey_repeat.features);
+                    var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
+                    if (survey_repeat.features==null) {
+                    return NotFound();
+                    }
+                    await ReadFeature(survey_repeat.features);
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data_Repeat2>(Survey_Repeat_Data);
                  return new XmlActionResult("<root>" + xml + "</root>");
                 }
+                var output = JsonConvert.SerializeObject(Survey_Repeat_Data);
+                return Ok(output);
             } 
                     
-            return Json(t1);
+            return NotFound();
 }
-    private string XmlSerializeToString<T>(List<T> list)
     
-    {
-        if (list.Count == 0) {
-            return "";
-        }
-
-        var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-        var serializer = new XmlSerializer(list[0].GetType());
-        var settings = new XmlWriterSettings();
-        settings.Indent = true;
-        settings.OmitXmlDeclaration = true;
-        settings.ConformanceLevel = ConformanceLevel.Fragment;
-        using (var stream = new StringWriter())
-        using (var writer = XmlWriter.Create(stream, settings))
-        {
-            writer.WriteWhitespace("");
-            foreach (T value in list)  {
-            serializer.Serialize(writer, value, emptyNamespaces);
-            }
-            return stream.ToString();
-        }
-    }
+ 
 public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     string dataset,
                                                     string format = "view", 
@@ -1144,7 +1127,7 @@ private int AddVisit(POINT pt, LTM_Survey_Data2 survey){
             MONV mv = NewMONV(pt,survey);
                
                 mv.MONV_STAR = gINTDateTime(survey.date1_getDT()).Value;
-                mv.MONV_ENDD = gINTDateTime(survey.time2_getDT()).Value;;
+                mv.MONV_ENDD = gINTDateTime(survey.time2_getDT()).Value;
                 
                 mv.MONV_DIPR = survey.dip_req;
                 mv.MONV_GASR = survey.gas_mon;

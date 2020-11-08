@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using ge_repository.Authorization;
 
+using System.Net;
+
 namespace ge_repository.Models {
 
     [Table("ge_data")]
@@ -44,6 +46,16 @@ namespace ge_repository.Models {
             return type;
           
         }
+        public string GetContentFieldName() {
+            
+            string m_type = GetContentType();
+
+            if (m_type == "text/plain") return "data_string";
+            if (m_type == "text/xml") return "data_xml";
+               
+            return "data_string";
+       } 
+       
         public string GetExtention()
         {
             return Path.GetExtension(filename).ToLowerInvariant();
@@ -110,19 +122,41 @@ namespace ge_repository.Models {
            return null;
        }
 
-       public String getString() {
+       public void toStream (Stream response, Encoding encode) {
+            using (Stream responseStream = getMemoryStream(encode))
+                {
+                // response.AllowWriteStreamBuffering= false;   // to prevent buffering 
+                byte[] buffer = new byte[1024]; 
+                int bytesRead = 0; 
+                while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)  
+                { 
+                        response.Write(buffer, 0, bytesRead); 
+                }
+                }
+       }
+
+       public String getString(Encoding encode = null) {
+
             
-            if (data_binary != null) {
+            if (data_binary != null && encode==Encoding.Unicode) {
                return System.Text.Encoding.Unicode.GetString(data_binary);
             }
-
-           if (data_string !=null ) {
+            
+            if (data_binary != null && encode==Encoding.UTF8) {
+               return System.Text.Encoding.UTF8.GetString(data_binary);
+            }
+            
+            if (data_binary != null && encode == null) {
+               return System.Text.Encoding.Default.GetString(data_binary);
+            }
+            
+            if (data_string !=null ) {
                return data_string; 
-           }
+            }
 
            if (data_xml !=null) {
               return data_xml;
-           }
+            }
 
            return null;
        }

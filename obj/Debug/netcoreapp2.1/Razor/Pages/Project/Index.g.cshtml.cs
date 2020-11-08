@@ -110,7 +110,7 @@ using ge_repository.Authorization;
             WriteLiteral(" Project Index\r\n    </h2>\r\n    <h5>\r\n    ");
             EndContext();
             BeginContext(223, 79, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "59b81c6d393443279e5b2b05ee8325ea", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "b6b13d0cec714d32b852c497e34e280b", async() => {
                 BeginContext(285, 13, true);
                 WriteLiteral("Group Details");
                 EndContext();
@@ -145,7 +145,7 @@ using ge_repository.Authorization;
             WriteLiteral("   \r\n    |");
             EndContext();
             BeginContext(312, 78, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "d73d621cca5f42bb9ad9cd7ac11321bd", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c38d2ab3e1a9489c927cfbbfbc0bc8fd", async() => {
                 BeginContext(368, 18, true);
                 WriteLiteral("Create New Project");
                 EndContext();
@@ -180,7 +180,7 @@ using ge_repository.Authorization;
             WriteLiteral("\r\n    |");
             EndContext();
             BeginContext(397, 87, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2d4ec5c0851c4836aaca414ff61e425f", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "7b3201c3e9db4fc69e6af514303768f5", async() => {
                 BeginContext(476, 4, true);
                 WriteLiteral("JSON");
                 EndContext();
@@ -251,7 +251,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\" />\r\n            <input type=\"submit\" value=\"Search\" class=\"btn btn-default\" /> |\r\n            <a asp-page=\"./Index\">Full Project List</a>\r\n        </p>\r\n</form> -->\r\n\r\n");
             EndContext();
             BeginContext(1031, 39, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("partial", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "dafb5f8e68004750b655269a829ded45", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("partial", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "7e845771ddd447cdbda70e4817d192ae", async() => {
             }
             );
             __Microsoft_AspNetCore_Mvc_TagHelpers_PartialTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.TagHelpers.PartialTagHelper>();
@@ -344,7 +344,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("        <tr>\r\n            <td>\r\n              ");
             EndContext();
             BeginContext(1906, 92, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "8d6e1a801fb146199e9c53bc1bbbb35d", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "4dd3f4c70d6c417293d2f990a0680363", async() => {
                 BeginContext(1955, 39, false);
 #line 61 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Pages\Project\Index.cshtml"
                                                          Write(Html.DisplayFor(modelItem => item.name));
@@ -421,7 +421,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("                    <td>\r\n                    ");
             EndContext();
             BeginContext(2428, 160, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "260756d601e447bc8aff259faf194e23", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "5ba37ac8404a45f2b1abb7634cef18ac", async() => {
                 BeginContext(2488, 26, true);
                 WriteLiteral("\r\n                        ");
                 EndContext();
@@ -474,7 +474,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("            \r\n                <td>\r\n                ");
             EndContext();
             BeginContext(2688, 53, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "795419eb847b4f7d8d8aeac8aae8ee04", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "21aed9d5e28342f1b8b3c34b480efed6", async() => {
                 BeginContext(2733, 4, true);
                 WriteLiteral("Edit");
                 EndContext();
@@ -509,7 +509,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(2801, 59, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "527545a887b04c31b449d07c8dae4657", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ade45d7ad3f9487fb6b5a9d0d42934b0", async() => {
                 BeginContext(2849, 7, true);
                 WriteLiteral("Details");
                 EndContext();
@@ -544,7 +544,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(2920, 57, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "eb602b10c3cf4c108d87a66aa3378648", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "637d66bd8bce47eaaaf36e14abd657d2", async() => {
                 BeginContext(2967, 6, true);
                 WriteLiteral("Delete");
                 EndContext();
@@ -579,7 +579,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(3037, 187, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "72e2a026f9e84e1a93e8884a0551f2a6", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ac7806f8a79540d4a589ad475e87a45d", async() => {
                 BeginContext(3096, 7, true);
                 WriteLiteral("Data(\r\n");
                 EndContext();
@@ -636,7 +636,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(3284, 208, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "09022e3a4cdc4d05beea83b47b69aeb6", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "fa2c6b8556c041b39bbc908251e54780", async() => {
                 BeginContext(3348, 12, true);
                 WriteLiteral("Transfoms(\r\n");
                 EndContext();
@@ -693,7 +693,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(3552, 78, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "5ae51efa17a24fa8aad2e78667d3caee", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "7dc5a06c144f447d88f0f2c02bf99fe2", async() => {
                 BeginContext(3621, 5, true);
                 WriteLiteral("Users");
                 EndContext();
@@ -728,7 +728,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral(" \r\n                        <text> | </text>\r\n                ");
             EndContext();
             BeginContext(3691, 116, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "71bd88d3ae334d92995e89cfc7e76eea", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ac23e9cbd1ac43de9f7bd52275958a42", async() => {
                 BeginContext(3793, 10, true);
                 WriteLiteral("Create KML");
                 EndContext();
@@ -771,7 +771,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("        \r\n                         <text> | </text>\r\n                ");
             EndContext();
             BeginContext(3876, 116, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2cb80934cc254b2fb417aec3f6ef57c9", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "860045118ae2496aa6fd4f7ff6502358", async() => {
                 BeginContext(3978, 10, true);
                 WriteLiteral("Create XML");
                 EndContext();
@@ -832,7 +832,7 @@ ViewData["Title"] = "All Project Index";
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(4186, 355, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "447402c891844aa4be896398d864787f", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ab18e691f7474ce0971d7a226c62bf8d", async() => {
                 BeginContext(4521, 16, true);
                 WriteLiteral("\r\n    Previous\r\n");
                 EndContext();
@@ -921,7 +921,7 @@ AddHtmlAttributeValue(" ", 4505, prevDisabled, 4506, 13, false);
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(4543, 349, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ee155f49a19644a58c5ded8d40032377", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "7a2b054e8293476b9731419143b0a095", async() => {
                 BeginContext(4876, 12, true);
                 WriteLiteral("\r\n    Next\r\n");
                 EndContext();

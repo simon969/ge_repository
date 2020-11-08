@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-
+using Microsoft.Net.Http.Headers;
 using ge_repository.Models;
 using ge_repository.Authorization;
 using ge_repository.Extensions;
 using System.Xml.Serialization;
+using System.Data.Common;
+using Newtonsoft.Json;
 
 namespace ge_repository.Controllers
 {
@@ -144,6 +146,75 @@ return await Get (Id, projectId, groupId);
     public void Post(ge_data value) {}
     [HttpPut]
     public void Put(int id, ge_data value) {}
+    
+    // https://dogschasingsquirrels.com/2020/06/02/streaming-a-response-in-net-core-webapi/
+    //     [HttpGet]
+    // [Route( "streaming" )]
+    // public async Task GetStreaming() {
+    //     const string filePath = @"C:\Users\mike\Downloads\dotnet-sdk-3.1.201-win-x64.exe";
+    //     this.Response.StatusCode = 200;
+    //     this.Response.Headers.Add( HeaderNames.ContentDisposition, $"attachment; filename=\"{Path.GetFileName( filePath )}\"" );
+    //     this.Response.Headers.Add( HeaderNames.ContentType, "application/octet-stream"  );
+    //     var inputStream = new FileStream( filePath, FileMode.Open, FileAccess.Read );
+    //     var outputStream = this.Response.Body;
+    //     const int bufferSize = 1 << 10;
+    //     var buffer = new byte[bufferSize];
+    //     while ( true ) {
+    //         var bytesRead = await inputStream.ReadAsync( buffer, 0, bufferSize );
+    //         if ( bytesRead == 0 ) break;
+    //         await outputStream.WriteAsync( buffer, 0, bytesRead );
+    //     }
+    //     await outputStream.FlushAsync();
+    // }
+    // using (var dataReader = command.ExecuteReader())
+    // {
+    //     dataReader.Read();
+    //     using (var stream = dataReader.GetStream("Text"))
+    //     using (var streamReader = new StreamReader(stream))
+    //     {
+    //         // read the text using the StreamReader...
+    //     }
+    // }
+
+    [HttpGet]
+     public async Task GetStream(Guid id)
+        {
+        
+            var _data = await _context.ge_data
+                                        .Include(d =>d.project)
+                                        .SingleOrDefaultAsync(m => m.Id == id);
+
+            this.Response.StatusCode = 200;
+            this.Response.Headers.Add( HeaderNames.ContentDisposition, $"attachment; filename=\"{Path.GetFileName( _data.filename )}\"" );
+            this.Response.Headers.Add( HeaderNames.ContentType, _data.filetype  );    
+            
+            string data_field = _data.GetContentFieldName();
+
+            using (var connection = _context.Database.GetDbConnection()) {
+                DbCommand command = connection.CreateCommand();
+                command.CommandText = $"SELECT {data_field} FROM ge_data where id='{id}'";
+                command.CommandTimeout = 0;
+                connection.Open();
+                using (var dataReader = command.ExecuteReader()) {
+                    dataReader.Read();
+                    using (var inputStream = dataReader.GetCharStream(data_field)) {
+                        using (var outputStream = this.Response.Body) {;
+                            const int bufferSize = 8192;
+                            var buffer = new byte[bufferSize];
+                            while ( true ) {
+                                var bytesRead = await inputStream.ReadAsync( buffer, 0, bufferSize );
+                                if ( bytesRead == 0 ) break;
+                                await outputStream.WriteAsync( buffer, 0, bytesRead );
+                            }
+                            await outputStream.FlushAsync();
+                        }
+                    }
+                }
+            }
+
+           
+        }
+
     public async Task<IActionResult> Get(Guid id, string format="view")
         {
             if (id == null)
@@ -171,18 +242,10 @@ return await Get (Id, projectId, groupId);
                return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_USER_PROHIBITED);
             }
             
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
-            
-            if (_data_big == null)
-            {
-                return NotFound();
-            }
+           
            
          
-            var ContentType = _data.filetype;
-            var filename = _data.filename;
-            var encode = _data.GetEncoding();
-            Stream memory = _data_big.getMemoryStream(encode);
+         
             
             /* if (ContentType == "text/xml") {
             
@@ -192,12 +255,32 @@ return await Get (Id, projectId, groupId);
         //    HttpContext.Response.Headers.Add("Content-Disposition", $"inline; filename={filename}");
     
             if (format =="download") {
-            return File (memory, ContentType, filename);
+                    
+                    await GetStream(id);
+
+                    return new EmptyResult();
+
+          //  return File (memory, ContentType, filename);
             }
 
-            if (format == null || format=="view") {
-            return File ( memory, ContentType);
-            }
+           if (format == null || format=="view") {
+                var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            
+                if (_data_big == null)
+                {
+                return NotFound();
+                }
+
+                //var ContentType = _data.filetype;
+                var filename = _data.filename;
+                var encode = _data.GetEncoding();
+                //have to convert utf-16 to utf8 for display in browser
+                if (encode==Encoding.Unicode) {
+                    encode = Encoding.UTF8;
+                }
+                Stream memory = _data_big.getMemoryStream(encode);
+                               return File ( memory, _data.filetype);
+           }
 
             // If we get down here soemthing is wrong 
              return NotFound();
@@ -331,7 +414,7 @@ public  async Task<string> getDataAsString (Guid Id) {
             return lines;
 
     }
-    public async Task<T> getDataAsClass<T> (Guid Id) {
+    public async Task<T> getDataAsClass<T> (Guid Id, string format="xml") {
   
         var _data = await _context.ge_data
                                     .SingleOrDefaultAsync(m => m.Id == Id);
@@ -350,12 +433,21 @@ public  async Task<string> getDataAsString (Guid Id) {
             }
 
             try {
-
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            T cs = (T) serializer.Deserialize(_data_big.getMemoryStream(encoding));
+                
+                if (format == "xml") {
+                    XmlSerializer serializer = new XmlSerializer(typeof(T));
+                    T cs = (T) serializer.Deserialize(_data_big.getMemoryStream(encoding));
+                    return cs; 
+                }
+                
+                if (format == "json") {
+                    string s1 =_data_big.getString(encoding);
+                    T cs = JsonConvert.DeserializeObject<T>(s1);
+                    return cs;
+                }
+                
+                return default(T);
             
-            return cs; 
-
             } catch (Exception e) {
                 return default(T);
             }

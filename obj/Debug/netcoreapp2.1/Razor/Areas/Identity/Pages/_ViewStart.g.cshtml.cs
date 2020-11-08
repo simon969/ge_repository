@@ -13,18 +13,13 @@ namespace ge_repository.Areas.Identity.Pages
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.AspNetCore.Mvc.ViewFeatures;
-#line 3 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
+#line 1 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
 using Microsoft.AspNetCore.Identity;
 
 #line default
 #line hidden
-#line 2 "C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\Areas\Identity\Pages\_ViewImports.cshtml"
-using ge_repository.Areas.Identity;
-
-#line default
-#line hidden
     [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"49164482e4e310a0e7d9eaf4f04696b621019fe0", @"/Areas/Identity/Pages/_ViewStart.cshtml")]
-    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"2afb395434e797869352258b99c154e4ab244a5a", @"/Areas/Identity/Pages/_ViewImports.cshtml")]
+    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"b53886262926aaeb897ee802f1795b4f56ab2562", @"/Areas/Identity/Pages/_ViewImports.cshtml")]
     public class Areas_Identity_Pages__ViewStart : global::Microsoft.AspNetCore.Mvc.Razor.RazorPage<dynamic>
     {
         #pragma warning disable 1998

@@ -93,7 +93,7 @@ namespace  ge_repository.Extensions {
             }
 
        }
-
+       
         public static Boolean IsFileExtensionJavascript(this IFormFile formFile) {
            string ext = System.IO.Path.GetExtension(formFile.FileName);
            switch (ext.ToLower()) {

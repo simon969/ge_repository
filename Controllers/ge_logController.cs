@@ -783,13 +783,13 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                         if (md!=null) MOND.Add (md);
                     }
                     
-                    if (vh.id == "DO" && vh.units == "mg/L") {
+                    if (vh.id == "DO" && vh.units == "mg/l") {
                         // Add MOND Disolved Oxygen
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "DO", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Dissolved Oxygen", vh.units, vh.format, null,"ge_flow");
                         if (md!=null)  MOND.Add (md);
                     }
    
-                    if (vh.id == "EC" && vh.units == "uS/cm") {
+                    if (vh.id == "EC" && vh.units == "μS/cm") {
                         // Add MOND Electrical Conductivity 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "EC", mg.MONG_TYPE + " flow meter reading", mond_ref, vh.db_name, "Electrical Conductivity", vh.units, vh.format, null,"ge_flow");
                         if (md!=null) MOND.Add (md);

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using ge_repository.Services;
+using System.Linq;
 
 namespace ge_repository.LowerThamesCrossing {
 
@@ -20,7 +22,7 @@ public class LTM_Survey_Data {
         public DateTime? date1_getDT() {if (date1==null) {return null;} return Esri.getDate(date1.Value);}
         public void date1_setDT(DateTime? value) { if (value==null){date1=null; return;} date1 = Esri.getEpoch(value.Value);}        
         public string time1 {get;set;} //(type: esriFieldTypeString, alias: Start time, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
-        public DateTime? time1_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, time1);}
+        public DateTime? time1_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, time1);}
         public string weath {get;set;} //(type: esriFieldTypeString, alias: Weather, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
         public string temp {get;set;} //(type: esriFieldTypeString, alias: Temperature, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
         public string wind {get;set;} //(type: esriFieldTypeString, alias: Wind, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
@@ -137,7 +139,7 @@ public class LTM_Survey_Data {
         public int? number_trip_samples {get;set;} //(type: esriFieldTypeInteger, alias: Number of trip blank samples taken, SQL Type: sqlTypeOther, nullable: true, editable: true)
         public string samp_com {get;set;} //(type: esriFieldTypeString, alias: Comments / notes, SQL Type: sqlTypeOther, length: 1000, nullable: true, editable: true)
         public string time2 {get;set;} //(type: esriFieldTypeString, alias: Finish time, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
-        public DateTime? time2_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, time2);}
+        public DateTime? time2_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, time2);}
         public long? CreationDate {get;set;} //(type: esriFieldTypeDate, alias: CreationDate, SQL Type: sqlTypeOther, length: 8, nullable: true, editable: false)
         public DateTime? CreationDate_getDT() {if (CreationDate==null) {return null;} return new DateTime(CreationDate.Value);}
         public void CreationDate_setDT(DateTime? value) { if (value==null){CreationDate=null; return;} CreationDate = value.Value.Ticks;}        
@@ -146,9 +148,32 @@ public class LTM_Survey_Data {
         public DateTime? EditDate_getDT() {if (EditDate==null) {return null;} return new DateTime(EditDate.Value);}
         public void EditDate_setDT(DateTime? value) { if (value==null){EditDate=null; return;} EditDate = value.Value.Ticks;}        
         public string Editor {get;set;} //(type: esriFieldTypeString, alias: Editor, SQL Type: sqlTypeOther, length: 128, nullable: true, editable: false)
+      
+}
+
+public class LTM_Survey_Data_Add:LTM_Survey_Data {
+
+        //Additional field added for QA_purposes
+        public string QA_status {get;set;} = "Dip_Approved,Purge_Approved,Gas_Approved" ; // QA_status, esriFieldTypeString, QA_status, sqlTypeOther, 1000
+
+        public LTM_Survey_Data_Add() {}
+
+        public LTM_Survey_Data_Add(LTM_Survey_Data s) {
+
+             var props = typeof(LTM_Survey_Data).GetProperties().Where(p => !p.GetIndexParameters().Any());
+                foreach (var prop in props)
+                {
+                        if (prop.CanWrite)
+                        prop.SetValue(this, prop.GetValue(s));
+                }   
+        }
 }
 
 
+public class Additional_LTM_Survey_Data {
+        public List<LTM_Survey_Data_Add> Feature_Adds {get;set;} = new List<LTM_Survey_Data_Add>();
+}
+              
 public class LTM_Survey_Data_Repeat {
         public int OBJECTID {get;set;} //(type: esriFieldTypeOID, alias: OBJECTID, SQL Type: sqlTypeOther, length: 0, nullable: false, editable: false)
         public Guid globalid {get;set;} //(type: esriFieldTypeGlobalID, alias: GlobalID, SQL Type: sqlTypeOther, length: 38, nullable: false, editable: false)

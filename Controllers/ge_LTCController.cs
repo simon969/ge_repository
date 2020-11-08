@@ -26,24 +26,25 @@ namespace ge_repository.Controllers
 {
     public class ge_LTCController: _ge_LTCController  {     
         public List<LTM_Survey_Data> Survey_Data;
+        public List<LTM_Survey_Data_Add> Survey_Data_Add;
         public List<EsriGeometry> Survey_Geom;
         public List<LTM_Survey_Data_Repeat> Survey_Repeat_Data;
 
-        public Guid[] IgnoreDataRepeat_GlobalId =  new Guid[]  {new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a"),
-                                                                new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
-                                                                new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
-                                                                new Guid("9d515e60-8fd8-4102-83ff-dfae6701d5e6"),
-                                                                new Guid("c44f4585-53bb-4ac4-b9d5-c96807db3ad2"),
-                                                                new Guid("be08d83a-d962-4b70-a7bb-ea859afded55"),
-                                                                new Guid("64e1335e-cd49-48d0-88e0-36d4c0100330"),
-                                                                new Guid("a4438ad3-9e87-4afd-851d-74c4e05e1da2"),
-                                                                new Guid("0c2fd345-b0c4-488e-950f-a79cfaa0328a"),
-                                                                new Guid("1ac157f9-9b6c-4800-ab53-9b30052be81d"),
-                                                                new Guid("b46e37b5-4b8b-4f4b-91af-67a29b8b2c14"),
-                                                                new Guid("bb2b4acc-5f9d-4e16-aaeb-974336626bf5"),
-                                                                new Guid("b8b99893-87d5-425c-9bd0-437510049873"),
-                                                                new Guid("4903b36b-0d2a-4237-b86d-03b15118f038")
-                                                                };
+        // public Guid[] IgnoreDataRepeat_GlobalId =  new Guid[]  {new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a"),
+        //                                                         new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
+        //                                                         new Guid("ec65345c-72fb-4c38-aca9-ca6c6c770f82"),
+        //                                                         new Guid("9d515e60-8fd8-4102-83ff-dfae6701d5e6"),
+        //                                                         new Guid("c44f4585-53bb-4ac4-b9d5-c96807db3ad2"),
+        //                                                         new Guid("be08d83a-d962-4b70-a7bb-ea859afded55"),
+        //                                                         new Guid("64e1335e-cd49-48d0-88e0-36d4c0100330"),
+        //                                                         new Guid("a4438ad3-9e87-4afd-851d-74c4e05e1da2"),
+        //                                                         new Guid("0c2fd345-b0c4-488e-950f-a79cfaa0328a"),
+        //                                                         new Guid("1ac157f9-9b6c-4800-ab53-9b30052be81d"),
+        //                                                         new Guid("b46e37b5-4b8b-4f4b-91af-67a29b8b2c14"),
+        //                                                         new Guid("bb2b4acc-5f9d-4e16-aaeb-974336626bf5"),
+        //                                                         new Guid("b8b99893-87d5-425c-9bd0-437510049873"),
+        //                                                         new Guid("4903b36b-0d2a-4237-b86d-03b15118f038")
+        //                                                         };
          public ge_LTCController(
 
             ge_DbContext context,
@@ -55,9 +56,12 @@ namespace ge_repository.Controllers
         {
            
         }
+[AllowAnonymous]   
 public async Task<IActionResult> ViewFeature(Guid projectId,
                                                     string table,
-                                                    string where
+                                                    string where,
+                                                    string addId = "",
+                                                    string format ="json"
                                                    ) {
             if (projectId == null)
             {
@@ -117,7 +121,66 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                                                                 table,
                                                                 where
                                                                 );
-            return Json(t1);
+            
+            if (addId!="") {
+                Guid Id = new Guid (addId);
+                var FeatureAdd = await new ge_dataController(  _context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config).getDataAsClass<Additional_LTM_Survey_Data>(Id,"json");
+                if (FeatureAdd!=null) {
+                Survey_Data_Add = FeatureAdd.Feature_Adds;
+                }
+            }
+
+            if (table == "LTM_Survey_Data_R05") {
+                foreach (string s1 in (string[]) t1.Value) {
+                    var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data>>(s1);
+                        if (survey_data.features==null) {
+                            return NotFound();
+                        }
+                    await ReadFeature(survey_data.features); 
+                }
+                Merge_Survey_Data_Add();
+                if (format=="xml") {
+                 string xml = XmlSerializeToString<LTM_Survey_Data_Add>(Survey_Data_Add);
+                 return new XmlActionResult("<root>" + xml + "</root>");
+                }
+                return Json(Survey_Data_Add);
+            } 
+
+            if (table == "Geometry") {
+                foreach (string s1 in (string[]) t1.Value) {
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data>>(s1);
+                    if (survey_data.features==null) {
+                    return NotFound();
+                    }
+                    await ReadFeature(survey_data.features); 
+                }
+                if (format=="xml") {
+                 string xml = XmlSerializeToString<EsriGeometry>(Survey_Geom);
+                 return new XmlActionResult("<root>" + xml + "</root>");
+                }
+                return Json(Survey_Geom);
+            } 
+            if (table == "gas_repeat_R05") {
+                foreach (string s1 in (string[]) t1.Value) {
+                    var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat>>(s1);
+                    if (survey_repeat.features==null) {
+                    return NotFound();
+                    }
+                    await ReadFeature(survey_repeat.features);
+                }
+                if (format=="xml") {
+                 string xml = XmlSerializeToString<LTM_Survey_Data_Repeat>(Survey_Repeat_Data);
+                 return new XmlActionResult("<root>" + xml + "</root>");
+                }
+                var output = JsonConvert.SerializeObject(Survey_Repeat_Data);
+                return Ok(output);
+            } 
+                    
+            return NotFound();
 
 }
 private async Task<int> ReadFeature (List<items<LTM_Survey_Data>>  survey_data) {
@@ -161,6 +224,7 @@ private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat>> survey_
 
 public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     string dataset,
+                                                    string addId = "",
                                                     string format = "view", 
                                                     Boolean save = false ) 
  {
@@ -268,6 +332,20 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             var repeat_resp = ReadFeature(survey_repeat.features);
             }
 
+            if (addId!="") {
+                Guid Id = new Guid (addId);
+                var FeatureAdd = await new ge_dataController(  _context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config).getDataAsClass<Additional_LTM_Survey_Data>(Id,"json");
+                if (FeatureAdd!=null) {
+                Survey_Data_Add = FeatureAdd.Feature_Adds;
+                }
+            }
+
+            Merge_Survey_Data_Add();
+            
             var mond_resp = await AddMOND(_project);
 
             ViewData["FeatureStatus"] = "Features not written to MOND table";
@@ -332,7 +410,27 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
 
 
  }
+private void Merge_Survey_Data_Add(){
+        
+        List<LTM_Survey_Data_Add> data_add =  new List<LTM_Survey_Data_Add>();
 
+        foreach (LTM_Survey_Data df in Survey_Data) {
+
+            LTM_Survey_Data_Add da_new = new LTM_Survey_Data_Add(df);
+
+            if (Survey_Data_Add!=null) {
+                LTM_Survey_Data_Add da =  Survey_Data_Add.FindLast(d=>d.globalid==df.globalid);
+                if (da!=null) {
+                    da_new.QA_status =da.QA_status;
+                }
+            }
+
+            data_add.Add (da_new);
+        }
+
+        Survey_Data_Add = data_add;
+
+}
  
 private async Task<int> AddMOND(ge_project project) {
             string[] AllPoints = new string[] {""};
@@ -374,7 +472,7 @@ private async Task<int> AddMOND(ge_project project) {
             
             int projectId = POINT.FirstOrDefault().gINTProjectID;
 
-            foreach (LTM_Survey_Data survey in Survey_Data) {
+            foreach (LTM_Survey_Data_Add survey in Survey_Data_Add) {
             
             if (survey==null) {
                continue; 
@@ -421,7 +519,7 @@ private async Task<int> AddMOND(ge_project project) {
 
             MONV mv = NewMONV(pt,survey);
                
-                mv.MONV_STAR =  survey_startDT;
+                mv.MONV_STAR = survey_startDT;
                 mv.MONV_ENDD = survey_endDT;
                 
                 mv.MONV_DIPR = survey.dip_req;
@@ -472,6 +570,35 @@ private async Task<int> AddMOND(ge_project project) {
                 mv.MONV_MENG = survey.Creator;
                 MONV.Add(mv);
 
+
+            
+        //    if (IgnoreDataRepeat_GlobalId.Contains(survey.globalid)) {
+        //        continue;
+        //    }
+
+            if (survey.QA_status.Contains("Dip_Approved")) {
+                    AddDip(mg, survey);
+            }
+            
+            if (survey.QA_status.Contains("Purge_Approved")) {
+                    AddPurge(mg, survey);
+            }
+            
+            if (survey.QA_status.Contains("Gas_Approved")) {
+                    AddGas(mg, survey);
+            }
+          
+
+
+
+
+          }
+    
+    return MOND.Count();
+     
+}
+private int AddDip(MONG mg, LTM_Survey_Data survey) {
+
             // Water depth below gl (m)
             if (survey.depth_gwl_bgl != null) {
                 MOND md = NewMOND(mg, survey); 
@@ -504,10 +631,24 @@ private async Task<int> AddMOND(ge_project project) {
                 md.MOND_REM = survey.dip_com;
                 MOND.Add(md);
             }
+
             
-            if (IgnoreDataRepeat_GlobalId.Contains(survey.globalid)) {
-                continue;
+            // Depth to base of installation (m)
+            if (survey.depth_install_bgl != null && survey.dip_datum_offset !=null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DBSE";
+                md.MOND_RDNG = Convert.ToString(survey.depth_install_bgl);
+                md.MOND_NAME = "Depth to base of installation";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = survey.dip_instr;
+                MOND.Add(md);
             }
+
+            return 0;
+
+}
+
+private int AddPurge(MONG mg, LTM_Survey_Data survey) {
 
             // PH
             if (survey.ph != null) {
@@ -573,7 +714,34 @@ private async Task<int> AddMOND(ge_project project) {
                 MOND.Add(md);
             }
 
-            // Atmosperic Temperature (°C)
+
+           
+    return 0;
+}
+private int AddGas(MONG mg, LTM_Survey_Data survey) {
+
+            // Peak Gas flow
+            if (survey.gas_flow_peak != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GFLOP";
+                md.MOND_RDNG = Convert.ToString(survey.gas_flow_peak);
+                md.MOND_NAME = "Peak gas flow rate";
+                md.MOND_UNIT = "l/h";
+                md.MOND_INST = survey.dip_instr;
+                MOND.Add(md);
+            }
+
+            // Steady Gas flow
+            if (survey.gas_flow_steady != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GFLOS";
+                md.MOND_RDNG = Convert.ToString(survey.gas_flow_steady);
+                md.MOND_NAME = "Steady gas flow rate";
+                md.MOND_UNIT = "l/h";
+                md.MOND_INST = survey.dip_instr;
+                MOND.Add(md);
+            }
+                        // Atmosperic Temperature (°C)
             if (survey.atmo_temp != null ) {
                MOND md = NewMOND(mg, survey);  
                 md.MOND_TYPE = "TEMP";
@@ -605,39 +773,9 @@ private async Task<int> AddMOND(ge_project project) {
                 md.MOND_INST = survey.gas_instr;
                 MOND.Add(md);
             }
-            // Depth to base of installation (m)
-            if (survey.depth_install_bgl != null && survey.dip_datum_offset !=null) {
-             MOND md = NewMOND(mg, survey); 
-                md.MOND_TYPE = "DBSE";
-                md.MOND_RDNG = Convert.ToString(survey.depth_install_bgl);
-                md.MOND_NAME = "Depth to base of installation";
-                md.MOND_UNIT = "m";
-                md.MOND_INST = survey.dip_instr;
-                MOND.Add(md);
-            }
-          
-            // Peak Gas flow
-            if (survey.gas_flow_peak != null) {
-             MOND md = NewMOND(mg, survey); 
-                md.MOND_TYPE = "GFLOP";
-                md.MOND_RDNG = Convert.ToString(survey.gas_flow_peak);
-                md.MOND_NAME = "Peak gas flow rate";
-                md.MOND_UNIT = "l/h";
-                md.MOND_INST = survey.dip_instr;
-                MOND.Add(md);
-            }
-
-            // Steady Gas flow
-            if (survey.gas_flow_steady != null) {
-             MOND md = NewMOND(mg, survey); 
-                md.MOND_TYPE = "GFLOS";
-                md.MOND_RDNG = Convert.ToString(survey.gas_flow_steady);
-                md.MOND_NAME = "Steady gas flow rate";
-                md.MOND_UNIT = "l/h";
-                md.MOND_INST = survey.dip_instr;
-                MOND.Add(md);
-            }
-
+            
+            DateTime survey_startDT= gINTDateTime(survey.time1_getDT()).Value;
+            
             List<LTM_Survey_Data_Repeat> repeat = Survey_Repeat_Data.FindAll(r=>r.parentglobalid==survey.globalid); 
           
             foreach (LTM_Survey_Data_Repeat survey2 in repeat) {
@@ -757,11 +895,10 @@ private async Task<int> AddMOND(ge_project project) {
                     MOND.Add(md);  
                 }
 
-          }
-    }
+            }
 
-    return MOND.Count();
-     
+            return 0;
+
 }
 
 private MOND NewMOND (MONG mg, LTM_Survey_Data survey, LTM_Survey_Data_Repeat repeat) {
@@ -822,6 +959,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data survey ) {
  
  }
 
-
 }
+
+
 

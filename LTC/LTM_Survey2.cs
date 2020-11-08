@@ -51,7 +51,7 @@ public long? PID_cali_d {get;set;}	// PID_cali_d, esriFieldTypeDate, Date calibr
 public DateTime? PID_cali_d_getDT() {if (PID_cali_d == null) {return null;} return Esri.getDate(PID_cali_d.Value);}
 public void PID_cali_d_setDT(DateTime? value) { if (value==null) {PID_cali_d = null; return;} PID_cali_d = Esri.getEpoch(value.Value);}     
 public string ambi1_time {get;set;}	// ambi1_time, esriFieldTypeString, Time of ambient air readings, sqlTypeOther, 255
-public DateTime? ambi1_time_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, ambi1_time);}
+public DateTime? ambi1_time_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, ambi1_time);}
 public double? ambi1_CH4_lel {get;set;}	// ambi1_CH4_lel, esriFieldTypeDouble, CH4 LEL (%), sqlTypeOther, 
 public double? ambi1_CH4 {get;set;}	// ambi1_CH4, esriFieldTypeDouble, CH4 (% v/v), sqlTypeOther, 
 public double? ambi1_CO2 {get;set;}	// ambi1_CO2, esriFieldTypeDouble, CO2 (% v/v), sqlTypeOther, 
@@ -68,10 +68,10 @@ public string BH_pressure_units {get;set;}	// BH_pressure_units, esriFieldTypeSt
 public double? gas_flow_peak {get;set;}	// gas_flow_peak, esriFieldTypeDouble, Peak gas flow rate (l/h), sqlTypeOther, 
 public double? gas_flow_steady {get;set;}	// gas_flow_steady, esriFieldTypeDouble, Steady gas flow rate (l/h), sqlTypeOther, 
 public string gas_repeat_tstart {get;set;}	// gas_repeat_tstart, esriFieldTypeString, Gas readings start time, sqlTypeOther, 255
-public DateTime? gas_repeat_tstart_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, gas_repeat_tstart);}
+public DateTime? gas_repeat_tstart_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, gas_repeat_tstart);}
 public double? PID_t {get;set;}	// PID_t, esriFieldTypeDouble, PID (ppm), sqlTypeOther, 
 public string ambi2_time {get;set;}	// ambi2_time, esriFieldTypeString, Time of ambient air readings, sqlTypeOther, 255
-public DateTime? ambi2_time_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, ambi2_time);}
+public DateTime? ambi2_time_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, ambi2_time);}
 public double? ambi2_CH4_lel {get;set;}	// ambi2_CH4_lel, esriFieldTypeDouble, CH4 LEL (%), sqlTypeOther, 
 public double? ambi2_CH4 {get;set;}	// ambi2_CH4, esriFieldTypeDouble, CH4 (% v/v), sqlTypeOther, 
 public double? ambi2_CO2 {get;set;}	// ambi2_CO2, esriFieldTypeDouble, CO2 (% v/v), sqlTypeOther, 
@@ -90,7 +90,7 @@ public string dip_datum {get;set;}	// dip_datum, esriFieldTypeString, Measuremen
 public double? dip_datum_offset {get;set;}	// dip_datum_offset, esriFieldTypeDouble, Datum offset (m), sqlTypeOther, 
 public string dip_datum_oth {get;set;}	// dip_datum_oth, esriFieldTypeString, Measurement datum - Other, sqlTypeOther, 255
 public string dip_time {get;set;}	// dip_time, esriFieldTypeString, Time of dip measurement, sqlTypeOther, 255
-public DateTime? dip_time_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, dip_time);}
+public DateTime? dip_time_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, dip_time);}
 public string dip_water_or_dry {get;set;}	// dip_water_or_dry, esriFieldTypeString, Water level present or hole is dry, sqlTypeOther, 255
 public double? depth_gwl {get;set;}	// depth_gwl, esriFieldTypeDouble, Water depth (m), sqlTypeOther, 
 public double? depth_install {get;set;}	// depth_install, esriFieldTypeDouble, Install depth (m), sqlTypeOther, 
@@ -120,7 +120,7 @@ public string logger_wdepth_elev_1 {get;set;}	// logger_wdepth_elev_1, esriField
 public double? logger_cable {get;set;}	// logger_cable, esriFieldTypeDouble, Logger cable length (m), sqlTypeOther, 
 public string logger_fname {get;set;}	// logger_fname, esriFieldTypeString, Logger file name, sqlTypeOther, 255
 public string logger_t {get;set;}	// logger_t, esriFieldTypeString, Download time, sqlTypeOther, 255
-public DateTime? logger_t_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, logger_t);}
+public DateTime? logger_t_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, logger_t);}
 public string logger_com {get;set;}	// logger_com, esriFieldTypeString, Comments / notes, sqlTypeOther, 1000
 public string samp_req {get;set;}	// samp_req, esriFieldTypeString, Ground water sampling required ?, sqlTypeOther, 255
 public string samp_check {get;set;}	// samp_check, esriFieldTypeString, Samples taken?, sqlTypeOther, 255
@@ -144,7 +144,7 @@ public DateTime? purg_meter_cali_d_getDT() {if (purg_meter_cali_d == null) {retu
 public void purg_meter_cali_d_setDT(DateTime? value) { if (value==null) {purg_meter_cali_d = null; return;} purg_meter_cali_d = Esri.getEpoch(value.Value);}     
 
 public string purg_time_strt {get;set;}	// purg_time_strt, esriFieldTypeString, Time purging started, sqlTypeOther, 255
-public DateTime? purg_time_strtgetDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, purg_time_strt);}
+public DateTime? purg_time_strtgetDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, purg_time_strt);}
 public double? ph {get;set;}	// ph, esriFieldTypeDouble, pH, sqlTypeOther, 
 public double? redox_potential {get;set;}	// redox_potential, esriFieldTypeDouble, Redox potential (mV), sqlTypeOther, 
 public double? conductivity {get;set;}	// conductivity, esriFieldTypeDouble, Specific conductivity (μS/cm @25 degC), sqlTypeOther, 
@@ -154,7 +154,7 @@ public double? turbitity {get;set;}	// turbitity, esriFieldTypeDouble, Turbitity
 public string water_quality {get;set;}	// water_quality, esriFieldTypeString, Water quality parameters stabilised?, sqlTypeOther, 255
 public double? actual_volume {get;set;}	// actual_volume, esriFieldTypeDouble, Volume purged (l), sqlTypeOther, 
 public string purg_time_fin {get;set;}	// purg_time_fin, esriFieldTypeString, Time purging finished, sqlTypeOther, 255
-public DateTime? purg_time_fingetDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, purg_time_fin);}
+public DateTime? purg_time_fingetDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, purg_time_fin);}
 public int? HNO3_prsrv_filtered {get;set;}	// HNO3_prsrv_filtered, esriFieldTypeInteger, Nitric Acid preserve filtered (ALE 204 - filtered), sqlTypeOther, 
 public int? HNO3_prsrv_unfiltered {get;set;}	// HNO3_prsrv_unfiltered, esriFieldTypeInteger, Nitric Acid preserve unfiltered (ALE 204 - unfiltered), sqlTypeOther, 
 public int? H2SO4_prsrv {get;set;}	// H2SO4_prsrv, esriFieldTypeInteger, Sulphuric Acid preserve (ALE 244), sqlTypeOther, 
@@ -177,7 +177,7 @@ public string logger_wdepth_elev_2 {get;set;}	// logger_wdepth_elev_2, esriField
 public string logger_com2 {get;set;}	// logger_com2, esriFieldTypeString, Comments / notes, sqlTypeOther, 1000
 public string gen_comments {get;set;}	// gen_comments, esriFieldTypeString, General comments, sqlTypeOther, 1000
 public string time2 {get;set;}	// time2, esriFieldTypeString, Finish time, sqlTypeOther, 255
-public DateTime? time2_getDT() {if (date1==null) {return null;} return Esri.setDateWithTime(date1_getDT().Value, time2);}
+public DateTime? time2_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, time2);}
 
 public string QA_status {get;set;}	// QA_status, esriFieldTypeString, QA_status, sqlTypeOther, 1000
 public string QA_check_by {get;set;}	// QA_check_by, esriFieldTypeString, QA_check_by, sqlTypeOther, 1000
