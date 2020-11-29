@@ -136,6 +136,8 @@ namespace ge_repository.Pages.Data
                 return Page();
             }
             
+            long MaxFileSize = _config.Value.defaultMaxFileSize;
+            int DbCommandTimeout = Int32.Parse( _config.Value.defaultEFDBTimeOut);
 
             if (uploadFiles.Count>0) {
                 
@@ -149,7 +151,7 @@ namespace ge_repository.Pages.Data
                 if (IsContentText) { 
                     Boolean IsContentXML = formFile.IsContentTypeXML();
                     if (IsContentXML) { 
-                            b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,Encoding.UTF8,true);
+                            b.data_xml = await formFile.ProcessFormFileString( ModelState, MaxFileSize,Encoding.UTF8,true);
                             b.data_string = null;
                             b.data_binary = null;
                             data.SetEncoding(Encoding.UTF8);
@@ -157,13 +159,13 @@ namespace ge_repository.Pages.Data
                             Encoding encoding = formFile.ReadEncoding (Encoding.UTF8);
                             b.data_binary = null;
                             b.data_xml = null;
-                            b.data_string = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,encoding, false);
+                            b.data_string = await formFile.ProcessFormFileString( ModelState, MaxFileSize,encoding, false);
                             data.SetEncoding(encoding); 
                     }
                 }  else {
                     b.data_xml = null;
                     b.data_string = null;
-                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
+                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, MaxFileSize);
                     data.SetEncoding(null);
                 }
                 
@@ -190,8 +192,7 @@ namespace ge_repository.Pages.Data
             _context.Attach(data).State = EntityState.Modified;
 
             try {
-                int DbCommandTimeout = Int32.Parse( _config.defaultEFDBTimeOut);
-            
+                            
                 if (DbCommandTimeout> 0 ) {
                 _context.Database.SetCommandTimeout(DbCommandTimeout);     
                 }

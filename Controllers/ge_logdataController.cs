@@ -43,30 +43,44 @@ namespace ge_repository.Controllers
         }
     //Create
     [HttpPost]
-    public async Task<IActionResult>  Post (string s1, string format ) {
+    public async Task<IActionResult>  Post (string log_file, string origin_data, string format ) {
         
-        ge_log_file log_file =  null;
+        ge_log_file f =  null;
+        ge_data d =  null;
+        ge_data_big b = new ge_data_big();
 
        if (format == "json") {     
-            log_file = JsonConvert.DeserializeObject<ge_log_file>(s1);
+            d = JsonConvert.DeserializeObject<ge_data>(origin_data);
+            f = JsonConvert.DeserializeObject<ge_log_file>(log_file);
+            d.filetype = "text/json";
+            d.fileext = ".json";
+            b.data_string  = log_file;
        }
        
        if (format=="xml") {
-            log_file = (ge_log_file) DeserializeFromXmlString<ge_log_file>(s1);
+            d = (ge_data) origin_data.DeserializeFromXmlString<ge_data>();
+            f = (ge_log_file) log_file.DeserializeFromXmlString<ge_log_file>();
+            d.filetype = "text/xml";
+            d.fileext = ".xml";
+            b.data_xml  = log_file;
        }
+        d.Id = Guid.Empty;
+        d.filename = d.filename  + f.channel;
+        d.filesize = log_file.Length;
+       
 
+        string s1 = d.SerializeToXmlString<ge_data>();
+        string s2 = b.SerializeToXmlString<ge_data_big>();
 
+        var resp_post = await  new ge_dataController( _context,
+                                                _authorizationService,
+                                                _userManager,
+                                                _env ,
+                                                _ge_config).Post(s1, s2, "xml"); 
 
-        return new EmptyResult();    
+        return resp_post;    
     }
-    public static T DeserializeFromXmlString<T>( string xmlString)
-        {
-            var serializer = new XmlSerializer(typeof(T));
-                using (TextReader reader = new StringReader(xmlString))
-                {
-                return (T) serializer.Deserialize(reader);
-            }   
-        }
+    
     //Read
     [HttpGet]
     public async Task<IActionResult>  Get (Guid Id) {
@@ -80,7 +94,19 @@ namespace ge_repository.Controllers
     
     //Update
     [HttpPut]
-    public async Task<IActionResult>  Put (string ge_file) {
+    public async Task<IActionResult>  Put (string s1, string s2, string format) {
+
+        ge_log_file log_file =  null;
+
+       if (format == "json") {     
+            log_file = JsonConvert.DeserializeObject<ge_log_file>(s1);
+       }
+       
+       if (format=="xml") {
+            log_file = s1.DeserializeFromXmlString<ge_log_file>();
+
+       }
+
         return new EmptyResult();    
     }
     

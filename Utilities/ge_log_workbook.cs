@@ -47,9 +47,9 @@ namespace ge_repository.OtherDatabase
         return worksheet.GetRow(current_data_row);
     }
 
-    public string RowCSV(IRow row, int lastColumn) {
+    public string RowCSV(IRow row, int lastColumn,Boolean Encapsulate = false) {
         
-        StringBuilder sb =new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < lastColumn; i++) {
             
@@ -61,7 +61,13 @@ namespace ge_repository.OtherDatabase
                 if (i>0) {
                   sb.Append (","); 
                 }
+                if (Encapsulate==true) {
+                    sb.Append("\"" + DataFormatter(cell) + "\"");
+                    continue;
+                }
+
                 sb.Append (DataFormatter(cell));
+
             }
         }
     
@@ -77,7 +83,7 @@ namespace ge_repository.OtherDatabase
         int rowStart = Math.Min(15, worksheet.FirstRowNum);
         int rowEnd = Math.Max(1400, worksheet.LastRowNum);
         
-        for (int rowNum = rowStart; rowNum < rowEnd; rowNum++) {
+        for (int rowNum = rowStart; rowNum <= rowEnd; rowNum++) {
             IRow r = worksheet.GetRow(rowNum);
             if (r == null) {
             // This whole row is empty
@@ -87,9 +93,9 @@ namespace ge_repository.OtherDatabase
 
             int lastColumn = Math.Max(r.LastCellNum, MIN_COLUMN_COUNT);
             if (rowNum == rowStart) {
-            sb.Append (RowCSV(r, lastColumn));
+            sb.Append (RowCSV(r, lastColumn,false));
             } else {
-            sb.Append(Environment.NewLine + RowCSV(r,lastColumn));
+            sb.Append(Environment.NewLine + RowCSV(r,lastColumn,false));
             }
         }
 

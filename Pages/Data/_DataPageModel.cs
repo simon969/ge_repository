@@ -17,7 +17,7 @@ namespace ge_repository.Pages.Data
     public abstract class _DataPageModel : _geBaseLocaPageModel 
     {
     [BindProperty] public ge_data data { get; set; }
-     public ge_config _config {get; set;}
+     public IOptions<ge_config> _config {get; set;}
      public ILogger<_DataPageModel> _logger;
     public _DataPageModel(
             ge_DbContext context,
@@ -27,7 +27,7 @@ namespace ge_repository.Pages.Data
             ILogger<_DataPageModel> logger)
              : base(context, authorizationService, userManager)
             {
-            _config = ge_config.Value;
+            _config = ge_config;
             _logger = logger;
              }
     public async override Task<AuthorizationResult> IsUserApproveAuthorised() {

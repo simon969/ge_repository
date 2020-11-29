@@ -12,6 +12,7 @@
         private int NOT_FOUND = -1;
         public string status {get;set;}
         public string name {get;set;}
+        
         public List<search_item> search_items {get;set;}
         public List<search_table> search_tables {get;set;}
         public List<array_item> array_items {get;set;}
@@ -374,7 +375,7 @@
     public ge_search findSearchTerms(ge_search dic, string name, string[] lines) {
         
         ge_search new_dic = new ge_search();
-
+        string delimeter = ",";
         new_dic.name = "logger header created:" + DateTime.Now;
         int max_line = lines.Count()-1;
         int max_search_lines = Math.Min(max_line, MAX_SEARCH_LINES);
@@ -423,7 +424,7 @@
                 continue;
             }    
             
-            string[] columns =  header.Split(",");
+            string[] columns =  header.Split(delimeter);
                 foreach (value_header vh in st.headers) { 
                             if (vh.found == NOT_FOUND) {
                                 int i = columns.findFirstIndexContains(vh.search_text);

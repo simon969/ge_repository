@@ -91,10 +91,13 @@ public static class DataExtensions
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (_encode==Encoding.UTF8) return Read_UTF8(buffer, offset, count);
-            if (_encode==Encoding.ASCII) return Read_ASCII(buffer, offset, count);
-            if (_encode==Encoding.Unicode) return Read_Unicode(buffer, offset, count);
-            return 0;
+            //C# string will always be utf16 (unicode);
+            // ASCII buffer only one that is same size as read buffer
+            return Read_ASCII(buffer, offset, count);
+            // if (_encode==Encoding.UTF8) return Read_Unicode(buffer, offset, count);
+            // if (_encode==Encoding.ASCII) return Read_ASCII(buffer, offset, count);
+            // if (_encode==Encoding.Unicode) return Read_Unicode(buffer, offset, count);
+            // return 0;
         }
 
         private int Read_UTF8(byte[] buffer, int offset, int count)
@@ -255,4 +258,13 @@ public static class DataExtensions
             throw new NotSupportedException();
         }
     }
+
+    public static string Utf16ToUtf8(string utf16String)
+{
+    // Get UTF16 bytes and convert UTF16 bytes to UTF8 bytes
+    byte[] utf16Bytes = Encoding.Unicode.GetBytes(utf16String);
+    byte[] utf8Bytes = Encoding.Convert(Encoding.Unicode, Encoding.UTF8, utf16Bytes);
+
+    return Encoding.UTF8.GetString(utf8Bytes);
+}
 }

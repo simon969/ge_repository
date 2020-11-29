@@ -23,6 +23,7 @@ using System.Web.Http;
 
 using System.Xml.Xsl;
 using System.Xml;
+using System.Xml.Serialization;
 
 using ge_repository.Models;
 using ge_repository.Authorization;
@@ -1472,7 +1473,24 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
 
         return Num.ToString("0.").Substring(0, SagnificantDigits);
     }
+    public static T DeserializeFromXmlString<T>(this string xmlString)
+        {
+            var serializer = new XmlSerializer(typeof(T));
+                using (TextReader reader = new StringReader(xmlString))
+                {
+                return (T) serializer.Deserialize(reader);
+            }   
+        }
+     public static string SerializeToXmlString<T>(this T toSerialize)
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(toSerialize.GetType());
 
+            using(StringWriter textWriter = new StringWriter())
+            {
+                xmlSerializer.Serialize(textWriter, toSerialize);
+                return textWriter.ToString();
+            }
+        }
     public static string SetEncoding(this String xmlString, Encoding newEncoding) {
     try {
         XmlDocument xmlDocument = new XmlDocument();
@@ -1708,7 +1726,8 @@ public class OrderCoordinator<TItem>
                 Add (".xls", "application/vnd.ms-excel");
                 Add (".xlt", "application/vnd.ms-excel");
                 Add (".xla", "application/vnd.ms-excel");
-               
+              
+
                 Add (".csv", "text/plain");
                 Add (".xml", "text/xml");
                 Add (".xsl", "text/xsl");
@@ -1716,6 +1735,7 @@ public class OrderCoordinator<TItem>
                 Add (".ags", "text/plain");
                 Add (".rtf","text/richtext");
                 Add (".kml", "application/vnd.google-earth.kml+xml");
+                Add (".json", "text/json");
                 
                 Add (".htm", "text/html");
                 Add (".html", "text/html");

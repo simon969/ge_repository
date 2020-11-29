@@ -213,7 +213,29 @@ public string Editor {get;set;}	// Editor, esriFieldTypeString, Editor, sqlTypeO
 
 public string dip_or_pressure {get;set;} // dip_or_pressure (type: esriFieldTypeString, alias: Type of water level reading taken, SQL Type: sqlTypeOther, length: 255, nullable: true, editable: true)
 public double? water_pressure {get;set;} // water_pressure (type: esriFieldTypeDouble, alias: Water pressure (bar), SQL Type: sqlTypeOther, nullable: true, editable: true)
- 
+
+public string surv_req {get;set;} // string (255 characters)	surv_req	Survey measurements required?	Yes / No check box to say whether survey levels have been recorded
+
+public string surv_check {get;set;}// string (255 characters)	surv_check	Survey meassurements carried out?	Yes / No check box to indicate where topo survey not carried out but was required
+public string surv_fail {get;set;}// string (1000 characters)	surv_fail	Reason survey measurements not taken	If topo required, but not carried out, this comment section appears to explain why
+public string surv_peg {get;set;}// string (255 characters)	surv_peg	Is the ground level peg in place and visible?	Check box for presence of ground level peg
+public string surv_peg_c {get;set;}// string (1000 characters)	surv_peg_c	Comment - GL peg not visible:	Comments if ground level peg not present
+public string surv_hwmark {get;set;}// string (255 characters)	surv_hwmark	Is the measurement point marked on the headworks?	Check box for presence of mark on head works
+public string surv_hwmark_c {get;set;}// string (1000 characters)	surv_hwmark_c	Comment if measurement point not marked:	Comments if mark not present
+public string surv_pipemark {get;set;}// string (255 characters)	surv_pipemark	Is the measurement point marked on the installed pipe?	Check box for presences of mark on installed pipe
+public string surv_pipemarc_c {get;set;}// string (1000 characters)	surv_pipemark_c	Comment if measurement point not marked:	Comments if mark not present
+public string surv_option {get;set;}// string (255 characters)	surv_option	Possible measurements	Filter option for the field engineer to choose if they measure
+//                                                                      -	Ground level and Top of Cover only
+//                                                                      -	Ground level, Top of Cover and Top of Installed pipe
+public string surv_time {get;set;}// string (255 characters)	surv_time	Time survey carried out	Added a time field similar to other activity types (e.g. dip_time). Time only as string (no date)
+public DateTime? surv_time_getDT() {if (date1==null) {return null;} return Esri.getDateTimeWithTime(date1_getDT().Value, surv_time);}
+public double? surv_g_level {get;set;}// double	surv_g_level	Surveyed Ground Level (mAOD)	Surveyed level of ground
+public double? surv_ToC {get;set;} // double	surv_ToC	Surveyed Top of Cover (mAOD)	surveyed level of Top of Cover
+public double? surv_ToI {get;set;} // double	surv_ToI	Surveyed Top of Installed Pipe (mAOD)	Surveyed level of Top of Installation
+public double? meas_ToC {get;set;} // double	meas_ToC	MeasuredTop of Cover - A(m)	Tape measured height difference (distance) between ground level and Top of Cover
+public double? meas_ToI {get;set;}// double	meas_ToI	Measured Top of Installed pipe - B (m)	Tape measured height difference (distance) between ground level and Top of Installed pipe
+public string surv_com {get;set;} // string (1000 characters)	surv_com	Notes and comments	General comments on survey work
+
 }
 
 

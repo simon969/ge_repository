@@ -24,8 +24,11 @@ namespace ge_repository.Services
         }
         public static DateTime getDateTimeWithTime(DateTime date, String time) {
         
+            try {
             DateTime t = DateTime.ParseExact(time, "HH:mm",
                                                 CultureInfo.InvariantCulture);
+            
+
             DateTime dt = new DateTime( date.Year, 
                                         date.Month,
                                         date.Day,
@@ -48,6 +51,12 @@ namespace ge_repository.Services
             
             return dt2;
 
+            } 
+            
+            catch (FormatException e) {
+            return date;
+            }
+ 
         }
 
     }

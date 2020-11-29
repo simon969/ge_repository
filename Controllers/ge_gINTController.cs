@@ -30,7 +30,8 @@ namespace ge_repository.Controllers
      private static string FILE_NAME_DATE_FORMAT = "{0:yyyy_MM_dd}";
      private static string DATETIME_FORMAT_AGS = "{0:yyyy-MM-ddTHH:mm:ss}";
 
-     private static string DP2_FORMAT_AGS = "{0:#.00}";
+    // private static string DP2_FORMAT_AGS = "{0:#.00}";
+     private static string DP2_FORMAT_AGS = "{0:0.00}";
      private static string DATE_FORMAT_AGS = "{0:yyyy-MM-dd}";
      private static string READING_FORMAT = "{0:#.00}";
 
@@ -763,6 +764,10 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
                     }
             }
             );
+            
+            if (POINT==null) {
+                return BadRequest ($"PointId : {points.ToDelimString(",")} not found in {project.name}");
+            }
 
             if (format=="view") {
                 return View(POINT);
@@ -785,6 +790,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                                            string where = null,
                                            string version = "4.04", 
                                            string format = "view", 
+                                           // string encoded = "utf-8",
                                            Boolean save = false) {
             
             if (Id == Guid.Empty )
@@ -818,8 +824,13 @@ public async Task<IActionResult> createAGS(Guid Id,
                     }
 
             }
-            
-              
+      
+            if (holes[0] != null) {
+                if (holes[0].Contains(",")) {
+                    holes = holes[0].Split (",");
+                }
+            }
+
             if (tables.Contains("MOND")) {
             var resp = await getMOND (Id, fromDT, toDT, holes, othergINTProjectId, where,"");
             var okResult = resp as OkObjectResult;   
@@ -828,14 +839,8 @@ public async Task<IActionResult> createAGS(Guid Id,
                 }
             }
 
-            string[] SelectPoints = null ;
-            
-            if (holes[0] == null && MOND != null) {
-            SelectPoints = MOND.Select (m=>m.PointID).Distinct().ToArray();
-            } else {
-            SelectPoints = holes;
-            }
-            
+            string[] SelectPoints = MOND.Select (m=>m.PointID).Distinct().ToArray();
+                        
             // if (holes != null) {
             //     bool allPointsInMOND = !holes.Except(MOND_Distinct).Any();
             //     if (allPointsInMOND) {
@@ -940,8 +945,12 @@ public async Task<IActionResult> createAGS(Guid Id,
 
             }
 
-           
+            // Encoding encode  = Encoding.Unicode;
+
             string s1 = sb.ToString();
+
+            //convert to utf8 incase utf16 string contains any characters out of utf8 range
+            //string s_utf8 = DataExtensions.Utf16ToUtf8(s_utf16);
 
             if (s1.Length==0) {
                 return Json ("No data found");
@@ -967,7 +976,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                             fileext = ".ags",
                             filetype = "text/plain",
                             filedate = DateTime.Now,
-                            encoding ="utf-16",
+                            encoding = "utf-8",
                             datumProjection = datumProjection.NONE,
                             pstatus = PublishStatus.Uncontrolled,
                             cstatus = ConfidentialityStatus.RequiresClientApproval,
@@ -984,18 +993,18 @@ public async Task<IActionResult> createAGS(Guid Id,
                  _project.data.Add(_data);
                  _context.SaveChanges();
             }
-
-            byte[] ags_utf16 = Encoding.Unicode.GetBytes(s1); 
-                      
+            //because all strings in C# are utf-16
+           // byte[] ags_utf16 = Encoding.Unicode.GetBytes(s1); 
+            byte[] ags_utf8 = Encoding.UTF8.GetBytes(s1); 
+            
             if (format =="download") {
-             // download to file can be utf-16  
-            return File ( ags_utf16, "text/plain", _data.filename );
+             // download to file can be ASCII, utf-8 or utf-16 
+            return File ( ags_utf8, "text/plain", _data.filename );
             }
-
             
             if (format == null || format=="view") {
-            //viewing in browser can only be ASCII
-            byte[] ags_ascii = Encoding.Convert(Encoding.Unicode, Encoding.ASCII, ags_utf16);        
+            //viewing in browser can only be utf-8 or ASCII
+            byte[] ags_ascii = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, ags_utf8);        
             return File (ags_ascii, "text/plain");
             }
 

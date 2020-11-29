@@ -144,6 +144,9 @@ namespace ge_repository.Pages.Data
             string[] lastmodified = LastModifiedDates.Split(";");
             int i = 0;
             
+            long MaxFileSize  =  _config.Value.defaultMaxFileSize;
+            int DbCommandTimeout = Int32.Parse(_config.Value.defaultEFDBTimeOut);
+            
             ge_MimeTypes mtypes = new ge_MimeTypes();
             
             foreach (var formFile in uploadFiles)
@@ -158,15 +161,15 @@ namespace ge_repository.Pages.Data
                      if (IsContentText) { 
                     Boolean IsContentXML = formFile.IsContentTypeXML();
                     if (IsContentXML) { 
-                            b.data_xml = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,Encoding.UTF8,true);
+                            b.data_xml = await formFile.ProcessFormFileString( ModelState, MaxFileSize,Encoding.UTF8,true);
                             d.SetEncoding(Encoding.UTF8);
                     } else {
                             Encoding encoding = formFile.ReadEncoding (Encoding.UTF8);
-                            b.data_string = await formFile.ProcessFormFileString( ModelState, _config.defaultMaxFileSize,encoding, false);
+                            b.data_string = await formFile.ProcessFormFileString( ModelState, MaxFileSize,encoding, false);
                             d.SetEncoding(encoding); 
                     }
                 }  else {
-                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, _config.defaultMaxFileSize);
+                    b.data_binary = await formFile.ProcessFormFileBinary( ModelState, MaxFileSize);
                     d.SetEncoding(null);
                 }
 
@@ -224,7 +227,7 @@ namespace ge_repository.Pages.Data
                   _context.ge_data.Add(d);
                }
             
-            int DbCommandTimeout = Int32.Parse( _config.defaultEFDBTimeOut);
+           
             
             if (DbCommandTimeout> 0 ) {
             _context.Database.SetCommandTimeout(DbCommandTimeout);     

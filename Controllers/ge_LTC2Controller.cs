@@ -40,11 +40,24 @@ namespace ge_repository.Controllers
             IOptions<ge_config> ge_config)
             : base(context, authorizationService, userManager, env, ge_config)
         {
+           // LTM Package A
            map_hole_id.Add ("BH2316-S","BH2316");
            map_hole_id.Add ("BH2316-D","BH2316");
-
            map_mong_id.Add ("BH2316-SPipe 1","Pipe 2");
            map_mong_id.Add ("BH2316-DPipe 1","Pipe 1");
+           
+           // LTM Package NGGE
+           map_hole_id.Add ("005-BH001 (S)","005-BH001");
+           map_hole_id.Add ("005-BH002 (S)","005-BH002");
+           map_hole_id.Add ("005-BH003 (S)","005-BH003");
+           map_hole_id.Add ("005-BH004 (S)","005-BH004");
+           map_hole_id.Add ("005-BH005 (S)","005-BH005");
+           map_hole_id.Add ("005-BH006 (S)","005-BH006");
+           map_hole_id.Add ("005-BH010 (S)","005-BH010");
+           map_hole_id.Add ("005-BH011 (S)","005-BH011");
+           map_hole_id.Add ("005-BH012 (S)","005-BH012");
+           map_hole_id.Add ("005-BH013 (S)","005-BH013");
+
         }
 
 public async Task<IActionResult> ViewSurvey123 (Guid projectId,
@@ -1116,6 +1129,10 @@ private async Task<int> AddMOND(ge_project project) {
                     AddGas(mg, survey);
             }
 
+            if (survey.QA_status.Contains("Topo_Approved")) {
+                     AddTopo(mg, survey);
+            }
+
         }
 
         return MOND.Count();
@@ -1246,34 +1263,7 @@ private int AddPurge(MONG mg, LTM_Survey_Data2 survey) {
                 MOND.Add(md);
             }
 
-            // Atmosperic Temperature (°C)
-            if (survey.atmo_temp != null ) {
-               MOND md = NewMOND(mg, survey);  
-                md.MOND_TYPE = "TEMP";
-                md.MOND_RDNG = Convert.ToString(survey.atmo_temp);
-                md.MOND_NAME = "Atmospheric temperature";
-                md.MOND_UNIT = "Deg C";
-                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
-                if (survey.purg_time_strt!=null) {
-                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
-                }
-                MOND.Add(md);
-            }
-
-            // Atmospheric pressure (mbar)
-            if (survey.atmo_pressure != null) {
-               MOND md = NewMOND(mg, survey); 
-                md.MOND_TYPE = "BAR";
-                md.MOND_RDNG = Convert.ToString(survey.atmo_pressure);
-                md.MOND_NAME = "Atmospheric pressure";
-                md.MOND_UNIT = "mbar";
-                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
-                if (survey.purg_time_strt!=null) {
-                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
-                }
-                MOND.Add(md);
-            }
-
+         
               //Turbidity
             if (survey.turbitity != null) {
                MOND md = NewMOND(mg, survey); 
@@ -1289,6 +1279,44 @@ private int AddPurge(MONG mg, LTM_Survey_Data2 survey) {
             }
 return 0;
 
+}
+private int AddTopo(MONG mg, LTM_Survey_Data2 survey) {
+            
+            // surv_g_level	Surveyed Ground Level (mAOD)	Surveyed level of ground
+            // surv_ToC	Surveyed Top of Cover (mAOD)	surveyed level of Top of Cover
+
+
+            if (survey.surv_g_level != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "LEV";
+                md.MOND_RDNG = Convert.ToString(survey.surv_g_level);
+                md.MOND_NAME = "Ground Level";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = "GNSS Instrument";
+                md.MOND_REM = survey.surv_com;
+                if (survey.surv_time!=null) {
+                md.DateTime  = gINTDateTime(survey.surv_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // meas_ToC	Measured Top of Cover - A(m)	Tape measured height difference (distance) between ground level and Top of Cover
+            // meas_ToI	Measured Top of Installed pipe - B (m)	Tape measured height difference (distance) between ground level and Top of Installed pipe
+
+            if (survey.meas_ToC != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DSTL";
+                md.MOND_RDNG = Convert.ToString(survey.meas_ToC);
+                md.MOND_NAME = "Distance from GL to Top of Cover";
+                md.MOND_UNIT = "m";
+                md.MOND_REM = survey.surv_com;
+                if (survey.surv_time!=null) {
+                md.DateTime  = gINTDateTime(survey.surv_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+        return 0;
 }
 
 private int AddDip(MONG mg, LTM_Survey_Data2 survey) {
@@ -1497,6 +1525,34 @@ private int AddGas(MONG mg, LTM_Survey_Data2 survey) {
                 MOND.Add(md);
             }
 
+            // Atmosperic Temperature (°C)
+            if (survey.atmo_temp != null ) {
+               MOND md = NewMOND(mg, survey);  
+                md.MOND_TYPE = "TEMP";
+                md.MOND_RDNG = Convert.ToString(survey.atmo_temp);
+                md.MOND_NAME = "Atmospheric temperature";
+                md.MOND_UNIT = "Deg C";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            // Atmospheric pressure (mbar)
+            if (survey.atmo_pressure != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "BAR";
+                md.MOND_RDNG = Convert.ToString(survey.atmo_pressure);
+                md.MOND_NAME = "Atmospheric pressure";
+                md.MOND_UNIT = "mbar";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
             DateTime survey_startDT = gINTDateTime(survey.date1_getDT()).Value;
 
             List<LTM_Survey_Data_Repeat2> repeat = Survey_Repeat_Data.FindAll(r=>r.parentglobalid==survey.globalid); 

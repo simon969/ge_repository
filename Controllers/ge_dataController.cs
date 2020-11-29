@@ -36,22 +36,22 @@ namespace ge_repository.Controllers
         }
         
  [HttpGet("{id}")]
-  public async Task<ge_data> Get (Guid id) {
+  public async Task<IActionResult> Get (Guid id) {
     
         try {
 
             if (id == null)
             {
-                return null;
+                return UnprocessableEntity();
             }
 
             var ge_data =  await _context.ge_data.SingleOrDefaultAsync(m => m.Id == id);
             
-            return  ge_data;
+            return  Ok(ge_data);
 
        } catch (Exception e) {
             Console.WriteLine (e.Message );
-              return null;
+              return NotFound();
        }
 
     } 
@@ -143,9 +143,36 @@ return await Get (Id, projectId, groupId);
     }
 
     [HttpPost]
-    public void Post(ge_data value) {}
+    public async Task<IActionResult> Post(string data, string data_big, string format) {
+
+            ge_data data1 =  null;
+            ge_data_big data_big1 = null;
+
+            if (format == "json") {   
+                data1 = JsonConvert.DeserializeObject<ge_data>(data);
+                data_big1 = JsonConvert.DeserializeObject<ge_data_big>(data_big);
+            }
+            
+            if (format=="xml") {
+                data1 = data.DeserializeFromXmlString<ge_data>();
+                data_big1 = data_big.DeserializeFromXmlString<ge_data_big>();
+            }
+            
+            data1.data = data_big1;
+            _context.ge_data.Add(data1);
+                        
+            int DbCommandTimeout = Int32.Parse( _ge_config.Value.defaultEFDBTimeOut);
+            
+            if (DbCommandTimeout> 0 ) {
+            _context.Database.SetCommandTimeout(DbCommandTimeout);     
+            }
+
+            await _context.SaveChangesAsync();
+            
+            return Ok();        
+    }
     [HttpPut]
-    public void Put(int id, ge_data value) {}
+   public async Task<IActionResult> Put(int id, ge_data value) {return NoContent();}
     
     // https://dogschasingsquirrels.com/2020/06/02/streaming-a-response-in-net-core-webapi/
     //     [HttpGet]
@@ -189,7 +216,7 @@ return await Get (Id, projectId, groupId);
             this.Response.Headers.Add( HeaderNames.ContentType, _data.filetype  );    
             
             string data_field = _data.GetContentFieldName();
-
+            Encoding encode  = _data.GetEncoding();
             using (var connection = _context.Database.GetDbConnection()) {
                 DbCommand command = connection.CreateCommand();
                 command.CommandText = $"SELECT {data_field} FROM ge_data where id='{id}'";
@@ -197,7 +224,7 @@ return await Get (Id, projectId, groupId);
                 connection.Open();
                 using (var dataReader = command.ExecuteReader()) {
                     dataReader.Read();
-                    using (var inputStream = dataReader.GetCharStream(data_field)) {
+                    using (var inputStream = dataReader.GetCharStream(data_field,encode)) {
                         using (var outputStream = this.Response.Body) {;
                             const int bufferSize = 8192;
                             var buffer = new byte[bufferSize];
@@ -241,50 +268,43 @@ return await Get (Id, projectId, groupId);
             if (!CanUserDownload) {
                return RedirectToPageMessage (msgCODE.DATA_DOWNLOAD_USER_PROHIBITED);
             }
-            
-           
-           
-         
-         
-            
-            /* if (ContentType == "text/xml") {
-            
-            } */
-        //    HttpContext.Response.Headers.Add("Content-Disposition", "attachment; filename=FileName.pdf");
-        //    HttpContext.Response.Headers.Add ("title", filename);
-        //    HttpContext.Response.Headers.Add("Content-Disposition", $"inline; filename={filename}");
-    
-            if (format =="download") {
-                    
+            string content_type = _data.GetContentType();
+
+            if (format =="download" && content_type =="text/plain") {
                     await GetStream(id);
-
                     return new EmptyResult();
-
-          //  return File (memory, ContentType, filename);
             }
 
-           if (format == null || format=="view") {
-                var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
             
                 if (_data_big == null)
                 {
                 return NotFound();
                 }
 
-                //var ContentType = _data.filetype;
-                var filename = _data.filename;
                 var encode = _data.GetEncoding();
                 //have to convert utf-16 to utf8 for display in browser
-                if (encode==Encoding.Unicode) {
-                    encode = Encoding.UTF8;
-                }
+                
+               // if (encode==Encoding.Unicode) {
+               //     encode = Encoding.UTF8;
+               // }
+
                 Stream memory = _data_big.getMemoryStream(encode);
-                               return File ( memory, _data.filetype);
-           }
+
+            if (format == "download") {
+                
+                return File (memory, content_type, _data.filename);
+            
+            }
+            
+            if (format == null || format=="view") {
+                
+                return File ( memory, content_type);
+
+            }
 
             // If we get down here soemthing is wrong 
              return NotFound();
-
             }
      public async Task<IActionResult> View(Guid id)
             {
