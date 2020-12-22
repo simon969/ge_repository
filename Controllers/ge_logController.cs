@@ -2400,7 +2400,7 @@ private async Task<int>  UpdateFile (ge_log_file file, Boolean IncludeReadings, 
 
 }
 
-public async Task<IActionResult> Copy(Guid Id, string filename, Boolean Overwrite) {
+public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Overwrite = false) {
 
     var resp_getdata = await new ge_dataController( _context,
                                                 _authorizationService,
@@ -2414,7 +2414,8 @@ public async Task<IActionResult> Copy(Guid Id, string filename, Boolean Overwrit
         
     }
 
-    
+    var user = GetUserAsync();
+
     var resp_getlog = await  new ge_logdbController( _context,
                                                 _authorizationService,
                                                 _userManager,
@@ -2427,10 +2428,21 @@ public async Task<IActionResult> Copy(Guid Id, string filename, Boolean Overwrit
         return BadRequest(resp_getlog);
         
     }
+
     ge_data data = okResult_data.Value as ge_data; 
+    
+    //to prevent circular xml serialisation set parent project object to null
+    data.project = null;
+    
+    if (filename != null && filename != "") {
+        data.filename = filename;
+    }
+
     string s2 =  data.SerializeToXmlString<ge_data>();
 
     List<ge_log_file> files  = okResult_log.Value as List<ge_log_file>;
+
+    List<ge_data> resp = new List<ge_data>();
 
     foreach (ge_log_file file in files) {
         
@@ -2442,7 +2454,13 @@ public async Task<IActionResult> Copy(Guid Id, string filename, Boolean Overwrit
                                                 _authorizationService,
                                                 _userManager,
                                                 _env,
-                                                _ge_config).Put(s1, s2, "xml");
+                                                _ge_config).Put(file.Id, s1, s2, "xml");
+            var okResult_put = resp_put as OkObjectResult;    
+            if (okResult_log!=null) {
+                ge_data data_put = okResult_put.Value as ge_data;
+                resp.Add (data_put);
+            }
+
             continue;
         }
             var resp_post = await  new ge_logdataController( _context,
@@ -2450,12 +2468,14 @@ public async Task<IActionResult> Copy(Guid Id, string filename, Boolean Overwrit
                                                 _userManager,
                                                 _env ,
                                                 _ge_config).Post(s1, s2, "xml");
-
-
-
+            var okResult_post = resp_post as OkObjectResult;    
+            if (okResult_log!=null) {
+                ge_data data_post = okResult_post.Value as ge_data;
+                resp.Add (data_post);
+            }
     }
 
-    return null;
+    return Json(resp);
 
 
 }

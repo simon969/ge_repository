@@ -266,4 +266,12 @@ public string Editor {get;set;}	// Editor, esriFieldTypeString, Editor, sqlTypeO
   
 
         }
+
+public class LTM_Geometry: EsriGeometryWithAttributes {
+
+        public string hole_id {get;set;} 
+
+
+
+}
 }

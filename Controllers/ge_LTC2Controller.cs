@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -13,24 +11,22 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using ge_repository.Models;
 using ge_repository.Authorization;
-using static ge_repository.Authorization.Constants;
-using ge_repository.Extensions;
-using System.Data.SqlClient;
-using System.Data;
 using ge_repository.OtherDatabase;
 using ge_repository.LowerThamesCrossing;
 using ge_repository.Services;
 using Newtonsoft.Json;
-
+using ge_repository.DAL;
 
 namespace ge_repository.Controllers
 {
        public class ge_LTC2Controller: _ge_LTCController  {     
        public List<LTM_Survey_Data2> Survey_Data;
-       public List<EsriGeometry> Survey_Geom;
+       public List<LTM_Geometry> Survey_Geom;
        public List<LTM_Survey_Data_Repeat2> Survey_Repeat_Data;
        public Dictionary<string, string> map_hole_id =  new Dictionary<string, string>();
-        public Dictionary<string, string> map_mong_id =  new Dictionary<string, string>();
+       public Dictionary<string, string> map_mong_id =  new Dictionary<string, string>();
+       public Dictionary<string, int> map_mong_id_gintrecid = new Dictionary<string, int>();
+       
          public ge_LTC2Controller(
 
             ge_DbContext context,
@@ -57,7 +53,9 @@ namespace ge_repository.Controllers
            map_hole_id.Add ("005-BH011 (S)","005-BH011");
            map_hole_id.Add ("005-BH012 (S)","005-BH012");
            map_hole_id.Add ("005-BH013 (S)","005-BH013");
-
+          
+          // LTM Package Phase 1A Phase1B
+           map_mong_id_gintrecid.Add ("BH2612Pipe 1",295);
         }
 
 public async Task<IActionResult> ViewSurvey123 (Guid projectId,
@@ -108,6 +106,13 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                                                     string where,
                                                     string format ="json"
                                                    ) {
+            Boolean GeometryOnly = false;
+
+            if (table.Contains(",GeometryOnly")) {
+                GeometryOnly = true;
+                table = table.Replace(",GeometryOnly","");
+            }
+
             if (projectId == null)
             {
                 return NotFound();
@@ -166,6 +171,21 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                                                                 table,
                                                                 where
                                                                 );
+            if (GeometryOnly==true) {
+                foreach (string s1 in (string[]) t1.Value) {
+                var survey_data  = JsonConvert.DeserializeObject<esriFeatureLayer<LTM_Survey_Data2>>(s1);
+                    if (survey_data.features==null) {
+                    return NotFound();
+                    }
+                    await ReadFeature(survey_data.features); 
+                }
+                if (format=="xml") {
+                 string xml = XmlSerializeToString<LTM_Geometry>(Survey_Geom);
+                 return new XmlActionResult("<root>" + xml + "</root>");
+                }
+                return Json(Survey_Geom);
+            } 
+            
             if (table == "LTM_Survey_Data_R06") {
                 foreach (string s1 in (string[]) t1.Value) {
                     var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
@@ -180,20 +200,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                 }
                 return Json(Survey_Data);
             } 
-            if (table == "Geometry") {
-                foreach (string s1 in (string[]) t1.Value) {
-                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
-                    if (survey_data.features==null) {
-                    return NotFound();
-                    }
-                    await ReadFeature(survey_data.features); 
-                }
-                if (format=="xml") {
-                 string xml = XmlSerializeToString<EsriGeometry>(Survey_Geom);
-                 return new XmlActionResult("<root>" + xml + "</root>");
-                }
-                return Json(Survey_Geom);
-            } 
+           
             if (table == "gas_repeat_R06") {
                 foreach (string s1 in (string[]) t1.Value) {
                     var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
@@ -299,7 +306,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                                 page_size
                                                                 );
             Survey_Data = new List<LTM_Survey_Data2>();
-            Survey_Geom = new List<EsriGeometry>();
+            Survey_Geom = new List<LTM_Geometry>();
             
             foreach (string s1 in (string[]) t1.Value) {
             var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
@@ -428,24 +435,93 @@ private string IfOther(string s1, string other) {
 private async Task<int> ReadFeature (List<items<LTM_Survey_Data2>>  survey_data) {
         
         if (Survey_Data == null) Survey_Data = new List<LTM_Survey_Data2>();
-        if (Survey_Geom == null) Survey_Geom = new List<EsriGeometry>();
+        if (Survey_Geom == null) Survey_Geom = new List<LTM_Geometry>();
         
         foreach (items<LTM_Survey_Data2> survey_items in survey_data) {
             
             LTM_Survey_Data2 survey = survey_items.attributes;
-            EsriGeometry geom =  survey_items.geometry;
-
             if (survey==null) {
                continue; 
             }
+
+            EsriGeometry geom =  survey_items.geometry;
+            LTM_Geometry geom2 = getLTMGeometry(geom, survey, Esri.esriWGS84);
+            
             
             Survey_Data.Add (survey);
-            Survey_Geom.Add (geom);
+            Survey_Geom.Add (geom2);
         }
 
         return Survey_Data.Count();
 }
 
+
+private LTM_Geometry getLTMGeometry(EsriGeometry geom, LTM_Survey_Data2 survey, int wkid) {
+    
+        LTM_Geometry geom2 = new LTM_Geometry();
+
+        geom2.hole_id = survey.hole_id;
+        geom2.objectid = survey.objectid;
+        geom2.x = geom.x;
+        geom2.y = geom.y;
+        
+        ge_data g =  new ge_data(); 
+        
+        if (geom.x>=0.001 & geom.y > 0.001) {
+        
+        if (wkid ==  Esri.esriOSGB36) {
+            ge_projectionOSGB36 p =  new ge_projectionOSGB36(g);
+            g.locLongitude = geom.x;
+            g.locLatitude = geom.y;
+            if (p.calcEN_fromLatLong()) {;
+                geom2.East = g.locEast.Value;
+                geom2.North = g.locNorth.Value;
+            }
+        }
+
+        if (wkid ==  Esri.esriWGS84) {
+            double height = 100;
+            
+            if (survey.surv_g_level != null) {
+            height = survey.surv_g_level.Value;
+            }
+
+            Transform_WGS84_and_OSGB t = new Transform_WGS84_and_OSGB();
+            g = t.WGS84_Lat_Long_Height_to_OSGB_East_North( geom.y,
+                                                            geom.x,
+                                                            height);
+            if (g != null) {
+                geom2.East = g.locEast.Value;
+                geom2.North = g.locNorth.Value;
+            }
+
+        }
+        }
+
+        // Transform_WGS84_and_OSGB t2 = new Transform_WGS84_and_OSGB();
+        // ge_data g4 = t2.WGS84_Lat_Long_Height_to_OSGB_East_North(  52.65797861194,
+        //                                                     1.71605201472,
+        //                                                     69.391);
+        // ge_data g2 =  new ge_data(); 
+        // g2.locLongitude =  0.3958734;
+        // g2.locLatitude = 51.4894179;
+        // ge_projectionOSGB36 p2 =  new ge_projectionOSGB36(g2);
+        // p2.calcEN_fromLatLong();
+        // string res = $"Lat:{g2.locLatitude} Long:{g2.locLongitude} N:{g2.locNorth} E:{g2.locEast}";
+
+    return geom2;
+
+}
+private EsriGeometry getEsriGeometry(LTM_Geometry geom) {
+    
+    EsriGeometry geom2 = new EsriGeometry();
+        
+        geom2.x = geom.x;
+        geom2.y = geom.y;
+
+    return geom2;
+
+}
 private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat) {
         
             if (Survey_Repeat_Data == null) Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
@@ -547,13 +623,19 @@ private async Task<int> ReadFeatureMOND(List<items<LTM_Survey_Data2>>  survey_da
             }
             
             string mong_id  = survey.mong_ID;
+            MONG mg = null;
 
             if (map_mong_id.ContainsKey(survey.hole_id + survey.mong_ID)) {
                 mong_id = map_mong_id[survey.hole_id + survey.mong_ID];
             } 
             
-            MONG mg =   pt_mg.Find(m=>m.ItemKey==mong_id);
-            
+            mg =   pt_mg.Find(m=>m.ItemKey == mong_id);
+
+            if (map_mong_id_gintrecid.ContainsKey(survey.hole_id + survey.mong_ID)) {
+                int mong_gintrecid = map_mong_id_gintrecid[survey.hole_id + survey.mong_ID];
+                mg = pt_mg.Find(m=>m.GintRecID == mong_gintrecid);
+            } 
+
             if (mg == null) {
                 mg = pt_mg.FirstOrDefault();
             } 
@@ -1101,11 +1183,19 @@ private async Task<int> AddMOND(ge_project project) {
             
             string mong_id  = survey.mong_ID;
 
+            MONG mg = null;
+
             if (map_mong_id.ContainsKey(survey.hole_id + survey.mong_ID)) {
                 mong_id = map_mong_id[survey.hole_id + survey.mong_ID];
             } 
             
-            MONG mg =  pt_mg.Find(m=>m.ItemKey==mong_id);
+            mg =   pt_mg.Find(m=>m.ItemKey == mong_id);
+            
+            if (map_mong_id_gintrecid.ContainsKey(survey.hole_id + survey.mong_ID)) {
+                int mong_gintrecid = map_mong_id_gintrecid[survey.hole_id + survey.mong_ID];
+                mg = pt_mg.Find(m=>m.GintRecID == mong_gintrecid);
+            } 
+
             
             if (mg == null) {
                 mg = pt_mg.FirstOrDefault();
@@ -1114,9 +1204,8 @@ private async Task<int> AddMOND(ge_project project) {
             DateTime? survey_start = gINTDateTime(survey.date1_getDT());
 
             if (survey_start==null) continue;
-
                     AddVisit (pt, survey);
-            
+           
             if (survey.QA_status.Contains("Dip_Approved")) {
                     AddDip(mg, survey);
             }
@@ -1149,11 +1238,14 @@ private int AddVisit(POINT pt, LTM_Survey_Data2 survey){
                 mv.MONV_DIPR = survey.dip_req;
                 mv.MONV_GASR = survey.gas_mon;
                 mv.MONV_LOGR = survey.logger_downld_req ;
-
+                mv.MONV_TOPR = survey.surv_req;
+                
                 mv.MONV_REMG = survey.gas_fail + " " + survey.gas_com;
                 mv.MONV_REMD = survey.dip_fail + " " + survey.dip_com;
                 mv.MONV_REML = survey.logger_fail + " " + survey.logger_com;
                 mv.MONV_REMS = survey.samp_fail + " " + survey.samp_com;
+                mv.MONV_REMT = survey.surv_fail + " " + survey.surv_com;
+                
                 mv.PUMP_TYPE = survey.purg_pump + " " + survey.purg_pump_oth;
 
                 mv.MONV_WEAT = survey.weath;
@@ -1719,7 +1811,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey ) {
  
  public async Task<IActionResult> UpdateFeature(Guid projectId,
                                                 List<LTM_Survey_Data2>  survey_data, 
-                                                List<EsriGeometry> geometry
+                                                List<LTM_Geometry> geometry
                                                 )
                                                 {
         // https://services9.arcgis.com/4MYxhHBDmXiGXKqw/ArcGIS/rest/services/service_f52f08750ca04914bfc7c90a3be64ff1/FeatureServer
@@ -1731,7 +1823,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey ) {
 
         for (int i=0;i<survey_data.Count();i++) {
             string sd = JsonConvert.SerializeObject(survey_data[i]);
-            string geom = JsonConvert.SerializeObject(geometry[i]);
+            string geom = JsonConvert.SerializeObject(getEsriGeometry(geometry[i]));
             if (i>0) sb.Append (",");
             sb.Append("{");
             sb.Append ("\"attributes\":" + sd);

@@ -28,7 +28,21 @@ namespace ge_repository.Models {
         public const double MAX=180.0;
      
      }
-
+    public static class limX {
+        public const double MIN = -1e6;
+        public const double MAX = 1e6;
+     
+     }
+     public static class limY {
+        public const double MIN = -1e6;
+        public const double MAX = 1e6;
+     
+     }
+     public static class limZ {
+        public const double MIN = -1e6;
+        public const double MAX = 1e6;
+     
+     }
 
     public abstract class _ge_location : _ge_base {
     [Display(Name = "Name")] [StringLength(255)]public string locName {get;set;}
@@ -42,6 +56,10 @@ namespace ge_repository.Models {
     [Display(Name = "Latitude")][Range (limLatitude.MIN,limLatitude.MAX)] public double? locLatitude{get;set;}
     [Display(Name = "Longitude")][Range (limLongitude.MIN,limLongitude.MAX)] public double? locLongitude{get;set;}
     [Display(Name = "Ellipsoid Height")][Range (limLongitude.MIN,limLongitude.MAX)] public double? locHeight{get;set;}
+    [Display(Name = "X")][Range (limX.MIN,limX.MAX)] public double? locX{get;set;} 
+    [Display(Name = "Y")][Range (limY.MIN,limY.MAX)] public double? locY{get;set;} 
+    [Display(Name = "Z")][Range (limZ.MIN,limZ.MAX)] public double? locZ{get;set;}
+
     [Display(Name= "Folder")] [StringLength(255)] public string folder {get;set;} 
     [Display(Name= "Other Database Location Ref")] [StringLength(255)] public string locOtherDb {get;set;} 
 }

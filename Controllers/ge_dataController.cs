@@ -45,7 +45,9 @@ namespace ge_repository.Controllers
                 return UnprocessableEntity();
             }
 
-            var ge_data =  await _context.ge_data.SingleOrDefaultAsync(m => m.Id == id);
+            var ge_data =  await _context.ge_data
+                                                .AsNoTracking()
+                                                .SingleOrDefaultAsync(m => m.Id == id);
             
             return  Ok(ge_data);
 
@@ -63,7 +65,8 @@ namespace ge_repository.Controllers
             }
 
             return await _context.ge_project
-                          .Where (p=>p.groupId == groupId).ToListAsync();
+                                        .AsNoTracking()
+                                        .Where (p=>p.groupId == groupId).ToListAsync();
             
             
     }
@@ -90,17 +93,20 @@ return await Get (Id, projectId, groupId);
             
             if (groupId != null) {
             return await _context.ge_data
-                       .Where (d=>d.project.groupId == groupId.Value).ToListAsync();
+                                .AsNoTracking()
+                                .Where (d=>d.project.groupId == groupId.Value).ToListAsync();
             }
             
             if (projectId != null) {
             return await _context.ge_data
-                        .Where (m=>m.projectId == projectId.Value).ToListAsync();
+                                .AsNoTracking()
+                                .Where (m=>m.projectId == projectId.Value).ToListAsync();
             }
 
             if (Id != null) {
             return await _context.ge_data
-                        .Where (m=>m.Id == Id.Value).ToListAsync();
+                                .AsNoTracking()
+                                .Where (m=>m.Id == Id.Value).ToListAsync();
             }
 
             return null;
@@ -119,6 +125,7 @@ return await Get (Id, projectId, groupId);
             }
             
             var _data = await _context.ge_data
+                                    .AsNoTracking()
                                     .Include(d =>d.project)
                                     .SingleOrDefaultAsync(m => m.Id == id);
             if (_data == null)
@@ -126,7 +133,9 @@ return await Get (Id, projectId, groupId);
                 return null;
             }
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            var _data_big = await _context.ge_data_big
+                                    .AsNoTracking()
+                                    .SingleOrDefaultAsync(m => m.Id == id);
             
             if (_data_big == null)
             {
@@ -166,13 +175,52 @@ return await Get (Id, projectId, groupId);
             if (DbCommandTimeout> 0 ) {
             _context.Database.SetCommandTimeout(DbCommandTimeout);     
             }
-
-            await _context.SaveChangesAsync();
+           
+            int resp = await _context.SaveChangesAsync();
             
-            return Ok();        
+            if (resp == 1) {
+                return Ok(data1);
+            }
+            
+            return BadRequest(data1);
+
     }
     [HttpPut]
-   public async Task<IActionResult> Put(int id, ge_data value) {return NoContent();}
+   public async Task<IActionResult> Put(Guid Id, string data, string data_big, string format) {
+
+            ge_data data1 =  null;
+            ge_data_big data_big1 = null;
+
+            if (format == "json") {   
+                data1 = JsonConvert.DeserializeObject<ge_data>(data);
+                data_big1 = JsonConvert.DeserializeObject<ge_data_big>(data_big);
+            }
+            
+            if (format=="xml") {
+                data1 = data.DeserializeFromXmlString<ge_data>();
+                data_big1 = data_big.DeserializeFromXmlString<ge_data_big>();
+            }
+
+            data1.Id=Id;
+            data1.data = data_big1;
+            
+            _context.ge_data.Update(data1);
+                        
+            int DbCommandTimeout = Int32.Parse( _ge_config.Value.defaultEFDBTimeOut);
+            
+            if (DbCommandTimeout> 0 ) {
+            _context.Database.SetCommandTimeout(DbCommandTimeout);     
+            }
+           
+            int resp = await _context.SaveChangesAsync();
+            
+            if (resp == 1) {
+                return Ok(data1);
+            }
+            
+            return BadRequest(data1);
+
+    }
     
     // https://dogschasingsquirrels.com/2020/06/02/streaming-a-response-in-net-core-webapi/
     //     [HttpGet]
@@ -250,6 +298,7 @@ return await Get (Id, projectId, groupId);
             }
             
             var _data = await _context.ge_data
+                                    .AsNoTracking()
                                     .Include(d =>d.project)
                                     .SingleOrDefaultAsync(m => m.Id == id);
             if (_data == null)
@@ -270,12 +319,14 @@ return await Get (Id, projectId, groupId);
             }
             string content_type = _data.GetContentType();
 
-            if (format =="download" && content_type =="text/plain") {
+            if (format =="download" && content_type.Contains ("text")) {
                     await GetStream(id);
                     return new EmptyResult();
             }
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            var _data_big = await _context.ge_data_big
+                                        .AsNoTracking()
+                                        .SingleOrDefaultAsync(m => m.Id == id);
             
                 if (_data_big == null)
                 {
@@ -392,12 +443,15 @@ return await Get (Id, projectId, groupId);
 public  async Task<string> getDataAsString (Guid Id) {
             
             var _data = await _context.ge_data
+                                    .AsNoTracking()
                                     .Include(d =>d.project)
                                     .SingleOrDefaultAsync(m => m.Id == Id);
 
             var encode = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == Id);
+            var _data_big = await _context.ge_data_big
+                                    .AsNoTracking()
+                                    .SingleOrDefaultAsync(m => m.Id == Id);
             
             if (_data_big == null)
             {
@@ -414,12 +468,15 @@ public  async Task<string> getDataAsString (Guid Id) {
  public  async Task<string[]> getDataByLines (Guid Id) {
             
             var _data = await _context.ge_data
+                                    .AsNoTracking()
                                     .Include(d =>d.project)
                                     .SingleOrDefaultAsync(m => m.Id == Id);
 
             var encode = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == Id);
+            var _data_big = await _context.ge_data_big
+                                    .AsNoTracking()
+                                    .SingleOrDefaultAsync(m => m.Id == Id);
             
             if (_data_big == null)
             {
@@ -437,6 +494,7 @@ public  async Task<string> getDataAsString (Guid Id) {
     public async Task<T> getDataAsClass<T> (Guid Id, string format="xml") {
   
         var _data = await _context.ge_data
+                                    .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == Id);
             if (_data == null)
                 {
@@ -445,7 +503,9 @@ public  async Task<string> getDataAsString (Guid Id) {
 
             Encoding encoding = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == Id);
+            var _data_big = await _context.ge_data_big
+                                    .AsNoTracking()
+                                    .SingleOrDefaultAsync(m => m.Id == Id);
             
             if (_data_big == null)
             {

@@ -967,6 +967,7 @@ public async Task<IActionResult> createAGS(Guid Id,
 
                 var _data =  new ge_data {
                             Id = Guid.NewGuid(),
+                            projectId = _project.Id,
                             createdId = user.Id,
                             createdDT = DateTime.Now,
                             editedDT = DateTime.Now,
@@ -990,7 +991,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                                 }
                             };
             if (save) {
-                 _project.data.Add(_data);
+                 _context.ge_data.Add(_data);
                  _context.SaveChanges();
             }
             //because all strings in C# are utf-16
@@ -1486,7 +1487,131 @@ public async Task<int> Upload(Guid projectId,
     return await uploadBulk(projectId,save_items, where);
     
     }
+private async Task<IActionResult> Put (Guid projectId, 
+                                        string table,
+                                        string items,
+                                        string format) {
 
+
+if ( table == "MOND") {
+    MOND =  JsonConvert.DeserializeObject<List<MOND>>(items);
+    var resp = await UpdateExisting (projectId, MOND, 
+                        "IgnoreNullValueFields");
+    return Ok(resp); 
+}
+
+
+return NotFound();
+
+}
+
+public async Task<IActionResult> Put (Guid Id, 
+                                        string table,
+                                        string format) {
+
+var resp_file = await new ge_dataController( _context,
+                                        _authorizationService,
+                                        _userManager,
+                                        _env ,
+                                        _ge_config).Get(Id);
+
+var okResult = resp_file as OkObjectResult;    
+
+if (okResult==null) {
+    return BadRequest ($"Unable to load file Id {Id}");
+}
+                        
+ge_data file  = okResult.Value as ge_data;
+
+if (file.fileext !=".json") {
+    return BadRequest ($"Unable to process file {file.filename}");
+}
+
+var resp_json = await new ge_dataController( _context,
+                                        _authorizationService,
+                                        _userManager,
+                                        _env ,
+                                        _ge_config).getDataAsString(Id);
+
+
+return await Put (file.projectId, table,resp_json,format);                                                   
+                                                            
+}
+
+public async Task<IActionResult> Post (Guid projectId, 
+                                        string table,
+                                        string items,
+                                        string format) {
+
+
+if ( table == "MOND") {
+    MOND =  JsonConvert.DeserializeObject<List<MOND>>(items);
+    var resp = await Upload(projectId, MOND, 
+                        null);
+    return Ok(resp); 
+}
+
+
+return NotFound();
+
+}
+
+private async Task<int> UpdateExisting(Guid projectId, 
+                                 List<MOND> items,
+                                 string options="IgnoreNullValueFields") 
+                                 {   
+    
+    bool IgnoreNullValueFields = true;
+
+    int NOT_OK = -1;
+    int ret = 0;
+    
+    if (options.Contains("IgnoreNullValueFields")) {
+        IgnoreNullValueFields = true;
+    }
+    
+    int[] gINTRecIDs = MOND.Select (m=>m.GintRecID).Distinct().ToArray();
+
+    dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+
+    if (cd==null) {
+        return NOT_OK;
+    }
+
+    string dbConnectStr = cd.AsConnectionString();
+    int gINTProjectID = cd.ProjectId;
+    string sqlwhere = $"gINTProjectID={gINTProjectID} and gINTRecID in ({gINTRecIDs.ToDelimString(",")})";
+
+        return await Task.Run(() =>
+        
+        {
+            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+            {
+                cnn.Open();
+                dsTable dsMOND = new gINTTables().MOND;
+                dsMOND.setConnection (cnn);        
+                DataTable dtMOND = null;
+                dsMOND.sqlWhere(sqlwhere);
+                        dsMOND.getDataSet();
+                        dtMOND = dsMOND.getDataTable(); 
+                        if (dtMOND.Rows.Count==0) { 
+                          return NOT_OK;
+                        }
+                foreach (DataRow row in dtMOND.Rows) {
+                        int gINTRecID = (int) row["gINTRecID"]; 
+                        MOND item = items.FindLast(m=>m.GintRecID == gINTRecID);
+                        if (item != null && IgnoreNullValueFields == true) {
+                            setValuesIgnoreNulls(item,row);
+                        }
+                } 
+                
+                ret = dsMOND.BulkUpdate();
+            }
+
+           return ret;
+        });
+ 
+}
 public async Task<int> Upload(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null
@@ -1701,6 +1826,32 @@ private void setValues(SPEC item, DataRow row) {
                     //    row["ge_source"] = item.ge_source;
                     //    row["ge_otherId"] = item.ge_otherId;
                     //    row["RND_REF"] = item.RND_REF;
+}
+private void setValuesIgnoreNulls(MOND item, DataRow row) {
+                        
+                        // if (item.gINTProjectID != null) row["gINTProjectID"] = item.gINTProjectID;
+                        if (item.PointID != null) row["PointID"] = item.PointID;
+                        if (item.MOND_REF != null) row["MOND_REF"] = item.MOND_REF;
+                        if (item.ItemKey != null) row["ItemKey"] = item.ItemKey;
+                        if (item.MONG_DIS != null) row["MONG_DIS"] = item.MONG_DIS;
+                        if (item.DateTime != null) row["DateTime"] = item.DateTime;    
+                        if (item.MOND_TYPE != null) row["MOND_TYPE"] = item.MOND_TYPE;
+                        if (item.MOND_RDNG != null) row["MOND_RDNG"] = item.MOND_RDNG;
+                        if (item.MOND_NAME != null) row["MOND_NAME"] = item.MOND_NAME;
+                        if (item.MOND_UNIT != null) row["MOND_UNIT"] = item.MOND_UNIT;
+                        if (item.MOND_REM != null) row["MOND_REM"] = item.MOND_REM; 
+                        if (item.MOND_CONT != null) row["MOND_CONT"] = item.MOND_CONT;
+                        if (item.MOND_INST != null) row["MOND_INST"] = item.MOND_INST;
+                        if (item.MOND_CRED != null) row["MOND_CRED"] = item.MOND_CRED;
+                        if (item.MOND_LIM != null) row["MOND_LIM"] = item.MOND_LIM;
+                        if (item.MOND_METH != null) row["MOND_METH"] = item.MOND_METH;
+                        if (item.MOND_ULIM != null) row["MOND_ULIM"] = item.MOND_ULIM;
+                        if (item.FILE_FSET != null) row["FILE_FSET"] = item.FILE_FSET;
+
+                        //Non standard LTC  fields
+                        if (item.ge_source != null) row["ge_source"] = item.ge_source;
+                        if (item.ge_otherId != null) row["ge_otherId"] = item.ge_otherId;
+                        if (item.RND_REF != null) row["RND_REF"] = item.RND_REF;
 }
 
 private void setValues(MOND item, DataRow row) {

@@ -113,6 +113,15 @@ namespace ge_repository.OtherDatabase  {
 	// AIR_TEMP [float] NULL,
 	//(type: esriFieldTypeDouble, alias: Atmospheric temperature (°C), SQL Type: sqlTypeOther, nullable: true, editable: true)
 	
+	[Display (Name = "Topo Instrument Serial Number")] 
+	public string TOP_SRLN {get;set;}
+   //	[TOP_SRLN] [nvarchar](255) NULL,  
+   	
+	[Display(Name = "Topo Remarks")] public string MONV_REMT {get;set;} 
+//	[MONG_REM] [ntext] NULL,
+
+	[Display(Name = "Are topographic readings required from this visit")] public string MONV_TOPR {get;set;} 
+//	[MONV_TOPR] [nvarchar](255) NULL,
 	}
 
 }

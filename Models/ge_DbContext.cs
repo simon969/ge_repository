@@ -23,6 +23,7 @@ namespace ge_repository.Models
         public DbSet<ge_data_big> ge_data_big{ get;set;}
         public DbSet<ge_transform> ge_transform { get; set; }
         public DbSet<ge_event> ge_event { get; set; }
+        public ge_user user { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)  
         {  
         modelBuilder.Entity<ge_data>().HasOne(p => p.data).WithOne(p => p.data).HasForeignKey<ge_data>(p => p.Id);  

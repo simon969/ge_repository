@@ -54,6 +54,7 @@ namespace ge_repository.Controllers
             f = JsonConvert.DeserializeObject<ge_log_file>(log_file);
             d.filetype = "text/json";
             d.fileext = ".json";
+            d.encoding = "utf-8";
             b.data_string  = log_file;
        }
        
@@ -62,12 +63,20 @@ namespace ge_repository.Controllers
             f = (ge_log_file) log_file.DeserializeFromXmlString<ge_log_file>();
             d.filetype = "text/xml";
             d.fileext = ".xml";
+            d.encoding ="utf-8";
             b.data_xml  = log_file;
        }
-        d.Id = Guid.Empty;
-        d.filename = d.filename  + f.channel;
+        
+        var user = await GetUserAsync();
+
+        d.Id = f.Id;
+        string filename = d.filename.Substring (0,d.filename.IndexOf(".")) + ' ' + f.channel + ".xml";
+        d.filename = filename;
         d.filesize = log_file.Length;
-       
+        d.createdDT = DateTime.Now;
+        d.editedDT = DateTime.Now;
+        d.editedId = user.Id;
+        d.createdId =  user.Id;
 
         string s1 = d.SerializeToXmlString<ge_data>();
         string s2 = b.SerializeToXmlString<ge_data_big>();
@@ -75,11 +84,12 @@ namespace ge_repository.Controllers
         var resp_post = await  new ge_dataController( _context,
                                                 _authorizationService,
                                                 _userManager,
-                                                _env ,
+                                                _env,
                                                 _ge_config).Post(s1, s2, "xml"); 
 
         return resp_post;    
     }
+    
     
     //Read
     [HttpGet]
@@ -94,20 +104,52 @@ namespace ge_repository.Controllers
     
     //Update
     [HttpPut]
-    public async Task<IActionResult>  Put (string s1, string s2, string format) {
+    public async Task<IActionResult>  Put (Guid Id, string log_file, string origin_data, string format) {
 
-        ge_log_file log_file =  null;
+        ge_log_file f =  null;
+        ge_data d =  null;
+        ge_data_big b = new ge_data_big();
 
        if (format == "json") {     
-            log_file = JsonConvert.DeserializeObject<ge_log_file>(s1);
+            d = JsonConvert.DeserializeObject<ge_data>(origin_data);
+            f = JsonConvert.DeserializeObject<ge_log_file>(log_file);
+            d.filetype = "text/json";
+            d.fileext = ".json";
+            d.encoding = "utf-8";
+            b.data_string  = log_file;
        }
        
        if (format=="xml") {
-            log_file = s1.DeserializeFromXmlString<ge_log_file>();
-
+            d = (ge_data) origin_data.DeserializeFromXmlString<ge_data>();
+            f = (ge_log_file) log_file.DeserializeFromXmlString<ge_log_file>();
+            d.filetype = "text/xml";
+            d.fileext = ".xml";
+            d.encoding ="utf-8";
+            b.data_xml  = log_file;
        }
+        
+        var user = await GetUserAsync();
 
-        return new EmptyResult();    
+        d.Id = Id;
+        string filename = d.filename.Substring (0,d.filename.IndexOf(".")) + ' ' + f.channel + ".xml";
+        d.filename = filename;
+        d.filesize = log_file.Length;
+        d.createdDT = DateTime.Now;
+        d.editedDT = DateTime.Now;
+        d.editedId = user.Id;
+        d.createdId =  user.Id;
+
+        string s1 = d.SerializeToXmlString<ge_data>();
+        string s2 = b.SerializeToXmlString<ge_data_big>();
+        
+        var resp_put = await  new ge_dataController( _context,
+                                                _authorizationService,
+                                                _userManager,
+                                                _env,
+                                                _ge_config).Put(Id, s1, s2, "xml"); 
+
+        return resp_put;    
+
     }
     
     //Update

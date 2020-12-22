@@ -199,6 +199,12 @@ namespace ge_repository.Migrations
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
 
+                    b.Property<double?>("locX");
+
+                    b.Property<double?>("locY");
+
+                    b.Property<double?>("locZ");
+
                     b.Property<string>("operations")
                         .HasMaxLength(255);
 
@@ -312,6 +318,12 @@ namespace ge_repository.Migrations
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
 
+                    b.Property<double?>("locX");
+
+                    b.Property<double?>("locY");
+
+                    b.Property<double?>("locZ");
+
                     b.Property<string>("managerId")
                         .HasMaxLength(450);
 
@@ -400,6 +412,12 @@ namespace ge_repository.Migrations
 
                     b.Property<string>("locPostcode")
                         .HasMaxLength(255);
+
+                    b.Property<double?>("locX");
+
+                    b.Property<double?>("locY");
+
+                    b.Property<double?>("locZ");
 
                     b.Property<string>("managerId")
                         .HasMaxLength(450);

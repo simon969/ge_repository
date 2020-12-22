@@ -47,6 +47,27 @@ public class ProjectionSystem {
         loc = Loc;
     }
     public bool calcXYZ_fromLatLong(){
+
+        if (loc.locLongitude==null || loc.locLatitude==null || loc.locHeight==null) {
+            return false;
+        }
+
+        try {
+
+        loc.locX = gc.Lat_Long_H_to_X(loc.locLatitude.Value,loc.locLongitude.Value, loc.locHeight.Value);
+        loc.locY = gc.Lat_Long_H_to_Y(loc.locLatitude.Value,loc.locLongitude.Value, loc.locHeight.Value);
+        loc.locZ = gc.Lat_H_to_Z(loc.locLatitude.Value, loc.locHeight.Value);
+
+        return true;
+        
+        } 
+        
+        catch {
+       // throw new System.ArgumentException("Latitude/Longitude Conversion Error", "Cannot convert locEast:" + loc.locEast + ";locNorth:" + loc.locNorth);
+        return false;     
+        }
+
+
     return true;
     }
     public string getMessage(){
@@ -59,11 +80,12 @@ public class ProjectionSystem {
         msg="";
     }
 
-        public bool calcLatLong_fromXYZ(){
+    public bool calcLatLongH_fromXYZ(){
          try {
-            if (true) {
-
-
+            if (loc.locX != null && loc.locY != null && loc.locZ != null) {
+            loc.locLatitude = gc.XYZ_to_Lat(loc.locX.Value, loc.locY.Value, loc.locZ.Value);
+            loc.locLongitude = gc.XYZ_to_Long(loc.locX.Value, loc.locY.Value);
+            loc.locHeight = gc.XYZ_to_H(loc.locX.Value, loc.locY.Value, loc.locZ.Value);
             } else {
       //       throw new System.ArgumentException("Latitude/Longitude Conversion Error", "Cannot convert XYZ (" + loc.X + "," + loc.Y+ "," +loc.Z + ")";
             }
@@ -164,7 +186,7 @@ public class ProjectionSystem {
                 return false;
 
                 case "XYZ":
-                if (calcLatLong_fromXYZ ()){ 
+                if (calcLatLongH_fromXYZ ()){ 
                     if (calcEN_fromLatLong ()) {
                         if (calcMapRef_fromEN ()) {
                             return true;

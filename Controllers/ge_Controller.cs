@@ -119,10 +119,20 @@ namespace ge_repository.Controllers
 
       public async Task<ge_user>  GetUserAsync() {
           try {
+                if (HttpContext!=null) {
                 var claim = HttpContext.User.Claims.First(c => c.Type == "email");
                 string emailAddress = claim.Value;
-                var user = await _userManager.FindByEmailAsync(emailAddress);
-                return user;
+                _user = _context.ge_user.First(u => u.Email == emailAddress);
+                _context.user = _user;
+                return await _userManager.FindByEmailAsync(emailAddress);
+                }
+                
+                if (_context !=null) {
+                return _context.user;
+                }
+                
+                return null;
+                
           } catch {
               return null;
           }

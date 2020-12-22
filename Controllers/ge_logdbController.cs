@@ -323,6 +323,7 @@ namespace ge_repository.Controllers
         
         var _logger = await _context.ge_data
                                     .Include(d =>d.project)
+                                    .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == dataId);
 
         dbConnectDetails cd = await getConnectDetails(_logger.projectId,logTables.DB_DATA_TYPE);
@@ -381,6 +382,7 @@ namespace ge_repository.Controllers
         
         var _logger = await _context.ge_data
                                     .Include(d =>d.project)
+                                    .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == dataId);
 
         dbConnectDetails cd = await getConnectDetails(_logger.projectId,logTables.DB_DATA_TYPE);

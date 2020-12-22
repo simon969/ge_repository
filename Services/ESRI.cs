@@ -13,7 +13,12 @@ namespace ge_repository.Services
 //https://gist.github.com/glenhallworthreadify/c9c377720de165103a73b06afa0a151b
     public static class Esri {
         private static Boolean AdjustForBST = false;
-
+        
+        // EPSG:4326: WGS 84
+        public static int esriWGS84 = 4326;
+        
+        public static int esriOSGB36 = 7405;
+      
         public static DateTime getDate(long epoch) {
                 //https://community.esri.com/thread/215861-how-do-you-convert-epoch-dates-in-excel-power-bi-query-access-from-geodatabase
                 return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoch/1000);
@@ -92,18 +97,28 @@ namespace ge_repository.Services
 
     public class EsriAttributes {
         [JsonProperty(PropertyName = "objectid")]
-        public string objectid { get; set; }
+        public int objectid { get; set; }
     }
 
     public class EsriGeometry {
-    
+   
         [JsonProperty(PropertyName="x")]
         public double x {get;set;}
         [JsonProperty(PropertyName="y")]
         public double y {get;set;}
         
     }
-
+    public class EsriGeometryWithAttributes: EsriAttributes {
+    
+        [JsonProperty(PropertyName="x")]
+        public double x {get;set;}
+        
+        [JsonProperty(PropertyName="y")]
+        public double y {get;set;}
+        
+        public double East {get;set;}
+        public double North {get;set;}
+    }
 
     public class EsriClient
     {
@@ -353,13 +368,22 @@ namespace ge_repository.Services
         public string objectIdFieldName {get;set;}
         public uniqueField uniqueIdField {get;set;}
         public string globalIdFieldName {get;set;}
+        
         public serverGen serverGens {get;set;}  
         public List<field> fields {get;set;}
         public List<items<T>> features {get;set;}
-        public esriFeature() {
-            
+        public esriFeature() {  }
         }
-}
+
+        public class esriFeatureLayer<T>: esriFeature<T> {
+        // "geometryType": "<geometryType>", //for feature layers only
+        public string geometryType {get;set;}
+        // "spatialReference": <spatialReference>, //for feature layers only
+        public spatialReference spatialReference {get;set;}
+
+        public esriFeatureLayer() { }
+        }
+
 public class EsriGlobalIdOnly {
     public string objectIdFieldName {get;set;}
     public int[] objectIds {get;set;}
@@ -370,6 +394,11 @@ public class EsriGlobalIdOnly {
 public class uniqueField {
     string name {get;set;}
     Boolean isSystemMaintained {get;set;}
+}
+public class spatialReference {
+    // "spatialReference":{"wkid":4326,"latestWkid":4326}
+    public int wkid {get;set;}
+    public int latestWkid {get;set;}
 }
 
 public class serverGen {

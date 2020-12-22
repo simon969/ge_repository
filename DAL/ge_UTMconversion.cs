@@ -427,16 +427,16 @@ public static double Lat_Long_to_East(double PHI, double LAM, double a, double b
     double bf0 = b * f0;
     double e2 = (Math.Pow(af0 , 2.0) - Math.Pow(bf0 , 2.0)) / Math.Pow(af0 , 2.0);
     double n = (af0 - bf0) / (af0 + bf0);
-    double nu = af0 / Math.Sqrt(1 - (e2 * (Math.Pow(Math.Sin(RadPHI),2))));
+    double nu = af0 / Math.Sqrt(1 - (e2 * (Math.Pow(Math.Sin(RadPHI),2.0))));
     double rho = (nu * (1 - e2)) / (1 - (e2 * Math.Pow(Math.Sin(RadPHI), 2.0)));
     double eta2 = (nu / rho) - 1;
     double p = RadLAM - RadLAM0;
     
     double IV = nu * (Math.Cos(RadPHI));
-    double V = (nu / 6) * Math.Pow(Math.Cos(RadPHI) , 3) * ((nu / rho) - (Math.Pow(Math.Atan(RadPHI) , 2)));
-    double VI = (nu / 120) * Math.Pow(Math.Cos(RadPHI),  5) * (5 - (18 * Math.Pow(Math.Atan(RadPHI) , 2)) + Math.Pow(Math.Atan(RadPHI), 4) + (14 * eta2) - (58 * Math.Pow(Math.Atan(RadPHI), 2) * eta2));
+    double V = (nu / 6) * Math.Pow(Math.Cos(RadPHI) , 3.0) * ((nu / rho) - (Math.Pow(Math.Tan(RadPHI) , 2.0)));
+    double VI = (nu / 120) * Math.Pow(Math.Cos(RadPHI),  5.0) * (5 - (18 * Math.Pow(Math.Tan(RadPHI) , 2.0)) + Math.Pow(Math.Tan(RadPHI), 4.0) + (14 * eta2) - (58 * Math.Pow(Math.Tan(RadPHI), 2.0) * eta2));
     
-    return e0 + (p * IV) + (Math.Pow(p , 3) * V) + (Math.Pow(p , 5) * VI);
+    return e0 + (p * IV) + (Math.Pow(p , 3.0) * V) + (Math.Pow(p , 5.0) * VI);
 
 }
 
@@ -490,20 +490,20 @@ public static double Lat_Long_to_North(double PHI, double LAM, double a, double 
     
     double af0 = a * f0;
     double bf0 = b * f0;
-    double e2 = (Math.Pow(af0 , 2) - Math.Pow(bf0 , 2)) / Math.Pow(af0 , 2);
+    double e2 = (Math.Pow(af0 , 2) - Math.Pow(bf0 , 2.0)) / Math.Pow(af0 , 2.0);
     double n = (af0 - bf0) / (af0 + bf0);
-    double nu = af0 / (Math.Sqrt(1 - (e2 * Math.Pow(Math.Sin(RadPHI) , 2))));
-    double rho = (nu * (1 - e2)) / (1 - (e2 * Math.Pow(Math.Sin(RadPHI), 2)));
+    double nu = af0 / (Math.Sqrt(1 - (e2 * Math.Pow(Math.Sin(RadPHI) , 2.0))));
+    double rho = (nu * (1 - e2)) / (1 - (e2 * Math.Pow(Math.Sin(RadPHI), 2.0)));
     double eta2 = (nu / rho) - 1;
     double p = RadLAM - RadLAM0;
     double M = Marc(bf0, n, RadPHI0, RadPHI);
     
     double I = M + n0;
     double II = (nu / 2) * (Math.Sin(RadPHI)) * (Math.Cos(RadPHI));
-    double III = (nu / 24) * Math.Sin(RadPHI) * Math.Pow(Math.Cos(RadPHI), 3) * (5 - Math.Pow(Math.Tan(RadPHI), 2) + (9 * eta2));
-    double IIIA = ((nu / 720) * (Math.Sin(RadPHI)) * (Math.Pow(Math.Cos(RadPHI), 5))) * (61 - (58 * Math.Pow(Math.Tan(RadPHI), 2) + Math.Pow(Math.Tan(RadPHI), 4)));
+    double III = (nu / 24) * Math.Sin(RadPHI) * Math.Pow(Math.Cos(RadPHI), 3.0) * (5 - Math.Pow(Math.Tan(RadPHI), 2.0) + (9 * eta2));
+    double IIIA = ((nu / 720) * (Math.Sin(RadPHI)) * (Math.Pow(Math.Cos(RadPHI), 5.0))) * (61 - (58 * Math.Pow(Math.Tan(RadPHI), 2.0)) + Math.Pow(Math.Tan(RadPHI), 4.0));
     
-    return I + (Math.Pow(p , 2) * II) + (Math.Pow(p, 4) * III) + (Math.Pow(p , 6) * IIIA);
+    return I + (Math.Pow(p , 2.0) * II) + (Math.Pow(p, 4.0) * III) + (Math.Pow(p , 6.0) * IIIA);
 }
 
 public static double E_N_to_Lat(double East, double North, double a, double b, double e0, double n0, double f0, double PHI0, double LAM0) {
@@ -724,12 +724,13 @@ private static double Marc(double bf0, double n, double PHI0, double PHI) {
 
 // End Function
 #endregion
+double n2 = Math.Pow(n,2.0);
+double n3 = Math.Pow(n,3.0);
 
-double n2 = Math.Pow(n,2);
-double n3 = Math.Pow(n,3);
-double marc= bf0 * (((1 + n + ((5 / 4) * (n2)) + ((5 / 4) * (n3))) * (PHI - PHI0)) - (((3 * n) + (3 * (n2)) + ((21 / 8) * (n3))) * (Math.Sin(PHI - PHI0)) * (Math.Cos(PHI + PHI0))) 
+double f1 = (((1 + n + ((5 / 4) * (n2)) + ((5 / 4) * (n3))) * (PHI - PHI0)) - (((3 * n) + (3 * (n2)) + ((21 / 8) * (n3))) * (Math.Sin(PHI - PHI0)) * (Math.Cos(PHI + PHI0))) 
     + ((((15 / 8) * (n2)) + ((15 / 8) * (n3))) * (Math.Sin(2 * (PHI - PHI0))) * (Math.Cos(2 * (PHI + PHI0)))) - (((35 / 24) * (n3)) * (Math.Sin(3 * (PHI - PHI0))) * (Math.Cos(3 * (PHI + PHI0)))));
 
+double marc= bf0 * f1;
 return marc;
 
 }

@@ -21,7 +21,7 @@ namespace ge_repository.DAL
 
     public interface ige_projectionDAL : IDisposable {
         bool calcXYZ_fromLatLong();
-        bool calcLatLong_fromXYZ(); 
+        bool calcLatLongH_fromXYZ(); 
         bool calcEN_fromMapRef();  
         bool calcMapRef_fromEN(); 
         bool calcLatLong_fromEN(); 

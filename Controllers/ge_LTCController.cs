@@ -24,10 +24,11 @@ using Newtonsoft.Json;
 
 namespace ge_repository.Controllers
 {
-    public class ge_LTCController: _ge_LTCController  {     
+    public class ge_LTCController: _ge_LTCController  {    
+        public List<EsriGeometry> Survey_Geom;
         public List<LTM_Survey_Data> Survey_Data;
         public List<LTM_Survey_Data_Add> Survey_Data_Add;
-        public List<EsriGeometry> Survey_Geom;
+       
         public List<LTM_Survey_Data_Repeat> Survey_Repeat_Data;
 
         // public Guid[] IgnoreDataRepeat_GlobalId =  new Guid[]  {new Guid("bf8e8e5f-7394-4363-bfc2-9bfe876b048a"),
