@@ -442,12 +442,12 @@ return await Get (Id, projectId, groupId);
         } 
 public  async Task<string> getDataAsString (Guid Id) {
             
-            var _data = await _context.ge_data
-                                    .AsNoTracking()
-                                    .Include(d =>d.project)
-                                    .SingleOrDefaultAsync(m => m.Id == Id);
+            // var _data = await _context.ge_data
+            //                         .AsNoTracking()
+            //                         .Include(d =>d.project)
+            //                         .SingleOrDefaultAsync(m => m.Id == Id);
 
-            var encode = _data.GetEncoding();
+            // var encode = _data.GetEncoding();
 
             var _data_big = await _context.ge_data_big
                                     .AsNoTracking()
@@ -457,10 +457,12 @@ public  async Task<string> getDataAsString (Guid Id) {
             {
                 return null;
             }
-           
-            MemoryStream memory = _data_big.getMemoryStream(encode);
-      
-            string s1 = Encoding.ASCII.GetString(memory.ToArray());
+            
+            // MemoryStream memory = _data_big.getMemoryStream(encode);
+            
+            // string s1 = Encoding.ASCII.GetString(memory.ToArray());
+
+            string s1 = _data_big.getString();
             
             return s1;
 

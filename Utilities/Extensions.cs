@@ -1258,11 +1258,17 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
         // Create the XsltSettings object with script enabled.
         XsltSettings xsltsettings = new XsltSettings(false,true);
 
+        //check for BOM at begining of xslt string from file
+        string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+        if (xslt.StartsWith(_byteOrderMarkUtf8))
+        {
+        xslt = xslt.Remove(0, _byteOrderMarkUtf8.Length);
+        }
+
         // Create XslCompiledTransform object to loads and compile XSLT string. 
         XslCompiledTransform tranformObj = new XslCompiledTransform();  
-        //tranformObj.Load(new XmlTextReader(new StringReader(xslt)));
         tranformObj.Load(new XmlTextReader(new StringReader(xslt)),xsltsettings, new XmlUrlResolver());  
-              
+        
         // Create XMLReaderSetting object to assign DtdProcessing, Validation type  
         XmlReaderSettings xmlSettings = new XmlReaderSettings();  
         xmlSettings.DtdProcessing = DtdProcessing.Parse;  

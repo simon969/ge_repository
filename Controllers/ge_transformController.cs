@@ -337,13 +337,24 @@ namespace ge_repository.Controllers
 				if (res==null) {
 					return UnprocessableEntity("data is null for projectid {} groupid {}");
 				}
-			
-				var serializer = new XmlSerializer(typeof(List<ge_data>),
-                                   new XmlRootAttribute("ge_root"));
-				using(var stream = new StringWriter()) {
-    				serializer.Serialize(stream, res);
-    					return Ok(stream.ToString());
-				}
+				// var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+				// var settings = new XmlWriterSettings();
+        		// settings.Indent = true;
+        		// settings.OmitXmlDeclaration = true;
+				
+				// var serializer = new XmlSerializer(typeof(List<ge_data>),
+                //                    new XmlRootAttribute("ge_root"));
+				
+				// using (var stream = new StringWriter()) 
+				// using (var writer = XmlWriter.Create(stream, settings))
+				// {
+    			// 	serializer.Serialize(writer, res, emptyNamespaces);
+            	// 	return Ok(stream.ToString());
+				// }
+
+				string s1 = XmlSerialiseList<ge_data>(res,"ge_root");
+
+				return Ok(s1);
 			
 			}
 			if (url== ge_data_xmlGetProjects_Endpoint) {
@@ -356,19 +367,29 @@ namespace ge_repository.Controllers
 				if (res==null) {
 					return UnprocessableEntity("ge_project is null for groupid {}");
 				}
-				
-
-				var serializer = new XmlSerializer(typeof(List<ge_project>),
-                                   new XmlRootAttribute("ge_root"));
-				
+	
 				//to prevent circular reference in xml serialisation;
 				foreach (ge_project p in res) {
 					p.transform = null;
 				}
-				using(var stream = new StringWriter()) {
-    				serializer.Serialize(stream, res);
-    					return Ok(stream.ToString());
-				}
+				string s1 = XmlSerialiseList<ge_project>(res,"ge_root");
+				return Ok(s1);
+
+				// var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+				// var settings = new XmlWriterSettings();
+        		// settings.Indent = true;
+        		// settings.OmitXmlDeclaration = true;
+				// var serializer = new XmlSerializer(typeof(List<ge_project>),
+                //                    new XmlRootAttribute("ge_root"));
+				
+				
+
+				// using (var stream = new StringWriter()) 
+				// using (var writer = XmlWriter.Create(stream, settings))
+				// {
+    			// 	serializer.Serialize(writer, res, emptyNamespaces);
+            	// 	return Ok(stream.ToString());
+				// }
 			
 			}
 
@@ -411,6 +432,24 @@ namespace ge_repository.Controllers
 		    // return StatusCode((int)response.StatusCode, response);;
 
         }
+		private string XmlSerialiseList<T>(List<T> list, string root) {
+
+				var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+				var settings = new XmlWriterSettings();
+        		// settings.Indent = true;
+        		settings.OmitXmlDeclaration = true;
+				
+				var serializer = new XmlSerializer(typeof(List<T>),
+                                   new XmlRootAttribute(root));
+				
+				using (var stream = new StringWriter()) 
+				using (var writer = XmlWriter.Create(stream, settings))
+				{
+    				serializer.Serialize(writer, list, emptyNamespaces);
+            		return stream.ToString();
+				}
+
+		}
 
 		// private string getSeriveEndPointData(string service_end_point) {
 
