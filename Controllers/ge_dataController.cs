@@ -440,7 +440,7 @@ return await Get (Id, projectId, groupId);
 
             return Ok();
         } 
-public  async Task<string> getDataAsString (Guid Id) {
+public  async Task<string> getDataAsString (Guid Id, bool removeBOM = false) {
             
             // var _data = await _context.ge_data
             //                         .AsNoTracking()
@@ -462,7 +462,7 @@ public  async Task<string> getDataAsString (Guid Id) {
             
             // string s1 = Encoding.ASCII.GetString(memory.ToArray());
 
-            string s1 = _data_big.getString();
+            string s1 = _data_big.getString(null,removeBOM);
             
             return s1;
 
@@ -513,18 +513,23 @@ public  async Task<string> getDataAsString (Guid Id) {
             {
                 return default(T);
             }
+            bool removeBOM = true;
 
+            string s =_data_big.getString(encoding,removeBOM);
+            
             try {
                 
                 if (format == "xml") {
                     XmlSerializer serializer = new XmlSerializer(typeof(T));
-                    T cs = (T) serializer.Deserialize(_data_big.getMemoryStream(encoding));
+                    using (TextReader reader = new StringReader(s))
+                    {
+                    T cs = (T) serializer.Deserialize(reader);
                     return cs; 
+                    }
                 }
                 
                 if (format == "json") {
-                    string s1 =_data_big.getString(encoding);
-                    T cs = JsonConvert.DeserializeObject<T>(s1);
+                    T cs = JsonConvert.DeserializeObject<T>(s);
                     return cs;
                 }
                 

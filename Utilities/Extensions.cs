@@ -1259,11 +1259,11 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
         XsltSettings xsltsettings = new XsltSettings(false,true);
 
         //check for BOM at begining of xslt string from file
-        string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-        if (xslt.StartsWith(_byteOrderMarkUtf8))
-        {
-        xslt = xslt.Remove(0, _byteOrderMarkUtf8.Length);
-        }
+        // string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+        // if (xslt.StartsWith(_byteOrderMarkUtf8))
+        // {
+        // xslt = xslt.Remove(0, _byteOrderMarkUtf8.Length);
+        // }
 
         // Create XslCompiledTransform object to loads and compile XSLT string. 
         XslCompiledTransform tranformObj = new XslCompiledTransform();  
@@ -1552,7 +1552,36 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
     
     return a.First();
 }
-    
+    public static string XmlSerializeToString(this object objectInstance)
+{
+    var serializer = new XmlSerializer(objectInstance.GetType());
+    var sb = new StringBuilder();
+
+    using (TextWriter writer = new StringWriter(sb))
+    {
+        serializer.Serialize(writer, objectInstance);
+    }
+
+    return sb.ToString();
+}
+
+public static T XmlDeserializeFromString<T>(this string objectData)
+{
+    return (T)XmlDeserializeFromString(objectData, typeof(T));
+}
+
+public static object XmlDeserializeFromString(this string objectData, Type type)
+{
+    var serializer = new XmlSerializer(type);
+    object result;
+
+    using (TextReader reader = new StringReader(objectData))
+    {
+        result = serializer.Deserialize(reader);
+    }
+
+    return result;
+}
 }
 
 

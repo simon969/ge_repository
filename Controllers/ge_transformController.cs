@@ -226,12 +226,14 @@ namespace ge_repository.Controllers
 				} 
             }
 			
+			bool removeBOM = true;
+
 			if (transform.dataId !=null && transform.storedprocedure==null) {
 			xml_data  = await new ge_dataController(  _context,
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.dataId.Value); 
+                                                        _ge_config).getDataAsString(transform.dataId.Value,removeBOM); 
 			}
 			
 			if (transform.styleId !=null) {
@@ -239,7 +241,7 @@ namespace ge_repository.Controllers
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.styleId.Value); 
+                                                        _ge_config).getDataAsString(transform.styleId.Value,removeBOM); 
 			}
 
 			if (transform.queryId !=null) {
@@ -247,7 +249,7 @@ namespace ge_repository.Controllers
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.queryId.Value); 
+                                                        _ge_config).getDataAsString(transform.queryId.Value,removeBOM); 
 			}
 
 			if (transform.dataId !=null && transform.storedprocedure != null) {
@@ -263,7 +265,7 @@ namespace ge_repository.Controllers
 				string rawSQL = getSQLCommand(constSELECTALLFROM, data_all,holes,tables,version);
 
 				ge_data_big task_xml_data_big = await _context.ge_data_big.FromSql (rawSQL).SingleOrDefaultAsync();
-				xml_data = task_xml_data_big.getString();
+				xml_data = task_xml_data_big.getString(null, removeBOM);
 			}
 
 			if (!String.IsNullOrEmpty(qry_data)) {
@@ -284,7 +286,7 @@ namespace ge_repository.Controllers
 			ViewBag.xlt_arguments = parameters;
 
             return View("View");
-        }
+        } 
 		private string getEndPointURL(string url) {
 
 			string ret = "";

@@ -1116,10 +1116,11 @@ private async Task<int> AddMOND(ge_project project) {
                                                     _env ,
                                                     _ge_config
                                                         ).getMONG(project.Id,AllPoints);
-            var okResult = resp as OkObjectResult;   
-                if (okResult.StatusCode!=200) {
+            var okResult = resp as OkObjectResult;
+               
+            if (okResult == null) {
                 return -1;
-                } 
+            } 
         
             MONG = okResult.Value as List<MONG>;
                 if (MONG==null) { 

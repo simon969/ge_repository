@@ -135,8 +135,10 @@ namespace ge_repository.Models {
                 }
        }
 
-       public String getString(Encoding encode = null) {
-
+       public String getString(Encoding encode = null, Boolean removeBOM = false) {
+            
+            //check for BOM at begining of xslt string from file
+            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
             
             if (data_binary != null && encode==Encoding.Unicode) {
                return System.Text.Encoding.Unicode.GetString(data_binary);
@@ -154,8 +156,13 @@ namespace ge_repository.Models {
                return data_string; 
             }
 
-           if (data_xml !=null) {
-              return data_xml;
+           if (data_xml !=null ) {
+                
+                if (data_xml.StartsWith(_byteOrderMarkUtf8) && removeBOM == true)   {
+                return data_xml.Remove(0, _byteOrderMarkUtf8.Length);
+                }
+
+                return data_xml;
             }
 
            return null;
