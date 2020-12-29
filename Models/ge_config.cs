@@ -13,7 +13,7 @@ public class ge_config
     public string[] xpath_hole {get;set;}
     public string[] xpath_geol {get;set;}
     public string[] stored_procedures {get;set;}
-
+    public string[] hosts_with_app_folder {get; set;}
     public ge_transform_parameters[] transform_parameters {get;set;}
     public Guid[] templateProjectId_ToGuid (Guid? addGUID = null) {
         

@@ -29,8 +29,6 @@ namespace ge_repository.Controllers
         protected IHostingEnvironment _env {get;}
         protected IOptions<ge_config> _ge_config {get;}
 
-        private static string LOCAL_HOST ="https://localhost";
-
         public ge_Controller(
             ge_DbContext context,
             IAuthorizationService authorizationService,
@@ -67,10 +65,11 @@ namespace ge_repository.Controllers
            string PathQuery =  Request.GetEncodedPathAndQuery();
            string HostRef = DisplayUrl.Substring(0, DisplayUrl.IndexOf(PathQuery));  
            
-           
-           // Check for running on local host otherwise add the application folder for Href
-           if (HostRef.Contains(LOCAL_HOST)==false) {
-           HostRef += "/" + _env.ApplicationName;
+            // Check for running on host that has an application folder
+            ge_config g = (ge_config) _ge_config.Value;
+
+           if (g.hosts_with_app_folder.Contains(HostRef)) {
+                HostRef += "/" + _env.ApplicationName;
            }
 
            return HostRef;
