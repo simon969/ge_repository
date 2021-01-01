@@ -226,14 +226,12 @@ namespace ge_repository.Controllers
 				} 
             }
 			
-			bool removeBOM = true;
-
 			if (transform.dataId !=null && transform.storedprocedure==null) {
 			xml_data  = await new ge_dataController(  _context,
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.dataId.Value,removeBOM); 
+                                                        _ge_config).getDataAsParsedXmlString(transform.dataId.Value); 
 			}
 			
 			if (transform.styleId !=null) {
@@ -241,7 +239,7 @@ namespace ge_repository.Controllers
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.styleId.Value,removeBOM); 
+                                                        _ge_config).getDataAsParsedXmlString(transform.styleId.Value); 
 			}
 
 			if (transform.queryId !=null) {
@@ -249,7 +247,7 @@ namespace ge_repository.Controllers
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config).getDataAsString(transform.queryId.Value,removeBOM); 
+                                                        _ge_config).getDataAsString(transform.queryId.Value,false); 
 			}
 
 			if (transform.dataId !=null && transform.storedprocedure != null) {
@@ -265,7 +263,7 @@ namespace ge_repository.Controllers
 				string rawSQL = getSQLCommand(constSELECTALLFROM, data_all,holes,tables,version);
 
 				ge_data_big task_xml_data_big = await _context.ge_data_big.FromSql (rawSQL).SingleOrDefaultAsync();
-				xml_data = task_xml_data_big.getString(null, removeBOM);
+				xml_data = task_xml_data_big.getParsedXMLstring(null);
 			}
 
 			if (!String.IsNullOrEmpty(qry_data)) {
@@ -592,7 +590,7 @@ namespace ge_repository.Controllers
 			transform_params.host_gint = getHostHref() + constHref_gINT;
 			transform_params.host_esri = getHostHref() + constHref_esriFEATURE;
 			transform_params.version = version;
-			
+			// transform_params.sessionid = this.Session.Id; 
 			var user = GetUserAsync();
 
 			if (user!=null) {

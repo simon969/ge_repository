@@ -104,9 +104,14 @@ namespace ge_repository
             
             services.AddSingleton<IAuthorizationHandler, ge_repositoryAdministratorAuthorizationHandler>();
             services.AddSingleton<IAuthorizationHandler, ge_repositoryManagerAuthorizationHandler>();
-
+            
             services.AddSingleton<IEmailSender, EmailSender>();
-
+            
+            
+            // https://stackoverflow.com/questions/53973854/how-to-get-session-in-asp-net-core-2-1-when-i-have-aspnetcore-session-cookie
+            // services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            
+                        
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -119,7 +124,23 @@ namespace ge_repository
                              options.LoginPath = new PathString("/Account/SignIn");
                              })
             .AddOktaMvc(oktaMvcOptions);  
+            // https://stackoverflow.com/questions/53973854/how-to-get-session-in-asp-net-core-2-1-when-i-have-aspnetcore-session-cookie
+            
+            // services.Configure<CookiePolicyOptions>(options =>
+            //                     {
+            //                 options.CheckConsentNeeded = context => true;
+            //                 options.MinimumSameSitePolicy = SameSiteMode.None;
+            //                     });
 
+            // services.AddDistributedMemoryCache();
+
+            // services.AddSession(options =>
+            //                     {
+            //                         // Set a short timeout for easy testing.
+            //                         options.IdleTimeout = TimeSpan.FromSeconds(10);
+            //                         options.Cookie.HttpOnly = true;
+            //                     });
+            
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
@@ -157,8 +178,11 @@ namespace ge_repository
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
-            
-        //    app.UseMvcWithDefaultRoute();
+            // https://stackoverflow.com/questions/53973854/how-to-get-session-in-asp-net-core-2-1-when-i-have-aspnetcore-session-cookie
+            // app.UseSession();
+                
+        
+        //  app.UseMvcWithDefaultRoute();
 
             app.UseMvc(routes =>
                 {

@@ -125,7 +125,7 @@ namespace ge_repository.Controllers
     }
 
     [AllowAnonymous]
-     public async  Task<JsonResult> getFeatures(Guid projectId, string name, string where = "", int page_size = 250) {
+     public async  Task<JsonResult> getFeatures(Guid projectId, string name, string where = "", int page_size = 250, int[] pages = null, int orderby=Esri.OrderBy.None) {
        
               
         
@@ -159,7 +159,7 @@ namespace ge_repository.Controllers
 
         EsriFeatureQueryRequest  eFeature = new EsriFeatureQueryRequest(client, token2.Result.AccessToken,es.Url);
 
-        var result = await eFeature.getFeaturesArray(where, page_size);
+        var result = await eFeature.getFeaturesArray(where, page_size, pages, orderby);
         
         Newtonsoft.Json.JsonSerializerSettings settings = new Newtonsoft.Json.JsonSerializerSettings();
         settings.Formatting = Newtonsoft.Json.Formatting.Indented;

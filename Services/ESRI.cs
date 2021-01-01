@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Globalization;
 using Newtonsoft.Json;
@@ -23,7 +24,12 @@ namespace ge_repository.Services
                 //https://community.esri.com/thread/215861-how-do-you-convert-epoch-dates-in-excel-power-bi-query-access-from-geodatabase
                 return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(epoch/1000);
         }
-        
+        public static class OrderBy {
+                public const int None = 0; 
+                public const int Ascending = 1;
+                public const int Descending = 2;
+               
+        }
         public static long getEpoch(DateTime datetime) {
                 return (datetime - new DateTime(1970,1,1,0,0,0)).Seconds * 1000;
         }
@@ -268,6 +274,27 @@ namespace ge_repository.Services
             queryFeatureUrl = QueryFeatureUrl;    
             }
         }
+        public async Task<string> getFeatureIdsOnlyByContent(string Where) {
+            
+            if (!String.IsNullOrEmpty(Where)) {
+                where = Where;
+            }
+
+        // https://developers.arcgis.com/rest/services-reference/query-feature-service-layer-.htm
+             var values = new List<KeyValuePair<string, string>>();
+             values.Add(new KeyValuePair<string, string>("where", where));
+             values.Add(new KeyValuePair<string, string>("token", token));
+             values.Add(new KeyValuePair<string, string>("f", f));
+             values.Add(new KeyValuePair<string, string>("returnIdsOnly", "true")); 
+             var content = new FormUrlEncodedContent(values);
+            
+            // var url = $"{queryFeatureUrl}?f={f}&where={where}&token={token}&returnIdsOnly=true";
+            var response = await _httpClient.PostAsync(queryFeatureUrl, content);
+            var result =
+                await response.Content.ReadAsStringAsync();
+           return result;
+
+        }
          public async Task<string> getFeatureIdsOnly(string Where) {
             
             if (!String.IsNullOrEmpty(Where)) {
@@ -285,19 +312,43 @@ namespace ge_repository.Services
 
         }
         
-        public async Task<string[]> getFeaturesArray(string Where, int max_records=250) {
+        public async Task<string[]> getFeaturesArray(string Where, int page_size=250, int[] pages = null, int OrderBy = Esri.OrderBy.None) {
                 
-                var t1 = await getFeatureIdsOnly(Where);
+                
+                if (Where == null) {
+                    Where = "";
+                }
+                
+                var t1 = await getFeatureIdsOnlyByContent(Where);
                 var globalids  = JsonConvert.DeserializeObject<EsriGlobalIdOnly>(t1);
                 
                 int[] array = globalids.objectIds;
-                
-                int pages = Convert.ToInt32(array.Length / max_records + 1);
-                string[] resp = new string[pages];
+                if (pages != null) {
+                    if (pages.Length == 0) {
+                        pages=null;
+                    }
+                }
 
-                for (int page = 0; page < pages; page++) {
-                    int offset = page * max_records;
-                    int length = max_records;
+                if (OrderBy == Esri.OrderBy.Ascending) {
+                array = array.OrderBy(c => c).ToArray(); 
+                }
+                
+                if (OrderBy == Esri.OrderBy.Descending) {
+                array = array.OrderByDescending(c => c).ToArray(); 
+                }
+
+                int total_pages = Convert.ToInt32(array.Length / page_size + 1);
+                
+                string[] resp = new string[total_pages];
+
+                for (int page = 0; page < total_pages; page++) {
+                    if (pages != null) {
+                        if (!pages.Contains(page)) {
+                        continue;
+                        }
+                    }
+                    int offset = page * page_size;
+                    int length = page_size;
                     if (offset + length > array.Length) {
                     length = array.Length-offset;
                     }

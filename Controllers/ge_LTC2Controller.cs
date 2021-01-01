@@ -16,6 +16,7 @@ using ge_repository.LowerThamesCrossing;
 using ge_repository.Services;
 using Newtonsoft.Json;
 using ge_repository.DAL;
+using ge_repository.Extensions;
 
 namespace ge_repository.Controllers
 {
@@ -26,8 +27,9 @@ namespace ge_repository.Controllers
        public Dictionary<string, string> map_hole_id =  new Dictionary<string, string>();
        public Dictionary<string, string> map_mong_id =  new Dictionary<string, string>();
        public Dictionary<string, int> map_mong_id_gintrecid = new Dictionary<string, int>();
-       
-         public ge_LTC2Controller(
+       public ge_project _project;
+
+       public ge_LTC2Controller(
 
             ge_DbContext context,
             IAuthorizationService authorizationService,
@@ -219,10 +221,94 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     
             return NotFound();
 }
-    
- 
+private async Task<IActionResult> UpdateMONV() {
+                var saveMONV_resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).Upload (_project.Id, MONV);
+                ViewData["FeatureStatus"] = $"Features attributes({saveMONV_resp}) written to MONV table";
+                
+                return View (MONV);
+}
+private async Task<IActionResult> UpdateMOND() {
+
+                string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
+                
+                string where2 = $"ge_source in ('esri_survey2','esri_survey2_repeat') and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
+                List<MOND> existingMOND; 
+                var resp = await new ge_gINTController ( _context,
+                                                        _authorizationService,
+                                                        _userManager,
+                                                        _env ,
+                                                        _ge_config
+                                                       ).getMOND (  _project.Id,
+                                                                    null,
+                                                                    null,
+                                                                    null,
+                                                                    where2,
+                                                                    "");
+                var okResult = resp as OkObjectResult;   
+                if (okResult.StatusCode==200) {
+                    existingMOND = okResult.Value as List<MOND>;
+                    if (existingMOND!=null) {
+                    var deleteMOND =  getMONDForDeletion(existingMOND, MOND);
+                    if (deleteMOND!=null) {
+                        int[] s = deleteMOND.Select (m=>m.GintRecID).ToArray();
+                            var delMOND_resp = await new ge_gINTController (_context,
+                                                   _authorizationService,
+                                                   _userManager,
+                                                   _env ,
+                                                   _ge_config
+                                                       ).deleteMOND(_project.Id, s);
+                    }
+                }
+                }
+               
+               var saveMOND_resp = await new ge_gINTController (_context,
+                                                   _authorizationService,
+                                                   _userManager,
+                                                   _env ,
+                                                   _ge_config
+                                                       ).Upload (_project.Id, MOND,"ge_source in ('esri_survey2','esri_survey2_repeat')");
+
+                ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
+
+                return View (MOND);
+                
+}    
+ [HttpPost]
+ public async Task<IActionResult> PostReadFeature( Guid projectId,
+                                                    string dataset,
+                                                    string where = "",
+                                                    int page_size = 250,
+                                                    string pages = "",
+                                                    int orderby = Esri.OrderBy.None,
+                                                    string format = "view", 
+                                                    Boolean save = false ) {
+          // https://webmasters.stackexchange.com/questions/109117/usage-of-comma-in-url-encoded-or-not-encoded
+            int[] pages2 = null;
+
+            if (pages.Length>0) {
+                pages2 = Array.ConvertAll<string, int>(pages.Split(','), Convert.ToInt32);
+            } 
+            
+            return await ReadFeature (projectId,
+                                dataset,
+                                where,
+                                page_size,
+                                pages2,
+                                orderby,
+                                format, 
+                                save);
+}
 public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     string dataset,
+                                                    string where = "",
+                                                    int page_size = 250,
+                                                    int[] pages = null,
+                                                    int orderby = Esri.OrderBy.None,
                                                     string format = "view", 
                                                     Boolean save = false ) 
  {
@@ -237,7 +323,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                 return NotFound();
             }
 
-            var _project = await _context.ge_project
+            _project = await _context.ge_project
                                         .Include(p=>p.group)
                                     .SingleOrDefaultAsync(m => m.Id == projectId);
             
@@ -293,8 +379,8 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
 
             String table1 = ds.tables[0];
             String table2 = ds.tables[1];
-            string where = "";
-            int page_size = 250;
+            
+           
             
             var t1 = await new ge_esriController(  _context,
                                                     _authorizationService,
@@ -303,100 +389,88 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                     _ge_config).getFeatures(projectId,
                                                                 table1,
                                                                 where,
-                                                                page_size
+                                                                page_size,
+                                                                pages,
+                                                                orderby
                                                                 );
+            //Initialise list containers
+            
             Survey_Data = new List<LTM_Survey_Data2>();
             Survey_Geom = new List<LTM_Geometry>();
-            
-            foreach (string s1 in (string[]) t1.Value) {
-            var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
-            var survey_resp = ReadFeature(survey_data.features);
-            }
-
-            var t2 = await new ge_esriController(  _context,
-                                                    _authorizationService,
-                                                    _userManager,
-                                                    _env ,
-                                                    _ge_config).getFeatures(projectId,
-                                                                table2,
-                                                                where,
-                                                                page_size
-                                                                );
-                       
             Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
             
-            foreach (string s1 in (string[]) t2.Value) {
-            var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s1);
-            var repeat_resp = ReadFeature(survey_repeat.features);
-            }
+            List<MOND> MOND_All = new List<MOND>();
+            List<MONV> MONV_All =  new List<MONV>();
 
-           // var mond_resp = await ReadFeatureMOND (survey_data.features, survey_repeat.features, _project);
-           
-            var mond_resp = await AddMOND(_project);
-
-            ViewData["FeatureStatus"] = "Features not written to MOND table";
+            foreach (string s1 in (string[]) t1.Value) {
+                if (s1 == null) { 
+                    continue;
+                }
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
+                var survey_resp = ReadFeature(survey_data.features);
             
-            if (save == true) {
-               List<MOND> existingMOND; 
-               var resp = await new ge_gINTController ( _context,
+                Guid[] globalid = survey_data.features.Select (m=>m.attributes.globalid).Distinct().ToArray();
+                // if (globalid.Count()>100 ) {
+                //     return Json($"The parent record count({globalid.Count()}) will result in exceeding table limit of 1000 in the child table");
+                // }
+                string repeat_where = $"parentglobalid in ({globalid.ToDelimString(",","'")})";
+                
+                var t2 = await new ge_esriController(  _context,
                                                         _authorizationService,
                                                         _userManager,
                                                         _env ,
-                                                        _ge_config
-                                                       ).getMOND (  _project.Id,
+                                                        _ge_config).getFeatures(projectId,
+                                                                    table2,
+                                                                    repeat_where,
+                                                                    page_size,
                                                                     null,
-                                                                    null,
-                                                                    null,
-                                                                    "ge_source in ('esri_survey2','esri_survey2_repeat')",
-                                                                    "");
-                var okResult = resp as OkObjectResult;   
-                if (okResult.StatusCode==200) {
-                    existingMOND = okResult.Value as List<MOND>;
-                    if (existingMOND!=null) {
-                    var deleteMOND =  getMONDForDeletion(existingMOND, MOND);
-                    if (deleteMOND!=null) {
-                        int[] s = deleteMOND.Select (m=>m.GintRecID).ToArray();
-                            var delMOND_resp = await new ge_gINTController (_context,
-                                                   _authorizationService,
-                                                   _userManager,
-                                                   _env ,
-                                                   _ge_config
-                                                       ).deleteMOND(_project.Id, s);
+                                                                    2
+                                                                    );
+                foreach (string s2 in (string[]) t2.Value) {
+                    if (s2 == null) { 
+                        continue;
                     }
-                }
-                }
-               
-               var saveMOND_resp = await new ge_gINTController (_context,
-                                                   _authorizationService,
-                                                   _userManager,
-                                                   _env ,
-                                                   _ge_config
-                                                       ).Upload (_project.Id, MOND,"ge_source in ('esri_survey2','esri_survey2_repeat')");
 
-                ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
-                var saveMONV_resp = await new ge_gINTController (_context,
-                                                    _authorizationService,
-                                                    _userManager,
-                                                    _env ,
-                                                    _ge_config
-                                                        ).Upload (_project.Id, MONV);
-                ViewData["FeatureStatus"] = $"Features attributes({saveMONV_resp}) written to MONV table";
-            }  
-            
-            List<MOND> ordered = MOND.OrderBy(e=>e.DateTime).ToList();
-            MOND = ordered;
+                    var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s2);
+                    var repeat_resp = ReadFeature(survey_repeat.features);
+
+                    var mond_resp = await AddSurveyData(_project);
+                    
+                    if (mond_resp < 0 ) {
+                        return Json("No records in MOND table");
+                    }
+
+                    if (save == true) {
+                        var resp_mond = UpdateMOND();
+
+                        var resp_monv = UpdateMONV();
+                    }
+                    
+                    MOND_All.AddRange (MOND);
+                    MONV_All.AddRange (MONV);
+
+                }
+            }
+
+                      
+            List<MOND> ordered = MOND_All.OrderBy(e=>e.DateTime).ToList();
+            MOND_All = ordered;
             
             if (format=="json") {
-            return Json(MOND);
+            return Json(MOND_All);
             }
             
-            return View("ViewMOND", MOND);
-            
-
-
+            return View("ViewMOND", MOND_All);
 
  }
-
+//  private async Task<int> AddMONDAsync() // No async because the method does not need await
+//         {
+//             return await Task.Run(() =>
+//             {
+//                 var resp = await AddMOND(_project);
+//                 return resp;
+//             });
+//         }
 private string IfOther(string s1, string other) {
     
     if (s1==null && other==null) {
@@ -1106,10 +1180,14 @@ private async Task<int> ReadFeatureMOND(List<items<LTM_Survey_Data2>>  survey_da
 }
 
 
-private async Task<int> AddMOND(ge_project project) {
+private async Task<int> AddSurveyData(ge_project project) {
+            
             
             string[] AllPoints = new string[] {""};
-
+            
+            MOND = new List<MOND>();
+            MONV = new List<MONV>(); 
+            
             var resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
@@ -1117,7 +1195,7 @@ private async Task<int> AddMOND(ge_project project) {
                                                     _ge_config
                                                         ).getMONG(project.Id,AllPoints);
             var okResult = resp as OkObjectResult;
-               
+
             if (okResult == null) {
                 return -1;
             } 
@@ -1144,8 +1222,7 @@ private async Task<int> AddMOND(ge_project project) {
                 return -1;
                 }
 
-            MOND = new List<MOND>();
-            MONV = new List<MONV>(); 
+           
             
             int projectId = POINT.FirstOrDefault().gINTProjectID;
 

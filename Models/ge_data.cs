@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Xml.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
@@ -135,42 +135,76 @@ namespace ge_repository.Models {
                 }
        }
 
-       public String getString(Encoding encode = null, Boolean removeBOM = false) {
+       public String getString(Encoding encode = null, bool removeBOM = false) {
             
             //check for BOM at begining of xslt string from file
             string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-            
+            string s = null;
+
             if (data_binary != null && encode==Encoding.Unicode) {
-               return System.Text.Encoding.Unicode.GetString(data_binary);
+               s = System.Text.Encoding.Unicode.GetString(data_binary);
             }
             
             if (data_binary != null && encode==Encoding.UTF8) {
-               return System.Text.Encoding.UTF8.GetString(data_binary);
+               s =  System.Text.Encoding.UTF8.GetString(data_binary);
             }
             
             if (data_binary != null && encode == null) {
-               return System.Text.Encoding.Default.GetString(data_binary);
+               s = System.Text.Encoding.Default.GetString(data_binary);
             }
             
             if (data_string !=null ) {
-               return data_string; 
+               s = data_string; 
             }
 
-           if (data_xml !=null ) {
-                
-                if (data_xml.StartsWith(_byteOrderMarkUtf8) && removeBOM == true)   {
-                return data_xml.Remove(0, _byteOrderMarkUtf8.Length);
-                }
-
-                return data_xml;
+            if (data_xml !=null ) {
+                s = data_xml;
             }
 
-           return null;
+            if (s.StartsWith(_byteOrderMarkUtf8) && removeBOM ==true) {
+                s = s.Remove(0, _byteOrderMarkUtf8.Length);
+            }
+
+           return s;
        }
-              
+       public XDocument getXMLDoc(Encoding encode = null) {
+            
+            byte[] bytes = null;
+            
+            if (encode==Encoding.Unicode) {
+            bytes = Encoding.Unicode.GetBytes(data_xml);
+            }
+            
+            if (encode==Encoding.UTF8) {
+            bytes = Encoding.UTF8.GetBytes(data_xml);
+            }
+            
+            if (encode==Encoding.ASCII) {
+            bytes = Encoding.ASCII.GetBytes(data_xml);
+            }
+
+            using (var stream = new MemoryStream(bytes)) {
+                XDocument doc = XDocument.Load(stream); 
+                return doc;
+            }
+       }
+
+        public string getParsedXMLstring(Encoding encode = null) {
+            
+            XDocument  xdoc = getXMLDoc(encode);
+            
+            if (xdoc==null) {
+                return null;
+            }
+
+              using (StringWriter writer = new StringWriter()) {
+                    xdoc.Save(writer);
+                    string s = writer.ToString();
+                    return s;
+            }
+        }
     }
-       
-   
+      
     
     }
     
