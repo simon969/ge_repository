@@ -271,7 +271,7 @@ private async Task<IActionResult> UpdateMOND() {
                                                    _userManager,
                                                    _env ,
                                                    _ge_config
-                                                       ).Upload (_project.Id, MOND,"ge_source in ('esri_survey2','esri_survey2_repeat')");
+                                                       ).Upload (_project.Id, MOND, where2);
 
                 ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
 
@@ -459,8 +459,12 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             if (format=="json") {
             return Json(MOND_All);
             }
-            
+
+            if (format == "view") {
             return View("ViewMOND", MOND_All);
+            }
+
+            return Ok (MOND_All);
 
  }
 //  private async Task<int> AddMONDAsync() // No async because the method does not need await
@@ -1951,8 +1955,125 @@ public async Task<IActionResult> UpdateTable(Guid projectId,
 
   }
 
- }
 
+public async Task<IActionResult> ReadFeature    (   Guid[] projectId, 
+                                                    string dataset,
+                                                    string where = "",
+                                                    int page_size = 250,
+                                                    int[] pages = null,
+                                                    int orderby = Esri.OrderBy.None,
+                                                    string format = "view", 
+                                                    Boolean save = false) {
+
+            List<MOND> MOND_All = new List<MOND>();
+            List<ge_project> processed = new List<ge_project>();
+
+            foreach (Guid Id in projectId) {
+
+                var _project = await _context.ge_project
+                                        .SingleOrDefaultAsync(m => m.Id == Id);
+                
+                var resp = await ReadFeature ( Id,
+                                                dataset,
+                                                where,
+                                                page_size,
+                                                pages,
+                                                orderby,
+                                                "", 
+                                                save
+                                                );
+                
+                var okResult = resp as OkObjectResult;   
+                
+                if (okResult==null) {
+                    continue;
+                }
+
+                List<MOND> projMOND = okResult.Value as List<MOND>;  
+                MOND_All.AddRange (projMOND); 
+                _project.description = $"{projMOND.Count} MOND records updated";
+                processed.Add (_project);
+            } 
+
+            if (format=="view") {
+                return View (processed);
+            }
+
+            if (format=="json") {
+                return Json (MOND_All);
+            }
+
+            return Ok (MOND_All);
+
+            }
+ [HttpPost]
+public async Task<IActionResult> PostReadFeatureByGroup(Guid groupId, 
+                                                    string dataset,
+                                                    string where = "",
+                                                    int page_size = 250,
+                                                    string pages = "",
+                                                    int orderby = Esri.OrderBy.None,
+                                                    string format = "view", 
+                                                    Boolean save = false) {
+        // https://webmasters.stackexchange.com/questions/109117/usage-of-comma-in-url-encoded-or-not-encoded
+            int[] pages2 = null;
+
+            if (pages.Length>0) {
+                pages2 = Array.ConvertAll<string, int>(pages.Split(','), Convert.ToInt32);
+            } 
+    
+    return await ReadFeatureByGroup ( groupId, 
+                                        dataset,
+                                        where,
+                                        page_size,
+                                        pages2,
+                                        orderby,
+                                        format, 
+                                        save );
+}
+public async Task<IActionResult> ReadFeatureByGroup(Guid groupId, 
+                                                    string dataset,
+                                                    string where = "",
+                                                    int page_size = 250,
+                                                    int[] pages = null,
+                                                    int orderby = Esri.OrderBy.None,
+                                                    string format = "view", 
+                                                    Boolean save = false) {
+
+            if (groupId == null)
+            {
+                return NotFound();
+            }
+
+            if (String.IsNullOrEmpty(dataset)) {
+
+                return NotFound();
+            }
+
+            ge_group _group = await _context.ge_group
+                                    .Include(p=>p.projects)
+                                    .SingleOrDefaultAsync(m => m.Id == groupId);
+            
+            if (_group == null)
+            {
+                return NotFound();
+            }
+            
+            Guid[] projects = _group.projects.Select (m=>m.Id).Distinct().ToArray();
+            
+            return await ReadFeature (  projects, 
+                                        dataset,
+                                        where,
+                                        page_size,
+                                        pages,
+                                        orderby,
+                                        format, 
+                                        save );
+
+    }
+}
 
 }
+
+       
 

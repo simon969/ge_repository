@@ -1,0 +1,37 @@
+@model List<ge_repository.Models.ge_project>
+@{
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+@* @{
+    ViewBag.Title = "Log File" + @Model.data.filename;
+} *@
+
+<h2>Read S123 Feature Projects Processed</h2>
+
+<div>      
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].description)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => m.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => m.description)
+            </td>
+         </tr>
+    }
+    </tbody>
+</table>
+</div>

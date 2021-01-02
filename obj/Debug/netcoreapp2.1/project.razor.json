@@ -1963,6 +1963,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\PostReadFeatureByGroup.cshtml",
+      "TargetPath": "Views\\Shared\\PostReadFeatureByGroup.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\Group\\Delete.cshtml",
       "TargetPath": "Pages\\Group\\Delete.cshtml",
       "FileKind": "mvc"
