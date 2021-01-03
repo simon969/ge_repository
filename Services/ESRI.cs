@@ -341,13 +341,13 @@ namespace ge_repository.Services
                 
                 string[] resp = new string[total_pages];
 
-                for (int page = 0; page < total_pages; page++) {
+                for (int id = 0; id < total_pages; id++) {
                     if (pages != null) {
-                        if (!pages.Contains(page)) {
+                        if (!pages.Contains(id+1)) {
                         continue;
                         }
                     }
-                    int offset = page * page_size;
+                    int offset = id * page_size;
                     int length = page_size;
                     if (offset + length > array.Length) {
                     length = array.Length-offset;
@@ -355,7 +355,7 @@ namespace ge_repository.Services
                     int[] list = array.sub_array(offset,length);
                     string where2 = "objectid in (" + list.ToDelimString(",") + ")"; 
                     var s1 = await getFeatures (where2);
-                    resp[page] = (s1);
+                    resp[id] = (s1);
                 }
 
                 return resp;

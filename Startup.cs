@@ -79,8 +79,8 @@ namespace ge_repository
             });
             
             services.AddDbContext<ge_DbContext>(options =>
-            options.UseSqlServer(_config.GetConnectionString("ge_DbContext"))
-            .EnableSensitiveDataLogging());
+            options.UseSqlServer(_config.GetConnectionString("ge_DbContext")));
+            // .EnableSensitiveDataLogging());
 
             services.AddDefaultIdentity<ge_user>(config =>
                 {
@@ -124,6 +124,7 @@ namespace ge_repository
                              options.LoginPath = new PathString("/Account/SignIn");
                              })
             .AddOktaMvc(oktaMvcOptions);  
+            
             // https://stackoverflow.com/questions/53973854/how-to-get-session-in-asp-net-core-2-1-when-i-have-aspnetcore-session-cookie
             
             // services.Configure<CookiePolicyOptions>(options =>
@@ -140,7 +141,7 @@ namespace ge_repository
             //                         options.IdleTimeout = TimeSpan.FromSeconds(10);
             //                         options.Cookie.HttpOnly = true;
             //                     });
-            
+                        
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
@@ -150,6 +151,11 @@ namespace ge_repository
             })
             .AddXmlSerializerFormatters()
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            //.AddRazorPagesOptions(options =>
+            // {
+            // options.Conventions.AddPageRoute("/Pages/Index", "");
+            // });
        
         }
 
@@ -157,11 +163,11 @@ namespace ge_repository
         public void Configure(IApplicationBuilder app, IHostingEnvironment env) //, ILoggerFactory loggerFactory)
         {
             //	loggerFactory.AddConsole(Configuration.GetSection("Logging")); //log levels set in your configuration
-	        //    loggerFactory.AddDebug(); //does all log levels
-            //call ConfigureLogger in a centralized place in the code
-	//  app.ConfigureLogger(loggerFactory);
-	//  set it as the primary LoggerFactory to use everywhere
-	//  ApplicationLogging.LoggerFactory = loggerFactory;
+	        //  loggerFactory.AddDebug(); //does all log levels
+            //  call ConfigureLogger in a centralized place in the code
+            //  app.ConfigureLogger(loggerFactory);
+            //  set it as the primary LoggerFactory to use everywhere
+            //  ApplicationLogging.LoggerFactory = loggerFactory;
 
             if (env.IsDevelopment())
             {
@@ -182,17 +188,18 @@ namespace ge_repository
             // app.UseSession();
                 
         
-        //  app.UseMvcWithDefaultRoute();
+            // app.UseMvcWithDefaultRoute();
 
             app.UseMvc(routes =>
                 {
                 routes.MapRoute(
                     name: "default", 
                     template: "{controller=Home}/{action=Index}/{id?}");
-          //      routes.MapRoute(
-          //          name: "api", 
-          //          template:"api/{controller}/{id?}");
-            });
+                // routes.MapRoute(
+                //     name: "api", 
+                //     template:"api/{controller}/{id?}");
+            })
+            ;
         }
     }
 }

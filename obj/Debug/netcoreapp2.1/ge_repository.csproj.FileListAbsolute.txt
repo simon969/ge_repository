@@ -588,7 +588,6 @@ C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcorea
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\Transform\Index.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\Transform\_DetailsTransform.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\Transform\_InputTransform.cshtml.g.cs
-C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\Untitled.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\UserOperations\Create.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\UserOperations\Delete.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\UserOperations\Edit.cshtml.g.cs
@@ -600,7 +599,6 @@ C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcorea
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\User\Details.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\User\Edit.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\User\Index.cshtml.g.cs
-C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\xIndex.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\_ViewImports.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Pages\_ViewStart.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\ge_field\View.cshtml.g.cs
