@@ -63,7 +63,8 @@ namespace ge_repository.Controllers
             try {
                 return  Convert.ToInt16( s1 );
             }
-            catch( Exception ex ) {
+            catch( Exception e ) {
+                Console.Write (e.Message);
                 return ErrValue;
             }
 

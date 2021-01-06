@@ -74,6 +74,7 @@ public class AGS_Package {
             throw new Exception("AGS Package content type not given");
         
         } catch (Exception e){
+            Console.Write (e.Message);
             return EMPTY_STRING;
         } 
     }

@@ -1612,7 +1612,7 @@ private async Task<int> UpdateExisting(Guid projectId,
         });
  
 }
-public async Task<int> Upload(Guid projectId, 
+public async Task<row_states> Upload(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null
                                 )
@@ -1640,17 +1640,16 @@ public async Task<int> Upload(Guid projectId,
   //  return await uploadBulk(projectId, save_items, where);
     
     }
-private async Task<int> uploadSingle(Guid projectId, 
+private async Task<row_states> uploadSingle(Guid projectId, 
                                  List<MOND> save_items) 
                                  {   
 
-    int NOT_OK = -1;
-    int ret = 0;
     
+
     dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
     if (cd==null) {
-        return NOT_OK;
+        return null;
     }
 
     string dbConnectStr = cd.AsConnectionString();
@@ -1666,7 +1665,7 @@ private async Task<int> uploadSingle(Guid projectId,
                 dsMOND.setConnection (cnn);        
                 DataTable dtMOND = null;
                 string sqlWhere = "";
-
+                row_states rs = new row_states();
                 foreach (MOND item in save_items) {
 
                         DataRow row = null;
@@ -1694,12 +1693,14 @@ private async Task<int> uploadSingle(Guid projectId,
                         } 
                         
                         setValues(item,row);
-    
-                       ret =+ dsMOND.Update();                           
+
+                        rs.Add (row);
+
+                        rs.updated =+ dsMOND.Update();                           
                 } 
+                return rs;
             } 
-           return ret;
-        });
+          });
  
 }
 private int getBITValue(Boolean value) {
@@ -2161,21 +2162,18 @@ private async Task<int> uploadBulk(Guid projectId,
         });
  }
 
-private async Task<int> uploadBulk(Guid projectId, 
+private async Task<row_states> uploadBulk(Guid projectId, 
                                  List<MOND> save_items, 
                                  string where = null )
                                  {   
 
-    int NOT_OK = -1;
-    int ret = 0;
-    
     string wherePointID = "";
     double? whereMONG_DIS = null;
-
+   
     dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
     if (cd==null) {
-        return NOT_OK;
+        return null;
     }
 
     var holes = save_items.Select(mond => new { mond.PointID})
@@ -2268,16 +2266,17 @@ private async Task<int> uploadBulk(Guid projectId,
 
                         setValues(item, row);                        
                 } 
-            
-                ret = dsMOND.BulkUpdate();
+                
+                row_states ret = dsMOND.get_row_states();
 
-               
+                ret.updated = dsMOND.BulkUpdate();
+
+                return ret;
 
             } 
-           return ret;
+           
         });
  }
-
 
 private MOND getUnique(MOND newM) {
 

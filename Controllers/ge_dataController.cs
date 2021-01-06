@@ -560,6 +560,7 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
                 return default(T);
             
             } catch (Exception e) {
+                Console.Write (e.Message);
                 return default(T);
             }
     }

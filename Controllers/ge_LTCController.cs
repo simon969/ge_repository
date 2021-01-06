@@ -141,7 +141,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                         if (survey_data.features==null) {
                             return NotFound();
                         }
-                    await ReadFeature(survey_data.features); 
+                    await LoadFeature(survey_data.features); 
                 }
                 Merge_Survey_Data_Add();
                 if (format=="xml") {
@@ -157,7 +157,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     if (survey_data.features==null) {
                     return NotFound();
                     }
-                    await ReadFeature(survey_data.features); 
+                    await LoadFeature(survey_data.features); 
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<EsriGeometry>(Survey_Geom);
@@ -171,7 +171,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     if (survey_repeat.features==null) {
                     return NotFound();
                     }
-                    await ReadFeature(survey_repeat.features);
+                    await LoadFeature(survey_repeat.features);
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data_Repeat>(Survey_Repeat_Data);
@@ -184,7 +184,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
             return NotFound();
 
 }
-private async Task<int> ReadFeature (List<items<LTM_Survey_Data>>  survey_data) {
+private async Task<int> LoadFeature (List<items<LTM_Survey_Data>>  survey_data) {
         
         if (Survey_Data == null) Survey_Data = new List<LTM_Survey_Data>();
         if (Survey_Geom == null) Survey_Geom = new List<EsriGeometry>();
@@ -205,7 +205,7 @@ private async Task<int> ReadFeature (List<items<LTM_Survey_Data>>  survey_data) 
         return Survey_Data.Count();
 }
 
-private  async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat>> survey_data_repeat) {
+private  async Task<int> LoadFeature (List<items<LTM_Survey_Data_Repeat>> survey_data_repeat) {
         
            if (Survey_Repeat_Data == null) Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat>();
             
@@ -313,7 +313,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             
             foreach (string s1 in (string[]) t1.Value) {
             var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data>>(s1);
-            var survey_resp = ReadFeature(survey_data.features);
+            var survey_resp = LoadFeature(survey_data.features);
             }
 
 
@@ -330,7 +330,7 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
             
             foreach (string s1 in (string[]) t2.Value) {
             var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat>>(s1);
-            var repeat_resp = ReadFeature(survey_repeat.features);
+            var repeat_resp = LoadFeature(survey_repeat.features);
             }
 
             if (addId!="") {

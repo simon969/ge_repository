@@ -66,6 +66,7 @@ namespace ge_repository.OtherDatabase  {
           }
           
       } catch (Exception e) {
+        Console.Write (e.Message);
         return null;
       }
     }

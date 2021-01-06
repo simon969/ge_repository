@@ -409,7 +409,7 @@ private Boolean AddMOND (MOND newMOND, Boolean ReplaceExisting) {
                             AddMOND(newMOND, true);
                         
                         } catch (Exception e) {
-
+                            Console.Write (e.Message);
                         }
                     }
                 }
@@ -467,7 +467,7 @@ private Boolean AddMOND (MOND newMOND, Boolean ReplaceExisting) {
                             AddMOND(newMOND, true);
                         
                         } catch (Exception e) {
-
+                        Console.Write (e.Message);
                         }
             }
 

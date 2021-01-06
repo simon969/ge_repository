@@ -66,9 +66,6 @@ public class ProjectionSystem {
        // throw new System.ArgumentException("Latitude/Longitude Conversion Error", "Cannot convert locEast:" + loc.locEast + ";locNorth:" + loc.locNorth);
         return false;     
         }
-
-
-    return true;
     }
     public string getMessage(){
         return msg;

@@ -281,6 +281,7 @@ namespace ge_repository.OtherDatabase  {
                 return 0;       
             
             } catch (Exception e) {
+                Console.Write (e.Message);
                 return -1;
             }
             

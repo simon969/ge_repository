@@ -312,6 +312,7 @@ namespace ge_repository.OtherDatabase  {
                 return file_headers;
 
             } catch (Exception e) {
+                Console.Write (e.Message);
                 return null;
             }
             
@@ -328,6 +329,7 @@ namespace ge_repository.OtherDatabase  {
                 return search_template;
 
             } catch (Exception e) {
+                Console.Write (e.Message);
                 return null;
             }
             
@@ -398,6 +400,7 @@ namespace ge_repository.OtherDatabase  {
                 return field_headers;
             
             } catch (Exception e) {
+                Console.Write (e.Message);
                 return null;
             }
             

@@ -179,7 +179,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     if (survey_data.features==null) {
                     return NotFound();
                     }
-                    await ReadFeature(survey_data.features); 
+                    await LoadFeature(survey_data.features); 
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Geometry>(Survey_Geom);
@@ -194,7 +194,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                         if (survey_data.features==null) {
                             return NotFound();
                         }
-                    await ReadFeature(survey_data.features); 
+                    await LoadFeature(survey_data.features); 
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data2>(Survey_Data);
@@ -209,7 +209,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     if (survey_repeat.features==null) {
                     return NotFound();
                     }
-                    await ReadFeature(survey_repeat.features);
+                    await LoadFeature(survey_repeat.features);
                 }
                 if (format=="xml") {
                  string xml = XmlSerializeToString<LTM_Survey_Data_Repeat2>(Survey_Repeat_Data);
@@ -273,9 +273,9 @@ private async Task<IActionResult> UpdateMOND() {
                                                    _ge_config
                                                        ).Upload (_project.Id, MOND, where2);
 
-                ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
+                // ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
 
-                return View (MOND);
+               return Ok(saveMOND_resp);
                 
 }    
  [HttpPost]
@@ -394,10 +394,9 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                                 orderby
                                                                 );
             //Initialise list containers
-            
-            Survey_Data = new List<LTM_Survey_Data2>();
-            Survey_Geom = new List<LTM_Geometry>();
-            Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
+            if (t1.Value==null) {
+                return  NotFound();
+            }
             
             List<MOND> MOND_All = new List<MOND>();
             List<MONV> MONV_All =  new List<MONV>();
@@ -406,8 +405,14 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                 if (s1 == null) { 
                     continue;
                 }
+                
+                Survey_Data = new List<LTM_Survey_Data2>();
+                Survey_Geom = new List<LTM_Geometry>();
+                Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
+                
                 var survey_data  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data2>>(s1);
-                var survey_resp = ReadFeature(survey_data.features);
+
+                var survey_resp = LoadFeature(survey_data.features);
             
                 Guid[] globalid = survey_data.features.Select (m=>m.attributes.globalid).Distinct().ToArray();
                 // if (globalid.Count()>100 ) {
@@ -430,26 +435,24 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                     if (s2 == null) { 
                         continue;
                     }
-
                     var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s2);
-                    var repeat_resp = ReadFeature(survey_repeat.features);
-
-                    var mond_resp = await AddSurveyData(_project);
-                    
-                    if (mond_resp < 0 ) {
-                        return Json("No records in MOND table");
-                    }
-
-                    if (save == true) {
-                        var resp_mond = UpdateMOND();
-
-                        var resp_monv = UpdateMONV();
-                    }
-                    
-                    MOND_All.AddRange (MOND);
-                    MONV_All.AddRange (MONV);
-
+                    var repeat_resp = LoadFeature(survey_repeat.features);
                 }
+
+                var mond_resp = await AddSurveyData(_project);
+                
+                // if (mond_resp < 0 ) {
+                //     return Json("No records in MOND table");
+                // }
+
+                if (save == true) {
+                    var resp_mond = await UpdateMOND();
+
+                    var resp_monv = await UpdateMONV();
+                }
+                
+                MOND_All.AddRange (MOND);
+                MONV_All.AddRange (MONV);
             }
 
                       
@@ -510,7 +513,7 @@ private string IfOther(string s1, string other) {
 
 //         return Survey_Data.Count();
 // }
-private async Task<int> ReadFeature (List<items<LTM_Survey_Data2>>  survey_data) {
+private async Task<int> LoadFeature (List<items<LTM_Survey_Data2>>  survey_data) {
         
         if (Survey_Data == null) Survey_Data = new List<LTM_Survey_Data2>();
         if (Survey_Geom == null) Survey_Geom = new List<LTM_Geometry>();
@@ -600,7 +603,7 @@ private EsriGeometry getEsriGeometry(LTM_Geometry geom) {
     return geom2;
 
 }
-private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat) {
+private async Task<int> LoadFeature (List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat) {
         
             if (Survey_Repeat_Data == null) Survey_Repeat_Data = new List<LTM_Survey_Data_Repeat2>();
             
@@ -619,7 +622,7 @@ private async Task<int> ReadFeature (List<items<LTM_Survey_Data_Repeat2>> survey
 }
 
 
-private async Task<int> ReadFeatureMOND(List<items<LTM_Survey_Data2>>  survey_data, 
+private async Task<int> xReadFeatureMOND(List<items<LTM_Survey_Data2>>  survey_data, 
                                          List<items<LTM_Survey_Data_Repeat2>> survey_data_repeat,  
                                          ge_project project) {
             string[] AllPoints = new string[] {""};
@@ -1991,7 +1994,7 @@ public async Task<IActionResult> ReadFeature    (   Guid[] projectId,
 
                 List<MOND> projMOND = okResult.Value as List<MOND>;  
                 MOND_All.AddRange (projMOND); 
-                _project.description = $"{projMOND.Count} MOND records updated";
+                _project.description = $"{projMOND.Count} MOND records found";
                 processed.Add (_project);
             } 
 

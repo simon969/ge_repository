@@ -65,7 +65,7 @@ namespace ge_repository.Services
             } 
             
             catch (FormatException e) {
-            return date;
+                return date;
             }
  
         }
@@ -321,6 +321,10 @@ namespace ge_repository.Services
                 
                 var t1 = await getFeatureIdsOnlyByContent(Where);
                 var globalids  = JsonConvert.DeserializeObject<EsriGlobalIdOnly>(t1);
+                
+                if (globalids.objectIds == null) {
+                    return null;
+                }
                 
                 int[] array = globalids.objectIds;
                 if (pages != null) {

@@ -62,6 +62,7 @@ public class dsTable {
         getDataSet();
 
     }
+   
     public DataSet getDataSet() {
         try {
         dataAdapter = new SqlDataAdapter(sqlQuery, connection);
@@ -71,6 +72,7 @@ public class dsTable {
         dataSet.Tables[0].DefaultView.Sort = sortOrder;
         return dataSet;
         } catch (Exception e) {
+            Console.Write (e.Message);
             return null;
         }
     }
@@ -83,6 +85,7 @@ public class dsTable {
         dataTable.DefaultView.Sort = sortOrder;
         return dataTable;
         } catch (Exception e) {
+            Console.Write (e.Message);
             return null;
         }
     }
@@ -90,6 +93,7 @@ public class dsTable {
         try {
         return dataSet.Tables[tableName].NewRow();
         } catch (Exception e) {
+            Console.Write (e.Message);
             return null;
         }
     }
@@ -100,6 +104,7 @@ public class dsTable {
     try {
        return dataTable.Rows[dataTable.Rows.Count-1];
         } catch (Exception e) {
+             Console.Write (e.Message);
             return null;
         }
     }
@@ -107,6 +112,7 @@ public class dsTable {
         try {
             return dataTable.Rows[0];
         } catch(Exception e) {
+            Console.Write (e.Message);
             return null;
         }
    }
@@ -114,6 +120,7 @@ public class dsTable {
         try {
         return (current>dataTable.Rows.Count);
         } catch (Exception e) {
+        Console.Write (e.Message);
         return true;
     }
     }
@@ -126,16 +133,20 @@ public class dsTable {
     }
 
     public int Update() {
-        builder.GetUpdateCommand();
-        return dataAdapter.Update(dataSet,tableName);
+       return dataAdapter.Update(dataSet,tableName);
     }
     public int BulkUpdate() {
+        int ret = 0;
         // initialise string builder to collect insert update strings
         sb = new StringBuilder();
         // add event handller to get upadte records to compile batch sql string
+        dataAdapter.UpdateCommand = builder.GetUpdateCommand();
+        dataAdapter.InsertCommand = builder.GetInsertCommand();
+        dataAdapter.DeleteCommand = builder.GetDeleteCommand();
         dataAdapter.RowUpdating += new SqlRowUpdatingEventHandler(da_RowUpdating);
 
-        int rows = dataAdapter.Update(dataSet,tableName);
+      //  int rows = dataAdapter.Update(dataSet,tableName);
+        int rows_updated = Update();
         
         string s1 = sb.ToString();
         
@@ -143,13 +154,24 @@ public class dsTable {
             SqlCommand cmd = new SqlCommand(sb.ToString(), connection);
             cmd.CommandTimeout = COMMAND_TIMEOUT; 
             // Execute the update command.
-            var ret = cmd.ExecuteScalar();
+            var ex_ret = cmd.ExecuteScalar();
+            if (ex_ret !=null) {
+            ret = (int) ex_ret;
+            }
         }
 
-        return 0;
+        return ret;
 
     }
+    public row_states get_row_states () {
+        row_states us = new row_states();
 
+        us.deleted = dataTable.Select(null, null, DataViewRowState.Deleted);  
+        us.added = dataTable.Select(null, null, DataViewRowState.Added);  
+        us.modified  = dataTable.Select(null, null, DataViewRowState.ModifiedCurrent);  
+        us.unchanged = dataTable.Select(null, null, DataViewRowState.Unchanged);  
+        return us;
+    }
     public int Delete() {
         SqlCommand s1 = builder.GetDeleteCommand();
         int count = dataTable.Rows.Count;
@@ -231,7 +253,50 @@ public class OtherDbConnections {
     }
 
     }
-
+    public class row_states {
+        public DataRow[] modified {get;set;}
+        public DataRow[] deleted {get;set;}
+        public DataRow[] added {get;set;}
+        public DataRow[] unchanged {get;set;}
+        public int updated {get;set;}
+        public int Add (row_states rs) {
+            modified = add_array(modified, rs.modified);
+            deleted = add_array(deleted, rs.deleted);
+            added = add_array(added, rs.added);
+            unchanged = add_array(unchanged, rs.added);
+            updated =+ rs.updated;
+            return updated;
+        }
+        public int Add (DataRow dr) { 
+                if (dr.RowState==DataRowState.Modified) {
+                    add_array(modified,dr);
+                    return 1;
+                }
+                if (dr.RowState==DataRowState.Unchanged) {
+                    add_array(unchanged,dr);
+                    return 1;
+                }
+                if (dr.RowState==DataRowState.Added) {
+                    add_array(added,dr);
+                    return 1;
+                }
+                if (dr.RowState==DataRowState.Deleted) {
+                    add_array(deleted,dr);
+                    return 1;
+                }
+                return 0;
+        }
+        private DataRow[] add_array(DataRow[] orig, DataRow[] add) {
+            DataRow[] combined = new DataRow[orig.Length + add.Length];
+            Array.Copy(orig, combined, orig.Length);
+            Array.Copy(add, 0, combined, orig.Length, add.Length);
+            return combined;
+        }
+        private DataRow[] add_array(DataRow[] orig, DataRow add) {
+            DataRow[] a = new DataRow[1];
+            return add_array (orig, a);
+        }
+    }
 
     
 

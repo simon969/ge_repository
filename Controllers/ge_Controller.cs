@@ -111,6 +111,7 @@ namespace ge_repository.Controllers
             return obj;  
          
         } catch (Exception e){
+            Console.Write (e.Message);
             return default(T);
         } 
 
