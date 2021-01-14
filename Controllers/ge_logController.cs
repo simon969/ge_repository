@@ -809,7 +809,8 @@ private async Task<IActionResult> createMOND (ge_log_file log_file,
         int round_no = Convert.ToInt16(round_ref);
         
         string mond_rem_suffix = "";
-        
+        string mond_ref = "";
+
         if (ge_source =="ge_flow") {
             mond_rem_suffix = " flow meter reading";
         }
@@ -824,8 +825,10 @@ private async Task<IActionResult> createMOND (ge_log_file log_file,
                 
                 foreach (value_header vh in log_file.field_headers) {
                     
-                    string mond_ref = String.Format("Round {0:00} Seconds {1:00}",round_no,reading.Duration);
-                    
+                    if (ge_source =="ge_flow")  {
+                        mond_ref = String.Format("Round {0:00} Seconds {1:00}",round_no,reading.Duration);
+                    }
+
                     if (vh.id == "WDEPTH" && vh.units=="m") {
                         // Add MOND WDEP record
                        

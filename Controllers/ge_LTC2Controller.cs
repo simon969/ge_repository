@@ -2034,6 +2034,7 @@ public async Task<IActionResult> PostReadFeatureByGroup(Guid groupId,
                                         format, 
                                         save );
 }
+[AllowAnonymous]
 public async Task<IActionResult> ReadFeatureByGroup(Guid groupId, 
                                                     string dataset,
                                                     string where = "",

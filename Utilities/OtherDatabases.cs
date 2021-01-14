@@ -142,7 +142,6 @@ public class dsTable {
         // add event handller to get upadte records to compile batch sql string
         dataAdapter.UpdateCommand = builder.GetUpdateCommand();
         dataAdapter.InsertCommand = builder.GetInsertCommand();
-        dataAdapter.DeleteCommand = builder.GetDeleteCommand();
         dataAdapter.RowUpdating += new SqlRowUpdatingEventHandler(da_RowUpdating);
 
       //  int rows = dataAdapter.Update(dataSet,tableName);
