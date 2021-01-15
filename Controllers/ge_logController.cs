@@ -666,12 +666,17 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
 
 
             if (save == true) { 
+
+                string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
+                
+                string where2 = $"ge_source='{ge_source}' and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
+
                     var saveMOND_resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).Upload (_data.projectId, MOND , $"ge_source='{ge_source}'");
+                                                        ).Upload (_data.projectId, MOND , where2 );
             }
             
            
