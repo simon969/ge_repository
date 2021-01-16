@@ -2189,6 +2189,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
     }
     
     DateTime minDateTime =  save_items.Min(e=>e.DateTime).GetValueOrDefault();
+    DateTime maxDateTime =  save_items.Max(e=>e.DateTime).GetValueOrDefault();
 
     string dbConnectStr = cd.AsConnectionString();
     int gINTProjectID = cd.ProjectId;
@@ -2207,20 +2208,21 @@ private async Task<row_states> uploadBulk(Guid projectId,
                 // reduce the dataset, all logger records could be massive
 
                 if (where != null && wherePointID == "") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
                 }
                 
                 if (where == null && wherePointID == "") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");    
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");    
                 }
 
                 if (where != null && wherePointID !="" && whereMONG_DIS ==null) {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}'");
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
                 }
                 
                 if (where != null && wherePointID !="" && whereMONG_DIS !=null) {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and MONG_DIS={whereMONG_DIS.Value}");
+                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}' and MONG_DIS={whereMONG_DIS.Value}");
                 }
+   
                 dsMOND.getDataSet();
                 dtMOND = dsMOND.getDataTable();
                 Boolean checkExisting = false;
@@ -2251,6 +2253,10 @@ private async Task<row_states> uploadBulk(Guid projectId,
                           //      row = null;
                           //      }
                           //  }
+                            
+                            if (item.DateTime == DateTime.Parse("21 Oct 2019 12:45PM")) {
+                               Console.Write (item); 
+                            }
 
                             //check for unique records
                             if (row == null) {

@@ -648,56 +648,65 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                 ge_source = "ge_logger";
             }
 
-            var resp = await createMOND(log_file, 
-                                            fromDT, 
-                                            toDT,
-                                            round_ref,
-                                            ge_source,
-                                            true);
-
-            okResult = resp as OkObjectResult;   
-                
-            if (okResult == null) {
-                    return resp;
-                //    return Json ($"There is an issue converting {ge_source} data file {_data.filename} to MOND records");
-            }
+            int page_size = 1000;
+            int row_count = log_file.getIncludeReadings(fromDT, toDT).Count() ;
+            int total_pages = Convert.ToInt32(row_count / page_size) + 1;
+            
+            List<MOND> ordered =  new List<MOND>();
+            
+            for (int page = 1; page <= total_pages; page++) {
 
                     
+                    var resp = await createMOND(log_file, 
+                                                    fromDT, 
+                                                    toDT,
+                                                    page_size,
+                                                    page,
+                                                    round_ref,
+                                                    ge_source,
+                                                    true);
 
+                    okResult = resp as OkObjectResult;   
+                        
+                    if (okResult == null) {
+                            return resp;
+                        //    return Json ($"There is an issue converting {ge_source} data file {_data.filename} to MOND records");
+                    }
+                    
+                    if (save == true) { 
 
-            if (save == true) { 
+                        // string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
+                        // string where2 = $"ge_source='{ge_source}' and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
+                        
+                        string where2 = $"ge_source='{ge_source}'"; 
 
-                string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
-                
-                string where2 = $"ge_source='{ge_source}' and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
+                        var saveMOND_resp = await new ge_gINTController (_context,
+                                                            _authorizationService,
+                                                            _userManager,
+                                                            _env ,
+                                                            _ge_config
+                                                                ).Upload (_data.projectId, MOND , where2 );
+                    }
+            
+            ordered.AddRange(this.MOND.OrderBy(e=>e.DateTime).ToList());
 
-                    var saveMOND_resp = await new ge_gINTController (_context,
-                                                    _authorizationService,
-                                                    _userManager,
-                                                    _env ,
-                                                    _ge_config
-                                                        ).Upload (_data.projectId, MOND , where2 );
             }
-            
-           
-            List<MOND> ordered = MOND.OrderBy(e=>e.DateTime).ToList();
-            MOND = ordered;
 
-            
-           
-            if (format == "view") {
-                return View("ViewMOND", MOND);
+             if (format == "view") {
+                return View("ViewMOND", ordered);
             } 
 
             if (format == "json") {
-                return Json(MOND);
+                return Json(ordered);
             }
 
-            return Ok(MOND);
+            return Ok(ordered);
  }
 private async Task<IActionResult> createMOND (ge_log_file log_file, 
                                             DateTime? fromDT,
                                             DateTime? toDT,
+                                            int page_size,
+                                            int page,
                                             string round_ref,
                                             string ge_source="ge_flow",
                                             Boolean addWLEV = true) {
@@ -824,8 +833,8 @@ private async Task<IActionResult> createMOND (ge_log_file log_file,
             mond_rem_suffix = " datalogger reading";
         }
 
-        List<ge_log_reading> readings2 = log_file.getIncludeReadings(fromDT,toDT);
-        
+        List<ge_log_reading> readings2 = log_file.getIncludeReadingsPage(fromDT, toDT, page_size, page);
+                                          
             foreach (ge_log_reading reading in readings2) {
                 
                 foreach (value_header vh in log_file.field_headers) {

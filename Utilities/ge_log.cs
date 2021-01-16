@@ -251,6 +251,11 @@ namespace ge_repository.OtherDatabase  {
         public List<ge_log_reading> getIncludeReadings(DateTime? FromDT, DateTime? ToDT) {
             return getReadings(FromDT, ToDT).Where(e=>e.Include == 0).ToList();
         }
+
+        public List<ge_log_reading> getIncludeReadingsPage (DateTime? FromDT, DateTime? ToDT, int page_size, int page) {
+            return getReadings(FromDT, ToDT).Skip((page - 1)*page_size).Take(page_size).ToList();
+        }
+                
         public List<ge_log_reading> getReadings(DateTime? FromDT, DateTime? ToDT) {
 
         if (FromDT != null && ToDT != null) {
@@ -268,9 +273,11 @@ namespace ge_repository.OtherDatabase  {
             return readings.Where(e=>e.ReadingDatetime <= ToDT
                                     ).ToList();
         }
- 
-        return readings;
         
+       
+        return readings;
+
+      
         }
         
         public void unpack_exist_file() {
