@@ -158,8 +158,8 @@ namespace ge_repository.Controllers
             {
                 using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                 {
-                    dsTable ds_readings = new logTables().reading;
-                    dsTable ds_file = new logTables().file;
+                    dsTable<ge_log_reading> ds_readings = new logTables().reading;
+                    dsTable<ge_log_file> ds_file = new logTables().file;
                     cnn.Open();
                     ds_file.setConnection (cnn);  
                     ds_file.Reset(); 
@@ -339,7 +339,7 @@ namespace ge_repository.Controllers
                                 using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                                 {
                                     cnn.Open();
-                                    dsTable ds_files = new logTables().file;
+                                    dsTable<ge_log_file> ds_files = new logTables().file;
                                     ds_files.setConnection (cnn);        
                                     ds_files.sqlWhere("dataId='" + dataId.ToString() + "'" );    
                                                         
@@ -399,8 +399,8 @@ namespace ge_repository.Controllers
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
                         cnn.Open();
-                        dsTable ds_readings = new logTables().reading;
-                        dsTable ds_file = new logTables().file;
+                        dsTable<ge_log_reading> ds_readings = new logTables().reading;
+                        dsTable<ge_log_file> ds_file = new logTables().file;
                         ds_file.setConnection (cnn);        
                         ds_readings.setConnection (cnn);
                         
@@ -482,7 +482,7 @@ private async Task<int> UpdateChannel (Guid[] Id, Guid dataId, string header, fl
         {
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
-                dsTable ds_readings = new logTables().reading;
+                dsTable<ge_log_reading> ds_readings = new logTables().reading;
                 cnn.Open();
                 ds_readings.setConnection (cnn);
                 ds_readings.getDataTable();
@@ -540,7 +540,7 @@ private async Task<int> UpdateReading (Guid Id,
         {
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
-                dsTable ds_readings = new logTables().reading;
+                dsTable<ge_log_reading> ds_readings = new logTables().reading;
                 cnn.Open();
                 ds_readings.setConnection (cnn);
                 ds_readings.getDataTable();
@@ -593,8 +593,8 @@ private async Task<int>  UpdateFile (ge_log_file file, Boolean IncludeReadings) 
         {
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
-                dsTable ds_readings = new logTables().reading;
-                dsTable ds_file = new logTables().file;
+                dsTable<ge_log_reading> ds_readings = new logTables().reading;
+                dsTable<ge_log_file> ds_file = new logTables().file;
                 cnn.Open();
                 ds_file.setConnection (cnn);        
                 ds_file.getDataTable ();  

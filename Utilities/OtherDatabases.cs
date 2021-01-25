@@ -1,5 +1,6 @@
 
 using System;
+using System.Reflection;
 using System.Data.SqlClient;
 using System.Data;
 using System.Collections.Generic;
@@ -9,28 +10,28 @@ namespace ge_repository.OtherDatabase {
 
 public class gINTTables {
 
-        public dsTable MOND {get;} = new dsTable ("MOND", "DateTime ASC");
-        public dsTable MONG {get;} = new dsTable ("MONG");
-        public dsTable MONV {get;} = new dsTable ("MONV");
-        public dsTable POINT {get;} = new dsTable ("POINT");
-        public dsTable PROJ {get;} = new dsTable ("PROJECT");
-        public dsTable ERES {get;} = new dsTable ("ERES");
-        public dsTable SAMP {get;} = new dsTable ("SAMP");
+        public dsTable<MOND> MOND {get;} = new dsTable<MOND> ("MOND", "DateTime ASC");
+        public dsTable<MONG> MONG {get;} = new dsTable<MONG> ("MONG");
+        public dsTable<MONV> MONV {get;} = new dsTable<MONV> ("MONV");
+        public dsTable<POINT> POINT {get;} = new dsTable<POINT> ("POINT");
+        public dsTable<PROJ> PROJ {get;} = new dsTable<PROJ> ("PROJECT");
+        public dsTable<ERES> ERES {get;} = new dsTable<ERES> ("ERES");
+        public dsTable<SAMP> SAMP {get;} = new dsTable<SAMP> ("SAMP");
         public static string DB_DATA_TYPE = "gINT";
-        public dsTable TRAN {get;} = new dsTable ("TRAN");
+        public dsTable<TRAN> TRAN {get;} = new dsTable<TRAN> ("TRAN");
        
 }
 
 public class logTables {
 
-        public dsTable reading {get;} =  new dsTable("ge_log_reading","ReadingDatetime ASC" );
-        public dsTable file {get;} = new dsTable("ge_log_file");
+        public dsTable<ge_log_reading> reading {get;} =  new dsTable<ge_log_reading>("ge_log_reading","ReadingDatetime ASC" );
+        public dsTable<ge_log_file> file {get;} = new dsTable<ge_log_file>("ge_log_file");
         public static string DB_DATA_TYPE = "logger";
     
 }
  
 
-public class dsTable {
+public class dsTable<T> {
     public string tableName {get;}
     public string sqlQuery {get;private set;}
     public DataSet dataSet {get;private set;}
@@ -42,6 +43,15 @@ public class dsTable {
     private int current = 0;
     public int COMMAND_TIMEOUT {get;set;} = 1200;
     public string sortOrder {get;set;} = "";
+    public string UniqueKey {get;set;}= "Id";
+
+    public dsTable(string TableName, SqlConnection conn) {
+        tableName = TableName;
+        sqlQuery = "select * from " + tableName + " where 0 = 1";
+        sortOrder = "";
+
+    }
+    
     public dsTable(string TableName, string SortOrder="") {
         tableName = TableName;
         sqlQuery = "select * from " + tableName + " where 0 = 1";
@@ -62,7 +72,34 @@ public class dsTable {
         getDataSet();
 
     }
-   
+   public List<T> TableAsList()  
+        {  
+            List<T> data = new List<T>();  
+            foreach (DataRow row in dataTable.Rows)  
+            {  
+                T item = GetItem(row);  
+                data.Add(item);  
+            }  
+            return data;  
+    }  
+    public T GetItem (DataRow dr)  
+        {  
+            Type temp = typeof(T);  
+            T obj = Activator.CreateInstance<T>();  
+        
+            foreach (DataColumn column in dr.Table.Columns)  
+            {  
+                foreach (PropertyInfo pro in temp.GetProperties())  
+                {  
+                    if (pro.Name == column.ColumnName)  
+                        pro.SetValue(obj, dr[column.ColumnName], null);  
+                    else  
+                        continue;  
+                }  
+            }  
+            return obj;  
+        } 
+    
     public DataSet getDataSet() {
         try {
         dataAdapter = new SqlDataAdapter(sqlQuery, connection);
@@ -97,6 +134,50 @@ public class dsTable {
             return null;
         }
     }
+    public void addRow (T newObj) {
+
+            Type temp = typeof(T);  
+
+            DataRow newRow = dataTable.NewRow();
+
+            foreach (DataColumn column in dataTable.Columns)  
+            {  
+                foreach (PropertyInfo pro in temp.GetProperties())  
+                {  
+                    if (pro.Name == column.ColumnName)  
+                        pro.SetValue(newRow[column.ColumnName],newObj, null);  
+                    else  
+                        continue;  
+                }  
+            }  
+      
+        dataTable.Rows.Add (newRow);
+    }
+    public static DataTable CreateDataTable<T>(IEnumerable<T> list)
+        {
+            Type type = typeof(T);
+            var properties = type.GetProperties();      
+
+            DataTable dataTable = new DataTable();
+            foreach (PropertyInfo info in properties)
+            {
+                dataTable.Columns.Add(new DataColumn(info.Name, Nullable.GetUnderlyingType(info.PropertyType) ?? info.PropertyType));
+            }
+
+            foreach (T entity in list)
+            {
+                object[] values = new object[properties.Length];
+                for (int i = 0; i < properties.Length; i++)
+                {
+                    values[i] = properties[i].GetValue(entity);
+                }
+
+                dataTable.Rows.Add(values);
+            }
+
+            return dataTable;
+    }
+    
     public void addRow(DataRow newRow) {
         dataSet.Tables[tableName].Rows.Add(newRow);
     } 
@@ -150,6 +231,7 @@ public class dsTable {
         string s1 = sb.ToString();
         
         if (s1.Length>0) {
+         
             SqlCommand cmd = new SqlCommand(sb.ToString(), connection);
             cmd.CommandTimeout = COMMAND_TIMEOUT; 
             // Execute the update command.
@@ -266,6 +348,8 @@ public class OtherDbConnections {
             updated =+ rs.updated;
             return updated;
         }
+        public string errorMsg {get;set;}
+
         public int Add (DataRow dr) { 
                 if (dr.RowState==DataRowState.Modified) {
                     add_array(modified,dr);

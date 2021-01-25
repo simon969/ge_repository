@@ -29,8 +29,11 @@
            value_header db_col = st.headers.Find(c=>c.found!=NOT_FOUND && c.db_name==db_name); 
            return db_col;
         }
+        public void SplitItemsToArrayItems() {
+            array_items = getSplitItems();
+        }
         public List<array_item> getSplitItems() {
-            
+
             List<array_item> list = new List<array_item>();
             
             foreach (search_item si in search_items) {
@@ -48,24 +51,33 @@
             if (list.Count==0) {
                 return null;
             }
-
             return list;
             
         }
 
-        private int findChannelCol(search_table st) {
+        private int findChannelCol(search_table st, string[] array_names = null) {
+
+            int colChannel = NOT_FOUND;
+            array_item ai2 = null;
 
             if (array_items==null) {
                 return NOT_FOUND;
             }
 
-            var ai2= array_items.Find(a=>a.name=="CalibrationFactors");
-            
-            if (ai2 == null) {
-                return NOT_FOUND;
+            if (array_names == null) {
+                array_names = new string [] {"CalibrationFactors","Logger channel"}; 
             }
 
-            int colChannel = NOT_FOUND;
+            foreach (string array_name in array_names) {
+                ai2 = array_items.Find(a=>a.name == array_name);
+                if (ai2 != null) {
+                break;
+                }
+            }
+
+            if (ai2==null) {
+              return NOT_FOUND;
+            }
             
             foreach (value_header vh in st.headers)  {
                 for (int i = 0; i < ai2.values.Length; i++) {
@@ -82,10 +94,27 @@
 
         }
 
-        public void setFoundTableValues(search_table st) {
+        public void setFoundTableValues(search_table st = null) {
             
+            if (array_items == null) {
+                return;
+            }
+            
+            if (st == null) {
+                if (search_tables.Count>=1) {
+                    st = search_tables[0];
+                } else {
+                    return;
+                }
+
+            }
+
             int colChannel = findChannelCol(st);
-            
+             
+            if (colChannel == NOT_FOUND && st.array_offset != NOT_FOUND ) {
+               colChannel = st.array_offset;
+            } 
+                       
             if (colChannel == NOT_FOUND) {
                 return;
             }
@@ -110,7 +139,7 @@
             return retIfNotFound;
         }
         
-        return si.row;
+        return si.row + si.row_offset;
 
         }
 
@@ -124,12 +153,6 @@
         
         int line_start = find_row("data_start",NotFoundVal);
         
-        if (line_start != NotFoundVal) {
-            search_item si = search_items.Find(e=>e.name=="data_start");
-            line_start = si.row + si.row_offset;
-      
-        }
-       
         if (line_start==NotFoundVal) {
             line_start = find_row(st.header.search_item,NotFoundVal); 
             line_start = line_start + 1;   
@@ -166,12 +189,14 @@
                 public string search_text {get;set;}
                 public string row_text {get;set;}
                 public int start_offset {get;set;}
-                public int row_offset {get;set;}
                 public int length {get;set;}   
                 public string value {get;set;}
                 public string value2 {get;set;}
                 public int split {get;set;} = 0;
                 public int row {get;set;} 
+                public int row_offset {get;set;} 
+                public int col {get;set;} 
+                public int col_offset {get;set;} 
                 public int found {get;set;} = -1;   
                 public string units {get;set;}
                 public string comments {get;set;} 
@@ -185,33 +210,28 @@
             start_offset = StartOffset;
             length = Length;
          }
-      
+       
          public string any_value_string() {
-            string ret;
+                 
+           // string ret = set_value();
              
-            ret = value_string();
-             
-            if (ret!="") {
-                return ret;
+           // if (ret!="" ) {
+           //     return ret;
+           // }
+            
+            if (!String.IsNullOrEmpty(value2)) {
+                return value2;
             }
 
-            ret = value;
-            
-            if (ret!="") {
-                return ret;
+            if (!String.IsNullOrEmpty(value)) {
+                return value;
             }
-            
-            ret = value2;
-            
-            if (ret!="") {
-                return ret;
-            }
-
+          
             return "";
 
          }
 
-         public string value_string() {
+         public string set_value() {
             try {
 
             int max_len = row_text.Length - (row_text.IndexOf(search_text) + search_text.Length + start_offset);
@@ -230,7 +250,7 @@
          
          public int? value_int() {
              try {
-             return Convert.ToInt32(value_string());
+             return Convert.ToInt32(value);
              } catch {
                  return null;
              }
@@ -238,14 +258,14 @@
          }
          public double? value_dbl() {
              try {
-             return Convert.ToDouble(value_string());
+             return Convert.ToDouble(value);
              } catch {
                 return null;
              }
          }
          public DateTime? value_DateTime() {
              try {
-             return Convert.ToDateTime(value_string());
+             return Convert.ToDateTime(value);
              } catch {
                  return null;
              }
@@ -267,7 +287,7 @@
             public int found {get;set;} = -1;
             public string format {get;set;} 
             public string required {get;set;} = "true";
-
+            public search_range start_offset {get;set;}
             public Boolean IsRequired() {return required=="true";}
         }
 
@@ -280,12 +300,14 @@
             public List<value_header> headers {get;set;}
             public List<search_item> options {get;set;}
             public string action {get;set;}
-
+            public int array_offset {get;set;} = -1;
+            public string sheet {get;set;}
         }
 
         public class search_range {
             public string search_item {get;set;}
             public int row {get;set;}
+            public int col {get;set;}
         }
         public class array_item {
             public string name {get;set;}
@@ -298,78 +320,139 @@
         public SearchTerms () {
 
         }
-        public ge_search findSearchTerms (ge_search dic, string table, ge_log_workbook wb, string sheet) {
-    
-        ge_search new_dic = new ge_search();
-
-        new_dic.name = "logger header created:" + DateTime.Now;
-       
-        try {
+        public ge_search findSearchTerms (ge_search dic, string table, ge_log_workbook wb, string[] sheets) {
             
-            if (!String.IsNullOrEmpty(sheet)) {
-                wb.setWorksheet(sheet);
-            } 
-
-            if (String.IsNullOrEmpty(sheet) & wb.setOnlyWorksheet()==false) {
-                new_dic.status ="Unable to determine which worksheet to get data from";
-                return new_dic;
-            } 
-
-            foreach  (search_item si in dic.search_items) {
-                    si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset,si.MatchExact());
-                    // ge_log_workbook is zero based array of worksheet so will match string[] 
-                    si.row = wb.matchReturnRow(si.search_text, si.MatchExact());
-                    new_dic.search_items.Add (si);
+            List<ge_search> gs_wb = new List<ge_search>();
+            
+            foreach (string sheet in sheets) {
+                ge_search gs_ws = findSearchTerms(dic,table,wb,sheet);
+                gs_wb.Add (gs_ws);
             }
-                    
-            foreach (search_table st in dic.search_tables.Where(e=>e.name.Contains(table))) {
-
-                Boolean colNotFound = false;
-                
-                search_range sh = st.header;
-                
-                int header_row = 0;
-                int header_offset = 0;
-                search_item si2 = null;
-                colNotFound = false;
-                
-                if (!String.IsNullOrEmpty(sh.search_item)) {
-                    si2 =  new_dic.search_items.Find(e=>e.name==sh.search_item);
-                    // ge_log_workbook is zero based array of worksheet so will match[]
-                    header_row = si2.row ;
-                    header_offset = si2.row_offset;
-
+            
+            ge_search gs_ret =  new ge_search();
+            gs_ret.name = "logger header created:" + DateTime.Now;
+            
+            foreach (ge_search gs in gs_wb) {
+                foreach(search_item si in gs.search_items) {
+                    gs_ret.search_items.Add(si);
                 }
-                foreach (value_header vh in st.headers) { 
-        
-                            int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset);
-                            
-                            if (i == NOT_FOUND && vh.IsRequired() == true) {
-                                new_dic.status = $"column search text [{vh.search_text}] of table [{table}] not found";
-                                colNotFound=true;
-                                break;
-                            } else {
-                                // ge_log_workbook is zero based array of worksheet so 
-                                // add 1 so column is correctly located in the csv file
-                                vh.found = i + vh.col_offset;
-                                vh.source = ge_log_constants.SOURCE_ACTUAL;
-                            }
+                
+                search_table st = gs.search_tables.Where(e=>e.name.Contains(table)).FirstOrDefault();
+                if (st != null) { 
+                    gs_ret.search_tables.Add (st);
                 }
 
-                if (colNotFound==false) {
-                        st.name = table;
-                        st.id = table;
-                        new_dic.search_tables.Add (st);
-                        new_dic.setFoundTableValues (st);
-                        new_dic.status =$"all columns of table {table} found";
-                        break; 
-                }
             }
-        } catch (Exception e) {
-        new_dic.status = e.Message;
+            gs_ret.SplitItemsToArrayItems();
+            gs_ret.setFoundTableValues ();
+            return gs_ret;
+
         }
 
-        return new_dic;
+        public ge_search findSearchTerms (ge_search dic, string table, ge_log_workbook wb, string sheet) {
+    
+        ge_search gs_ws = new ge_search();
+        
+        gs_ws.name = $"logger header created:{DateTime.Now} sheet {sheet}";
+        
+        wb.MAX_SEARCH_LINES = MAX_SEARCH_LINES;
+
+            try {
+           
+                if (!String.IsNullOrEmpty(sheet)) {
+                    wb.setWorksheet(sheet);
+                } 
+
+                if (String.IsNullOrEmpty(sheet)) {
+                    if (wb.setOnlyWorksheet() == false) {
+                        gs_ws.status ="There is more than one worksheet, in this workbook. Unable to determine which worksheet to get data from";
+                        return gs_ws;
+                    }
+                } 
+ 
+                foreach  (search_item si in dic.search_items) { 
+                        // ge_log_workbook is zero based array of worksheet so will match string[] 
+                        int found = wb.matchReturnRow(si.search_text, si.MatchExact());
+                        if (found != NOT_FOUND) {
+                            if (si.length>1) {
+                            si.value = wb.matchReturnValueCSV(si.search_text, si.start_offset, si.row_offset,si.length, si.MatchExact());
+                            } else {
+                            si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset,si.MatchExact());
+                            }
+                            si.row = found;
+                            si.col = wb.matchReturnColumn(si.search_text, si.MatchExact());
+                            si.row_text = wb.RowCSV(si.row, si.col + si.col_offset);
+                            gs_ws.search_items.Add (si);
+                        }
+                }
+                
+                gs_ws.SplitItemsToArrayItems();     
+                
+                foreach (search_table st in dic.search_tables.Where(e=>e.name.Contains(table))) {
+
+                    Boolean colNotFound = false;
+                    
+                    search_range sh = st.header;
+                    
+                    int header_row = 0;
+                    int header_offset = 0;
+                    search_item si2 = null;
+                    colNotFound = false;
+                    
+                    if (!String.IsNullOrEmpty(sh.search_item)) {
+                        si2 =  gs_ws.search_items.Find(e=>e.name==sh.search_item);
+                        
+                        if (si2 ==null) {
+                         //header not found
+                         gs_ws.status = $"header row not found, data cannot be located on sheet {sheet}";
+                         return gs_ws;
+                        }
+                        
+                        // ge_log_workbook is zero based array of worksheet so will match[]
+                        header_row = si2.row ;
+                        header_offset = si2.row_offset;
+
+                    }
+
+                    foreach (value_header vh in st.headers) { 
+            
+                                int start_offset = 0;
+                                
+                                if (vh.start_offset!=null) {
+                                search_item si3 =  gs_ws.search_items.Find(e=>e.name==vh.start_offset.search_item);
+                                start_offset = si3.col + si3.start_offset;
+                                }
+                                
+                                int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset, start_offset);
+                                
+                                if (i == NOT_FOUND && vh.IsRequired() == true) {
+                                    gs_ws.status = $"column search text [{vh.search_text}] of table [{table}] not found";
+                                    colNotFound=true;
+                                    break;
+                                } else {
+                                    // ge_log_workbook is zero based array of worksheet so 
+                                    // add 1 so column is correctly located in the csv file
+                                    vh.found = i + vh.col_offset;
+                                    vh.source = ge_log_constants.SOURCE_ACTUAL;
+                                }
+                    }
+
+                    if (colNotFound==false) {
+                            st.name = table;
+                            st.id = table;
+                            st.sheet = sheet;
+                            gs_ws.search_tables.Add (st);
+                            gs_ws.setFoundTableValues (st);
+                            gs_ws.status =$"all columns of table {table} found on {sheet}";
+                            break; 
+                    }
+                }
+            
+            } catch (Exception e) {
+            gs_ws.status = e.Message;
+        }
+
+        return gs_ws;
     }
 
     public ge_search findSearchTerms(ge_search dic, string name, string[] lines) {
@@ -385,7 +468,7 @@
                 if (lines[i].Contains(si.search_text)) {
                      si.row = i;
                      si.row_text = lines[i + si.row_offset];
-                     si.value_string();
+                     si.set_value();
                      new_dic.search_items.Add (si);
                      break;
                 }
@@ -402,7 +485,7 @@
             new_dic.search_items.Add (end_line);
         }
         
-        new_dic.array_items = new_dic.getSplitItems();
+        new_dic.SplitItemsToArrayItems();
         
         Boolean colNotFound=false;
         

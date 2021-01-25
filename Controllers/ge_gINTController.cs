@@ -121,7 +121,7 @@ public async Task<IActionResult> getERES(Guid projectId,
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
                          cnn.Open();
-                        dsTable ds_ERES = new gINTTables().ERES;
+                        dsTable<ERES> ds_ERES = new gINTTables().ERES;
                         ds_ERES.setConnection (cnn);        
                         ds_ERES.getDataTable ();  
                         ds_ERES.sqlWhere(sql_where);
@@ -213,7 +213,7 @@ public async Task<IActionResult> getERES(Guid projectId,
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
                          cnn.Open();
-                        dsTable dsMONG = new gINTTables().MONG;
+                        dsTable<MONG> dsMONG = new gINTTables().MONG;
                         dsMONG.setConnection (cnn);        
                         dsMONG.getDataTable ();  
                         dsMONG.sqlWhere(sql_where);
@@ -315,7 +315,7 @@ public async Task<int> deleteMOND (Guid projectId,
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
-                        dsTable dsMOND = new gINTTables().MOND;
+                        dsTable<MOND> dsMOND = new gINTTables().MOND;
                         cnn.Open();
                         dsMOND.setConnection (cnn);        
                         dsMOND.getDataTable ();  
@@ -482,7 +482,7 @@ private async Task<IActionResult> getMOND(Guid projectId,
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
-                        dsTable dsMOND = new gINTTables().MOND;
+                        dsTable<MOND> dsMOND = new gINTTables().MOND;
                         cnn.Open();
                         dsMOND.setConnection (cnn);        
                         dsMOND.getDataTable ();  
@@ -547,7 +547,7 @@ private async Task<IActionResult> getMOND(Guid projectId,
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
-                        dsTable dsMONV = new gINTTables().MONV;
+                        dsTable<MONV> dsMONV = new gINTTables().MONV;
                         cnn.Open();
                         dsMONV.setConnection (cnn);        
                         dsMONV.getDataTable ();  
@@ -604,7 +604,7 @@ public async Task<IActionResult> getTRAN(Guid projectId, string format = "") {
             List<TRAN> TRAN = await Task.Run(() => {
                             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                             {
-                                dsTable dst= new gINTTables().TRAN;
+                                dsTable<TRAN> dst= new gINTTables().TRAN;
                                 cnn.Open();
                                 dst.setConnection (cnn);        
                                 dst.getDataTable ();  
@@ -668,7 +668,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
-                        dsTable dsPROJ = new gINTTables().PROJ;
+                        dsTable<PROJ> dsPROJ = new gINTTables().PROJ;
                         cnn.Open();
                         dsPROJ.setConnection (cnn);        
                         dsPROJ.getDataTable ();  
@@ -744,7 +744,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
                     {
                     using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
                     {
-                        dsTable dsPOINT = new gINTTables().POINT;
+                        dsTable<POINT> dsPOINT = new gINTTables().POINT;
                         cnn.Open();
                         dsPOINT.setConnection (cnn);        
                         dsPOINT.getDataTable ();  
@@ -1417,7 +1417,7 @@ private string getAGSTable(List<POINT> rows,
     return sb.ToString();
 }
 
-private string getAGS404Table(dsTable ds) {
+private string getAGS404Table(dsTable<MOND> ds) {
 
     string table_name = "\"GROUP\",\"MOND\"";
     string table_headings = "\"HEADING\",\"LOCA_ID\",\"MONG_ID\",\"MONG_DIS\",\"MOND_DTIM\",\"MOND_TYPE\",\"MOND_REF\",\"MOND_INST\",\"MOND_RDNG\",\"MOND_UNIT\",\"MOND_METH\",\"MOND_LIM\",\"MOND_ULIM\",\"MOND_NAME\",\"MOND_CRED\",\"MOND_CONT\",\"MOND_REM\",\"FILE_FSET\"";
@@ -1588,7 +1588,7 @@ private async Task<int> UpdateExisting(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);        
                 DataTable dtMOND = null;
                 dsMOND.sqlWhere(sqlwhere);
@@ -1661,7 +1661,7 @@ private async Task<row_states> uploadSingle(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);        
                 DataTable dtMOND = null;
                 string sqlWhere = "";
@@ -1908,7 +1908,7 @@ private async Task<int> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);
 
 
@@ -2001,7 +2001,7 @@ private async Task<int> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);
 
 
@@ -2095,7 +2095,7 @@ private async Task<int> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);
 
 
@@ -2201,7 +2201,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable dsMOND = new gINTTables().MOND;
+                dsTable<MOND> dsMOND = new gINTTables().MOND;
                 dsMOND.setConnection (cnn);        
                 DataTable dtMOND = null;
 
@@ -2248,7 +2248,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
                                 // combination may results in mutiple matches in the MOND table 
                                 // so this is not a reliable way of identifying singular records
                           //      try {
-                           //         row = dtMOND.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}'").SingleOrDefault();
+                           //         row = dtMOND.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherid}' and MOND_TYPE='{item.MOND_TYPE}'").SingleOrDefault();
                           //      } catch {
                           //      row = null;
                           //      }
@@ -2272,13 +2272,9 @@ private async Task<row_states> uploadBulk(Guid projectId,
 
                         setValues(item, row);                        
                 } 
-                
-                row_states ret = dsMOND.get_row_states();
-
-                ret.updated = dsMOND.BulkUpdate();
-
-                return ret;
-
+                    row_states ret = dsMOND.get_row_states();
+                    ret.updated = dsMOND.BulkUpdate();
+                    return ret;
             } 
            
         });
@@ -2321,7 +2317,7 @@ public async Task<int> uploadSingle(Guid projectId, List<MONV> save_items){
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable ds_MONV = new gINTTables().MONV;
+                dsTable<MONV> ds_MONV = new gINTTables().MONV;
                 ds_MONV.setConnection (cnn);        
                 //ds_MOND.getDataTable ();  
                 // reduce the dataset only to the esri feature attribute records, all logger records could be massive

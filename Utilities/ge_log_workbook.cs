@@ -3,7 +3,9 @@ using System.IO;
 using System.Text;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
-using System.Globalization;
+using NPOI.HSSF.Extractor;
+using NPOI.HSSF.UserModel;
+
 namespace ge_repository.OtherDatabase
 {
 
@@ -11,10 +13,15 @@ namespace ge_repository.OtherDatabase
 
         // https://poi.apache.org/components/spreadsheet/quick-guide.html#Iterator
     public XSSFWorkbook workbook {get;private set;}
+    //public IWorkbook workbook {get;private set;}
     public ISheet worksheet{get;private set;}
     public ICellRange<ICell> headers {get;private set;}
     public ICellRange<ICell> data {get; private set;}
+    public IFormulaEvaluator evaluator {get; private set;}
+    DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
+    string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
 
+    public int MAX_SEARCH_LINES {get;set;}
     public int current_data_row;
     public int start_data_row;
     public int end_data_row;    
@@ -22,15 +29,15 @@ namespace ge_repository.OtherDatabase
         workbook = new XSSFWorkbook(fs);
     }
     public ge_log_workbook(MemoryStream ms) {
-        
-            workbook = new XSSFWorkbook(ms);
-    
+        workbook = new XSSFWorkbook(ms);
+        evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
     }
     public void close() {
 
         worksheet = null;
         headers = null;
         data = null;
+        evaluator = null;
         workbook.Close();
         workbook = null;
 
@@ -46,20 +53,33 @@ namespace ge_repository.OtherDatabase
         current_data_row = start_data_row;
         return worksheet.GetRow(current_data_row);
     }
+    public String RowCSV(int row, int fromColumn, int toColumn = -1, Boolean Encapsulate = false) {
+        IRow irow = worksheet.GetRow(row);
+        return RowCSV(irow,fromColumn, toColumn, Encapsulate);
+    }
 
-    public string RowCSV(IRow row, int lastColumn,Boolean Encapsulate = false) {
+    public string RowCSV(IRow row, int fromColumn, int toColumn = -1, Boolean Encapsulate = false) {
         
         StringBuilder sb = new StringBuilder();
+        int allColumns = -1;
 
-        for (int i = 0; i < lastColumn; i++) {
+        if (toColumn == allColumns) {
+            toColumn = row.Cells.Count;
+        }
+
+        for (int i = fromColumn; i < toColumn; i++) {
             
             ICell cell = row.GetCell(i);
             
-            if (cell == null & i!=0) {
+            if (cell == null & i!=fromColumn) {
+                if (Encapsulate==true) {
+                    sb.Append(",\"\"");
+                    continue;
+                }
                 sb.Append (",");
             } else {
-                if (i>0) {
-                  sb.Append (","); 
+                if (i>fromColumn) {
+                    sb.Append (","); 
                 }
                 if (Encapsulate==true) {
                     sb.Append("\"" + DataFormatter(cell) + "\"");
@@ -74,31 +94,67 @@ namespace ge_repository.OtherDatabase
         return sb.ToString();
     
     }
+    public string RowCSV2(IRow row, int lastColumn,Boolean Encapsulate = false) {
+        
+        StringBuilder sb = new StringBuilder();
+
+        foreach (ICell cell in row) { 
+                if (Encapsulate==true) {
+                    sb.Append("\"" + DataFormatter(cell) + "\"");
+                    continue;
+                }
+
+                sb.Append (DataFormatter(cell));
+
+        }
+           
+        return sb.ToString();
+    
+    }
+     // public string WorkSheettoCSV2() {
+     
+    // HSSFWorkbook wb = new HSSFWorkbook();
+
+    // ExcelExtractor extractor = new ExcelExtractor(wb);
+    // extractor.setFormulasNotResults(true);
+    // extractor.setIncludeSheetNames(false);
+    // String text = extractor.getText();
+    // wb.close();
+
+     //}
+
      public string WorksheetToCSV() {
         
         int MIN_COLUMN_COUNT = 50;
-     
+        
+        string empty_row = new String(',', MIN_COLUMN_COUNT);
+
         StringBuilder sb =new StringBuilder();
         
-        int rowStart = Math.Min(15, worksheet.FirstRowNum);
-        int rowEnd = Math.Max(1400, worksheet.LastRowNum);
+        //int rowStart =  Math.Min(15, worksheet.FirstRowNum);
+        int rowStart =  0;
+        int rowEnd =   Math.Max(1400, worksheet.LastRowNum);
         
         for (int rowNum = rowStart; rowNum <= rowEnd; rowNum++) {
             IRow r = worksheet.GetRow(rowNum);
+            
+            if (rowNum > rowStart) { 
+                sb.Append(Environment.NewLine);
+            }
+
             if (r == null) {
             // This whole row is empty
             // Handle it as needed
+                sb.Append (empty_row);
                 continue;
             }
 
             int lastColumn = Math.Max(r.LastCellNum, MIN_COLUMN_COUNT);
-            if (rowNum == rowStart) {
-            sb.Append (RowCSV(r, lastColumn,false));
-            } else {
-            sb.Append(Environment.NewLine + RowCSV(r,lastColumn,false));
-            }
+            string row_str = RowCSV(r,0,lastColumn,false);
+            sb.Append (row_str);
+        
         }
-
+        
         return sb.ToString();
 
     }
@@ -121,10 +177,10 @@ namespace ge_repository.OtherDatabase
         worksheet = workbook.GetSheetAt(0); 
         return workbook.NumberOfSheets == 1;
     }
-    public int matchReturnColumn(string find_string, int row_start, int row_offset, Boolean exact = false) {
+    public int matchReturnColumn(string find_string, int row_start, int row_offset, int col_start = 0, Boolean exact = false) {
 
         for (int row = row_start; row <= row_start + row_offset; row++) {
-            ICell cell = findCellContainsValue(find_string, row); 
+            ICell cell = findCellContainsValue(find_string, row,col_start,exact); 
             if (cell!=null) {
                 return cell.ColumnIndex;
             }
@@ -175,28 +231,25 @@ namespace ge_repository.OtherDatabase
     return string.Format(DateTimeFORMAT, cell_DT);
     }
 
-       public string DataFormatter(ICell cell) {
-            IFormulaEvaluator evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
-            DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
-            string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
-
-            if (cell!=null) {
-                if (cell.CellType==CellType.Numeric) {
-                    if (DateUtil.IsCellDateFormatted(cell)) {
-                        return ExcelDateFormatter(DateTimeFORMAT,cell);
-                        // try {
-                        //     return String.Format(DateTimeFORMAT, cell.DateCellValue);
-                        // } catch {
-                        //     return ExcelDateFormatter(DateTimeFORMAT, cell);
-                        // }
-                    }
-                }
-                try {
-                    return formatter.FormatCellValue(cell,evaluator);
-                } catch {
-
+    public string DataFormatter(ICell cell) {
+        
+        if (cell!=null) {
+            if (cell.CellType==CellType.Numeric) {
+                if (DateUtil.IsCellDateFormatted(cell)) {
+                    return ExcelDateFormatter(DateTimeFORMAT,cell);
+                    // try {
+                    //     return String.Format(DateTimeFORMAT, cell.DateCellValue);
+                    // } catch {
+                    //     return ExcelDateFormatter(DateTimeFORMAT, cell);
+                    // }
                 }
             }
+            try {
+                return formatter.FormatCellValue(cell,evaluator);
+            } catch {
+
+            }
+        }
 
             return "";
 
@@ -214,9 +267,26 @@ namespace ge_repository.OtherDatabase
 
         return "";
     }
+    public string matchReturnValueCSV(string find_string, int ret_offset_col, int ret_offset_row, int ret_col_count, Boolean exact = false) {
+       
+        ICell cell = findCellContainsValue(find_string, exact); 
+        
+        if (cell!=null) {
+            int from_col = cell.ColumnIndex + ret_offset_col;
+            int to_col =  cell.ColumnIndex + ret_offset_col + ret_col_count;
+            int row = cell.RowIndex + ret_offset_row; 
+            string csv = RowCSV(row, from_col,to_col,false);
+            return csv;
+        }
+
+        return "";
+    }
     public ICell findCellContainsValue(string value,Boolean exact = false) {
         
         foreach (IRow row in worksheet) {
+            if (row.RowNum > MAX_SEARCH_LINES) {
+                break;
+            }
             foreach (ICell cell in row) {
                 string s1 = DataFormatter(cell);
                   if (s1.Equals(value)) {
@@ -230,18 +300,20 @@ namespace ge_repository.OtherDatabase
 
         return null;
     }
-    public ICell findCellContainsValue(string value, int row_index, Boolean exact = false) {
+    public ICell findCellContainsValue(string value, int row_index, int start_col = 0, Boolean exact = false) {
         
         IRow row  = worksheet.GetRow(row_index);
         
         if (row!=null) { 
             foreach (ICell cell in row) {
-                string s1 = DataFormatter(cell);
-                 if (s1.Equals(value)) {
-                  return cell;
-                }
-                if (s1.Contains(value) & exact==false) {
+                if (cell.ColumnIndex >= start_col) {
+                    string s1 = DataFormatter(cell);
+                    if (s1.Equals(value)) {
                     return cell;
+                    }
+                    if (s1.Contains(value) & exact==false) {
+                        return cell;
+                    }
                 }
             }
         }
@@ -304,6 +376,8 @@ namespace ge_repository.OtherDatabase
 
 public string [] WorksheetToTable() {
 
+    //ISheet copy = worksheet.CopySheet("copy");
+    
     string tableCSV = WorksheetToCSV();
   
     string[] lines = tableCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
 using ge_repository.Models;
@@ -952,7 +953,8 @@ namespace ge_repository.OtherDatabase  {
 
         }
         public string getBoreHoleId() {
-
+        
+       
         search_item si =  file_headers.Find(h=>h.name == "log_name" || h.name =="BoreholeRef");
         search_item si2 =  file_headers.Find(h=>h.name == "bhole_ref_override");
         
@@ -961,7 +963,7 @@ namespace ge_repository.OtherDatabase  {
         }
         
         if (si != null) {
-            return si.value_string();
+            return si.value;
         }
 
         return "";
@@ -1083,14 +1085,31 @@ namespace ge_repository.OtherDatabase  {
         }
 
         public string getDeviceName() {
+        
         string ret = "";
         
-        search_item device =  file_headers.Find(h=>h.name == "device" || h.name == "InstrumentType");
+        search_item device =  file_headers.Find(h=>h.name == "device" || h.name == "InstrumentType" );
         search_item serial =  file_headers.Find(h=>h.name == "serial_number" || h.name == "SerialNumber");
         
+        search_item make =  file_headers.Find(h=>h.name == "make" );
+        search_item model =  file_headers.Find(h=>h.name == "model" );
+        
         if (device != null) {
-            ret = device.any_value_string().Trim() + " ";
-           
+            ret = device.any_value_string().Trim();
+        }
+
+        if (make != null) {
+            if (ret != "") {
+                ret += " ";
+            }
+            ret += make.any_value_string().Trim();
+        }
+        
+        if (model != null) {
+            if (ret != "") {
+                ret += " ";
+            }
+            ret += model.any_value_string().Trim();
         }
         
         if (serial != null) {
@@ -1100,7 +1119,6 @@ namespace ge_repository.OtherDatabase  {
             ret += serial.any_value_string().Trim();
         }
         
-
         if (ret=="") {
             int colChannel = getChannelColId ("CalibrationFactors");
             string ch_device =  getArrayString("Model",colChannel);

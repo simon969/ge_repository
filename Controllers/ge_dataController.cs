@@ -538,12 +538,11 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
                 return default(T);
             }
             bool removeBOM = true;
-
-            string s =_data_big.getString(encoding,removeBOM);
             
             try {
                 
                 if (format == "xml") {
+                    string s =_data_big.getParsedXMLstring(encoding);
                     XmlSerializer serializer = new XmlSerializer(typeof(T));
                     using (TextReader reader = new StringReader(s))
                     {
@@ -553,6 +552,7 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
                 }
                 
                 if (format == "json") {
+                     string s =_data_big.getString(encoding,removeBOM);
                     T cs = JsonConvert.DeserializeObject<T>(s);
                     return cs;
                 }

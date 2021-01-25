@@ -30,8 +30,8 @@ namespace ge_repository.Controllers
      private static string DATE_FORMAT_AGS = "yyyy-MM-ddThh:mm:ss";
      
      private SqlConnection cnn;
-     private dsTable MOND = new gINTTables().MOND;
-     private dsTable MONG = new gINTTables().MONG;
+     private dsTable<MOND> MOND = new gINTTables().MOND;
+     private dsTable<MONG> MONG = new gINTTables().MONG;
      
          public MONDController(
 
@@ -285,7 +285,7 @@ public async Task<IActionResult> CreateAGS(Guid id, DateTime fromDate, DateTime 
 }
 
 
-private string getAGS404Table(dsTable ds) {
+private string getAGS404Table(dsTable<MOND> ds) {
 
     string table_name = "\"GROUP\",\"MOND\"";
     string table_headings = "\"HEADING\",\"LOCA_ID\",\"MONG_ID\",\"MONG_DIS\",\"MOND_DTIM\",\"MOND_TYPE\",\"MOND_REF\",\"MOND_INST\",\"MOND_RDNG\",\"MOND_UNIT\",\"MOND_METH\",\"MOND_LIM\",\"MOND_ULIM\",\"MOND_NAME\",\"MOND_CRED\",\"MOND_CONT\",\"MOND_REM\",\"FILE_FSET\"";

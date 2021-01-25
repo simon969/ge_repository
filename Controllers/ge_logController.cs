@@ -19,9 +19,10 @@ using ge_repository.Extensions;
 using System.Data.SqlClient;
 using System.Data;
 using ge_repository.OtherDatabase;
-
+using ge_repository.interfaces;
 using ge_repository.spatial;
-
+using ge_repository.services;
+using ge_repository.repositories;
 
 namespace ge_repository.Controllers
 {
@@ -36,6 +37,7 @@ namespace ge_repository.Controllers
         public  List<MONG> MONG {get;set;}
         public  List<POINT> POINT {get;set;}
         private int NOT_FOUND = -1;
+       
         
         private string[] READ_STOPS = {"\"\"",""};
 
@@ -57,7 +59,63 @@ namespace ge_repository.Controllers
         {
            
         }
-    
+        public async Task<ge_log_client.enumStatus> runLogClientAsync(Guid Id,
+                                          Guid? templateId,
+                                          string table,
+                                          string sheet,
+                                          string bh_ref,
+                                          float? probe_depth,
+                                          dbConnectDetails connectGint,
+                                          dbConnectDetails connectLogger,
+                                          Boolean save_log = false,
+                                          Boolean save_MOND = false)    {
+        
+            return await Task.Run(()=> runLogClient (Id,
+                                          templateId,
+                                          table,
+                                          sheet,
+                                          bh_ref,
+                                          probe_depth,
+                                          connectGint,
+                                          connectLogger,
+                                          save_log = false,
+                                          save_MOND = false));
+        }
+        
+        public ge_log_client.enumStatus runLogClient(
+                                          Guid Id,
+                                          Guid? templateId,
+                                          string table,
+                                          string sheet,
+                                          string bh_ref,
+                                          float? probe_depth,
+                                          dbConnectDetails connectGint,
+                                          dbConnectDetails connectLogger,
+                                          Boolean save_log = false,
+                                          Boolean save_MOND = false
+                                          ) {
+           // var u = GetUserAsync();
+
+            IUnitOfWork _unit = new UnitOfWork(_context);
+            IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
+            ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
+
+            IDataService _dataservice = new DataService(_unit);
+            IGintService<MOND> _gintservice = new MONDService (_gunit);
+            ILoggerFileService _logservice = new LoggerFileService (_lunit);
+            
+            // ILogFileService _logservice = new Log            
+            ge_log_client ac = new ge_log_client(_dataservice, _logservice, _gintservice);
+            ac.Id = Id;
+            ac.templateId = templateId;
+            ac.table = table;
+            ac.sheet = sheet;
+            ac.bh_ref = bh_ref;
+            ac.probe_depth = probe_depth;
+            ac.save_log =save_log;
+            ac.save_MOND = save_MOND;
+            return ac.start(); 
+        }
 private async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,
                                           string table = "",
@@ -110,10 +168,17 @@ private async Task<IActionResult> ReadFile(Guid Id,
                                                 _ge_config).GetMemoryStream(Id)) {
                     ge_log_workbook wb = new ge_log_workbook(ms);
                     SearchTerms st = new SearchTerms();  
+                    if (sheet.Contains(",")) {
+                    string[] sheets = sheet.Split (",");
+                    template_loaded =  st.findSearchTerms (template, table, wb, sheets);  
+                    } else {
                     template_loaded  =  st.findSearchTerms (template, table, wb, sheet);
+                    }
                     if (template_loaded.search_tables.Count==0) {
                         return BadRequest(template_loaded);
                     }
+
+                    wb.setWorksheet(template_loaded.search_tables[0].sheet);
                     lines = wb.WorksheetToTable();
                     wb.close();
 
@@ -1344,11 +1409,17 @@ public async Task<IActionResult> ProcessFile( Guid Id,
                                               string sheet,
                                               string bh_ref, 
                                               float probe_depth, 
-                                              string round_ref, 
+                                              string round_ref,
+                                              string options = "",
                                               string format = "view", 
                                               Boolean save = false ) { 
-   
-    var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", true);
+    Boolean save_readings= true;
+    
+    if (options.Contains("save exclude readings")) {
+        save_readings = false;
+    }
+
+    var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", save_readings);
     
     var okResult = calc_resp as OkObjectResult;   
     
@@ -2757,8 +2828,11 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     }
                    
                     ge_log_reading r= new ge_log_reading();
-
-                    if (intReadTime != NOT_FOUND) {r.ReadingDatetime = DateTime.Parse(values[intReadTime]);}
+                    
+                    if (intReadTime != NOT_FOUND) {
+                        if (ContainsError(values[intReadTime])) {continue;}
+                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformat);
+                    }
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
                     if (intValue2 != NOT_FOUND) {r.Value2 = getFloat(values[intValue2],null);}
@@ -3143,7 +3217,20 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 
     return 0;
  }
+ private DateTime getDateTime(string s1, string dateformat = "") {
 
+                    DateTime dt;
+                    
+                        if (dateformat=="") { 
+                            dt = DateTime.Parse(s1);
+                        } else {
+                            dt = DateTime.ParseExact(s1, dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
+                        }
+                    
+                    return dt;
+
+
+ }
  private float? getFloat(string s1, float? retOnError) {
      float? fl;
      try {
@@ -3154,6 +3241,16 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
      }
 
 
+ }
+ private Boolean ContainsError( string s1) {
+
+     if (s1.Contains("#VALUE")) return true;
+     if (s1.Contains("#ERROR")) return true;
+     if (s1.Contains("#REF")) return true;
+     if (s1.Contains("#N/A")) return true;
+
+     return false;
+ 
  }
  private long? getDuration(string duration, long? retIfError) {
     Int64 dur  = 0 ;
@@ -3204,6 +3301,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
         file.channel = st.name;
         
         value_header DateTimeReading = dic.getHeader(ge_log_constants.READINGDATETIME);
+        
         int intReadTime = NOT_FOUND;
         if (DateTimeReading != null) {
             intReadTime = DateTimeReading.found;
@@ -3366,7 +3464,8 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                                     intValue17,
                                     intValue18, 
                                     intRemark,
-                                    intCheckValueForDry                             
+                                    intCheckValueForDry,
+                                    DateTimeReading.format                         
                                     );
         if (readlines <= 0) {
             return null;
