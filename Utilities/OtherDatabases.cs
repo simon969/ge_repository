@@ -235,10 +235,7 @@ public class dsTable<T> {
             SqlCommand cmd = new SqlCommand(sb.ToString(), connection);
             cmd.CommandTimeout = COMMAND_TIMEOUT; 
             // Execute the update command.
-            var ex_ret = cmd.ExecuteScalar();
-            if (ex_ret !=null) {
-            ret = (int) ex_ret;
-            }
+            var int32Execute = cmd.ExecuteScalar();
         }
 
         return ret;

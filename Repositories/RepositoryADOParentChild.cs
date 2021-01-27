@@ -50,6 +50,9 @@ namespace ge_repository.repositories
           //To be done, but not implemented yet
             return null;
         }
+        public Task<TParent> FindNoTrackingAsync(Expression<Func<TParent, bool>> predicate){
+            return null;
+        }
 
         public async Task<IEnumerable<TParent>> GetAllAsync()
         {

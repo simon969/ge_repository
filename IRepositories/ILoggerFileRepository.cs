@@ -11,6 +11,7 @@ namespace ge_repository.interfaces
         Task<IEnumerable<ge_log_file>> GetAllLoggerFilesWithoutReadingsAsync();
         Task<IEnumerable<ge_log_file>> GetAllLoggerFilesAsync();
         Task<ge_log_file> GetByIdWithoutReadingsAsync(Guid id);
+        Task<ge_log_file> GetByDataIdAsync(Guid id, string table);
         Task<int> CommitAsync();
     }
 }

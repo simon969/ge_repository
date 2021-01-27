@@ -17,6 +17,7 @@ using ge_repository.Services;
 using Newtonsoft.Json;
 using ge_repository.DAL;
 using ge_repository.Extensions;
+using ge_repository.repositories;
 
 namespace ge_repository.Controllers
 {
@@ -221,20 +222,31 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
                     
             return NotFound();
 }
-private async Task<IActionResult> UpdateMONV() {
+private async Task<IActionResult> UpdateMONG(List<MONG> list) {
+                var saveMONG_resp = await new ge_gINTController (_context,
+                                                    _authorizationService,
+                                                    _userManager,
+                                                    _env ,
+                                                    _ge_config
+                                                        ).Upload (_project.Id, list);
+                ViewData["FeatureStatus"] = $"Features attributes({saveMONG_resp}) written to MONG table";
+                
+                return View (list);
+}
+private async Task<IActionResult> UpdateMONV(List<MONV> list) {
                 var saveMONV_resp = await new ge_gINTController (_context,
                                                     _authorizationService,
                                                     _userManager,
                                                     _env ,
                                                     _ge_config
-                                                        ).Upload (_project.Id, MONV);
+                                                        ).Upload (_project.Id, list);
                 ViewData["FeatureStatus"] = $"Features attributes({saveMONV_resp}) written to MONV table";
                 
-                return View (MONV);
+                return View (list);
 }
-private async Task<IActionResult> UpdateMOND() {
+private async Task<IActionResult> UpdateMOND(List<MOND> list) {
 
-                string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
+                string[] selectOtherId= list.Select (m=>m.ge_otherId).Distinct().ToArray();
                 
                 string where2 = $"ge_source in ('esri_survey2','esri_survey2_repeat') and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
                 List<MOND> existingMOND; 
@@ -271,7 +283,7 @@ private async Task<IActionResult> UpdateMOND() {
                                                    _userManager,
                                                    _env ,
                                                    _ge_config
-                                                       ).Upload (_project.Id, MOND, where2);
+                                                       ).Upload (_project.Id, list, where2);
 
                 // ViewData["FeatureStatus"] = $"Features attributes({saveMOND_resp}) written to MOND table";
 
@@ -446,9 +458,9 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                 // }
 
                 if (save == true) {
-                    var resp_mond = await UpdateMOND();
+                    var resp_mond = await UpdateMOND(MOND);
 
-                    var resp_monv = await UpdateMONV();
+                    var resp_monv = await UpdateMONV(MONV);
                 }
                 
                 MOND_All.AddRange (MOND);
@@ -1269,6 +1281,7 @@ private async Task<int> AddSurveyData(ge_project project) {
             string mong_id  = survey.mong_ID;
 
             MONG mg = null;
+            MONG mg_topo =  null;
 
             if (map_mong_id.ContainsKey(survey.hole_id + survey.mong_ID)) {
                 mong_id = map_mong_id[survey.hole_id + survey.mong_ID];
@@ -1281,11 +1294,12 @@ private async Task<int> AddSurveyData(ge_project project) {
                 mg = pt_mg.Find(m=>m.GintRecID == mong_gintrecid);
             } 
 
-            
             if (mg == null) {
                 mg = pt_mg.FirstOrDefault();
             } 
-      
+            
+            
+
             DateTime? survey_start = gINTDateTime(survey.date1_getDT());
 
             if (survey_start==null) continue;
@@ -1303,8 +1317,29 @@ private async Task<int> AddSurveyData(ge_project project) {
                     AddGas(mg, survey);
             }
 
-            if (survey.QA_status.Contains("Topo_Approved")) {
-                     AddTopo(mg, survey);
+            if (survey.QA_status.Contains("Topo_Approved") && 
+                (survey.surv_g_level != null || 
+                survey.meas_ToC != null)) { 
+
+                mg_topo = pt_mg.Find(m=>m.MONG_DIS == 0);
+                
+                if (mg_topo == null) {
+                    mg_topo = new MONG();
+                    mg_topo.PointID = pt.PointID;
+                    mg_topo.PIPE_REF = "Pipe 1";
+                    mg_topo.ItemKey = "SM1";
+                    mg_topo.MONG_DIS = 0;
+                    mg_topo.MONG_DETL = "Ground Survey Monitoring Point";
+                    mg_topo.MONG_TYPE = "GNSS";
+                    pt_mg.Add (mg_topo);
+                    var resp_mong = await UpdateMONG (pt_mg);
+                    //if update fails set mg_topo=null;
+
+                }
+
+                if (mg_topo != null) {
+                    AddTopo(mg_topo, survey);
+                }
             }
 
         }

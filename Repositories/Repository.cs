@@ -41,6 +41,13 @@ namespace ge_repository.repositories
         {
             return Context.Set<TEntity>().FindAsync(id);
         }
+        public Task<TEntity> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return Context.Set<TEntity>()
+                        .AsNoTracking()
+                        .Where(predicate)
+                        .FirstOrDefaultAsync();
+        }
         public Task<TEntity> GetByIdAsync(string id)
         {
             return Context.Set<TEntity>().FindAsync(id);

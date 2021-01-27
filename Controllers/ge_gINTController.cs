@@ -1446,6 +1446,20 @@ private string getAGS404Table(dsTable<MOND> ds) {
     return sb.ToString();
 }
 public async Task<int> Upload(Guid projectId, 
+                                 List<MONG> save_items, 
+                                 string where = null
+                                )
+                                 {   
+
+
+   // if (where == null) {
+   // return await uploadSingle(projectId, save_items);
+   // }
+
+     return await uploadBulk(projectId,save_items, where);
+    }
+
+public async Task<int> Upload(Guid projectId, 
                                  List<ERES> save_items, 
                                  string where = null
                                 )
@@ -1661,9 +1675,9 @@ private async Task<row_states> uploadSingle(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable<MOND> dsMOND = new gINTTables().MOND;
-                dsMOND.setConnection (cnn);        
-                DataTable dtMOND = null;
+                dsTable<MOND> ds = new gINTTables().MOND;
+                ds.setConnection (cnn);        
+                DataTable dt = null;
                 string sqlWhere = "";
                 row_states rs = new row_states();
                 foreach (MOND item in save_items) {
@@ -1680,23 +1694,23 @@ private async Task<row_states> uploadSingle(Guid projectId,
                         if (item.MOND_REF == null) {
                         sqlWhere = $"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF is null";
                         }
-                        dsMOND.Reset();
-                        dsMOND.sqlWhere(sqlWhere);
-                        dsMOND.getDataSet();
-                        dtMOND = dsMOND.getDataTable(); 
+                        ds.Reset();
+                        ds.sqlWhere(sqlWhere);
+                        ds.getDataSet();
+                        dt = ds.getDataTable(); 
 
-                        if (dtMOND.Rows.Count==0) {
-                            row = dsMOND.NewRow();
-                            dsMOND.addRow (row);
+                        if (dt.Rows.Count==0) {
+                            row = ds.NewRow();
+                            ds.addRow (row);
                         } else {
-                            row = dtMOND.Rows[0];
+                            row = dt.Rows[0];
                         } 
                         
                         setValues(item,row);
 
                         rs.Add (row);
 
-                        rs.updated =+ dsMOND.Update();                           
+                        rs.updated =+ ds.Update();                           
                 } 
                 return rs;
             } 
@@ -1881,6 +1895,37 @@ private void setValues(MOND item, DataRow row) {
                         row["ge_otherId"] = item.ge_otherId;
                         row["RND_REF"] = item.RND_REF;
 }
+private void setValues(MONG item, DataRow row) {
+                        
+                        row["gINTProjectID"] = item.gINTProjectID;
+                        row["PointID"] = item.PointID;
+                        row["ItemKey"] = item.ItemKey;
+                        
+                        if (item.MONG_BRGA== null) {row["MONG_BRGA"] = DBNull.Value;} else {row["MONG_BRGA"] = item.MONG_BRGA;}   
+                        if (item.MONG_BRGB == null) {row["MONG_BRGB"] = DBNull.Value;} else {row["MONG_BRGB"] = item.MONG_BRGB;}
+                        if (item.MONG_BRGC == null) {row["MONG_BRGC"] = DBNull.Value;} else {row["MONG_BRBC"] = item.MONG_BRGC;}
+                        if (item.MONG_BRZ == null) {row["MONG_BRZ"] = DBNull.Value;} else {row["MONG_BRZ"] = item.MONG_BRZ;}
+                        if (item.MONG_CONT == null) {row["MONG_CONT"] = DBNull.Value;} else {row["MONG_CONT"] = item.MONG_CONT;}
+                        if (item.MONG_DATE == null) {row["MONG_DATE"] = DBNull.Value;} else {row["MONG_DATE"] = item.MONG_DATE;} 
+                        if (item.MONG_DETL == null) {row["MONG_DETL"] = DBNull.Value;} else {row["MONG_DETL"] = item.MONG_DETL;}
+                        if (item.MONG_DIS == null) {row["MONG_DIS"] = DBNull.Value;} else {row["MONG_DIS"] = item.MONG_DIS;}
+                        if (item.FILE_FSET == null) {row["FILE_FSET"] = DBNull.Value;} {row["FILE_FSET"] = item.FILE_FSET;}
+                        if (item.MONG_INCA== null) {row["MONG_INCA"] = DBNull.Value;} else {row["MONG_INCA"] = item.MONG_INCA;}   
+                        if (item.MONG_INCB == null) {row["MONG_INCB"] = DBNull.Value;} else {row["MONG_INCB"] = item.MONG_INCB;}
+                        if (item.MONG_INCC == null) {row["MONG_INCC"] = DBNull.Value;} else {row["MONG_INCC"] = item.MONG_INCC;}
+                        if (item.MONG_REM == null) {row["MONG_REM"] = DBNull.Value;} else {row["MONG_REM"] = item.MONG_REM;}   
+                        if (item.MONG_RSCA== null) {row["MONG_RSCA"] = DBNull.Value;} else {row["MONG_RSCA"] = item.MONG_RSCA;}   
+                        if (item.MONG_RSCB == null) {row["MONG_RSCB"] = DBNull.Value;} else {row["MONG_RSCB"] = item.MONG_RSCB;}
+                        if (item.MONG_RSCC == null) {row["MONG_RSCC"] = DBNull.Value;} else {row["MONG_RSCC"] = item.MONG_RSCC;}
+                        if (item.MONG_TRZ == null) {row["MONG_TRZ"] = DBNull.Value;} else {row["MONG_TRZ"] = item.MONG_TRZ;}
+                        if (item.MONG_TYPE == null) {row["MONG_TYPE"] = DBNull.Value;} else {row["MONG_TYPE"] = item.MONG_TYPE;}                       
+                        if (item.PIPE_REF == null) {row["PIPE_REF"] = DBNull.Value;} else {row["PIPE_REF"] = item.PIPE_REF;}  
+                        
+                        //Non standard LTC  fields
+                        // row["ge_source"] = item.ge_source;
+                        // row["ge_otherId"] = item.ge_otherId;
+                        // row["RND_REF"] = item.RND_REF;
+}
 private async Task<int> uploadBulk(Guid projectId, 
                                  List<SPEC> save_items, 
                                  string where = null )
@@ -2001,11 +2046,11 @@ private async Task<int> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable<MOND> dsMOND = new gINTTables().MOND;
-                dsMOND.setConnection (cnn);
+                dsTable<SAMP> ds= new gINTTables().SAMP;
+                ds.setConnection (cnn);
 
 
-                DataTable dtMOND = null;
+                DataTable dt = null;
 
                 // reduce the dataset, all logger records could be massive
                 for (int i=0; i < holes.Count; i++) {
@@ -2013,22 +2058,22 @@ private async Task<int> uploadBulk(Guid projectId,
                     string wherePointID = holes[i].PointID;
 
                     if (where != null && wherePointID == "") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
                     }
                     
                     if (where == null && wherePointID == "") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID}");    
                     }
 
                     if (where != null && wherePointID !="") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
                     }
                     
-                    dsMOND.getDataSet();
-                    dtMOND = dsMOND.getDataTable();
+                    ds.getDataSet();
+                    dt = ds.getDataTable();
                     Boolean checkExisting = false;
 
-                    if (dtMOND.Rows.Count>0) {
+                    if (dt.Rows.Count>0) {
                         checkExisting=true;
                     }
 
@@ -2041,7 +2086,7 @@ private async Task<int> uploadBulk(Guid projectId,
                             if (checkExisting==true) {
                                 //check for existing records
                                 if (item.GintRecID>0) {
-                                row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                row = dt.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
                                 }
 
                                 //check for unique records
@@ -2053,21 +2098,116 @@ private async Task<int> uploadBulk(Guid projectId,
                             }
 
                             if (row == null) {
-                                row = dsMOND.NewRow();
-                                dsMOND.addRow (row);
+                                row = ds.NewRow();
+                                ds.addRow (row);
                             }
 
                             setValues(item, row);                        
                     } 
                 
-                    ret = dsMOND.BulkUpdate();
+                    ret = ds.BulkUpdate();
 
                 }
             } 
            return ret;
         });
  }
+private async Task<int> uploadBulk(Guid projectId, 
+                                 List<MONG> save_items, 
+                                 string where = null )
+                                 {   
 
+    int NOT_OK = -1;
+    int ret = 0;
+    
+    dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
+
+    if (cd==null) {
+        return NOT_OK;
+    }
+
+    var holes = save_items.Select(e => new {e.PointID})
+                      .Distinct().ToList();
+        
+    string dbConnectStr = cd.AsConnectionString();
+    int gINTProjectID = cd.ProjectId;
+
+        
+        return await Task.Run(() =>
+        
+        {
+            using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
+            {
+                cnn.Open();
+                dsTable<MONG> ds = new gINTTables().MONG;
+                ds.setConnection (cnn);
+
+
+                DataTable dt= null;
+
+                // reduce the dataset, all logger records could be massive
+                for (int i=0; i < holes.Count; i++) {
+                
+                    string wherePointID = holes[i].PointID;
+
+                    if (where != null && wherePointID == "") {
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                    }
+                    
+                    if (where == null && wherePointID == "") {
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                    }
+                    
+                    if (where == null && wherePointID !="") {
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and PointID='{wherePointID}'");
+                    }
+                    if (where != null && wherePointID !="") {
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                    }
+                    
+                    ds.getDataSet();
+                    dt = ds.getDataTable();
+                    Boolean checkExisting = false;
+
+                    if (dt.Rows.Count>0) {
+                        checkExisting=true;
+                    }
+
+                    foreach (MONG item in save_items) {
+
+                            DataRow row = null;
+                            
+                            if (item.gINTProjectID==0) item.gINTProjectID=gINTProjectID;
+                            
+                            if (checkExisting==true) {
+                                //check for existing records
+                                if (item.GintRecID>0) {
+                                row = dt.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                }
+
+                                //check for unique records
+                                // primary unique key gINTProjectID, PointID, SAMP_Depth, SAMP_REF, SAMP_TYPE, SAMP_ID, Depth, SPEC_REF
+                                if (row == null) {
+                                    if (item.ItemKey != null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and MONG_DIS={item.MONG_DIS} and MONG_TYPE='{item.MONG_TYPE}' and Itemkey='{item.ItemKey}'").SingleOrDefault();
+                                    if (item.ItemKey == null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and MONG_DIS={item.MONG_DIS} and MONG_TYPE='{item.MONG_TYPE}'").SingleOrDefault();
+                                }
+                            }
+
+                            if (row == null) {
+                                row = ds.NewRow();
+                                ds.addRow (row);
+                            }
+
+                            setValues(item, row);                        
+                    } 
+                
+                    ret = ds.BulkUpdate();
+
+                }
+            } 
+           return ret;
+        });
+ }
 private async Task<int> uploadBulk(Guid projectId, 
                                  List<ERES> save_items, 
                                  string where = null )
@@ -2095,11 +2235,11 @@ private async Task<int> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable<MOND> dsMOND = new gINTTables().MOND;
-                dsMOND.setConnection (cnn);
+                dsTable<ERES> ds = new gINTTables().ERES;
+                ds.setConnection (cnn);
 
 
-                DataTable dtMOND = null;
+                DataTable dt = null;
 
                 // reduce the dataset, all logger records could be massive
                 for (int i=0; i < holes.Count; i++) {
@@ -2107,22 +2247,22 @@ private async Task<int> uploadBulk(Guid projectId,
                     string wherePointID = holes[i].PointID;
 
                     if (where != null && wherePointID == "") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where}'");
                     }
                     
                     if (where == null && wherePointID == "") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID}");    
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID}");    
                     }
 
                     if (where != null && wherePointID !="") {
-                            dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
+                            ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}'");
                     }
                     
-                    dsMOND.getDataSet();
-                    dtMOND = dsMOND.getDataTable();
+                    ds.getDataSet();
+                    dt = ds.getDataTable();
                     Boolean checkExisting = false;
 
-                    if (dtMOND.Rows.Count>0) {
+                    if (dt.Rows.Count>0) {
                         checkExisting=true;
                     }
 
@@ -2135,26 +2275,26 @@ private async Task<int> uploadBulk(Guid projectId,
                             if (checkExisting==true) {
                                 //check for existing records
                                 if (item.GintRecID>0) {
-                                row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                                row = dt.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
                                 }
 
                                 //check for unique records
                                 // primary unique key gINTProjectID, PointID, SAMP_Depth, SAMP_REF, SAMP_TYPE, SAMP_ID, Depth, SPEC_REF
                                 if (row == null) {
-                                    if (item.SPEC_REF !=null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF='{item.SPEC_REF}'").SingleOrDefault();
-                                    if (item.SPEC_REF == null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF is null").SingleOrDefault();
+                                    if (item.SPEC_REF !=null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF='{item.SPEC_REF}'").SingleOrDefault();
+                                    if (item.SPEC_REF == null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and SAMP_Depth={item.SAMP_Depth} and SAMP_REF={item.SAMP_REF} and SAMP_TYPE='{item.SAMP_TYPE}' and SAMP_ID='{item.SAMP_ID}' and Depth='{item.Depth}' and SPEC_REF is null").SingleOrDefault();
                                 }
                             }
 
                             if (row == null) {
-                                row = dsMOND.NewRow();
-                                dsMOND.addRow (row);
+                                row = ds.NewRow();
+                                ds.addRow (row);
                             }
 
                             setValues(item, row);                        
                     } 
                 
-                    ret = dsMOND.BulkUpdate();
+                    ret = ds.BulkUpdate();
 
                 }
             } 
@@ -2201,33 +2341,33 @@ private async Task<row_states> uploadBulk(Guid projectId,
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable<MOND> dsMOND = new gINTTables().MOND;
-                dsMOND.setConnection (cnn);        
-                DataTable dtMOND = null;
+                dsTable<MOND> ds = new gINTTables().MOND;
+                ds.setConnection (cnn);        
+                DataTable dt = null;
 
                 // reduce the dataset, all logger records could be massive
 
                 if (where != null && wherePointID == "") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
+                        ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
                 }
                 
                 if (where == null && wherePointID == "") {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");    
+                        ds.sqlWhere($"gINTProjectID={gINTProjectID} and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");    
                 }
 
                 if (where != null && wherePointID !="" && whereMONG_DIS ==null) {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
+                        ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}'");
                 }
                 
                 if (where != null && wherePointID !="" && whereMONG_DIS !=null) {
-                        dsMOND.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}' and MONG_DIS={whereMONG_DIS.Value}");
+                        ds.sqlWhere($"gINTProjectID={gINTProjectID} and {where} and PointID='{wherePointID}' and DateTime>='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",minDateTime)}' and DateTime<='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",maxDateTime)}' and MONG_DIS={whereMONG_DIS.Value}");
                 }
    
-                dsMOND.getDataSet();
-                dtMOND = dsMOND.getDataTable();
+                ds.getDataSet();
+                dt = ds.getDataTable();
                 Boolean checkExisting = false;
 
-                if (dtMOND.Rows.Count>0) {
+                if (dt.Rows.Count>0) {
                     checkExisting=true;
                 }
 
@@ -2240,7 +2380,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
                         if (checkExisting==true) {
                             //check for existing records
                             if (item.GintRecID>0) {
-                            row = dtMOND.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
+                            row = dt.Select ($"GintRecID={item.GintRecID}").SingleOrDefault();
                             }
 
                            // if (row == null && item.ge_otherid!=null) {
@@ -2260,20 +2400,21 @@ private async Task<row_states> uploadBulk(Guid projectId,
 
                             //check for unique records
                             if (row == null) {
-                                if (item.MOND_REF !=null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF='{item.MOND_REF}'").SingleOrDefault();
-                                if (item.MOND_REF == null) row = dtMOND.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF is null").SingleOrDefault();
+                                string s1 = $"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF='{item.MOND_REF}'";
+                                if (item.MOND_REF !=null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF='{item.MOND_REF}'").SingleOrDefault();
+                                if (item.MOND_REF == null) row = dt.Select ($"gINTProjectID={item.gINTProjectID} and PointId='{item.PointID}' and ItemKey='{item.ItemKey}' and MONG_DIS={item.MONG_DIS} and MOND_TYPE='{item.MOND_TYPE}' and DateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss}",item.DateTime)}' and MOND_REF is null").SingleOrDefault();
                             }
                         }
 
                         if (row == null) {
-                            row = dsMOND.NewRow();
-                            dsMOND.addRow (row);
+                            row = ds.NewRow();
+                            ds.addRow (row);
                         }
 
                         setValues(item, row);                        
                 } 
-                    row_states ret = dsMOND.get_row_states();
-                    ret.updated = dsMOND.BulkUpdate();
+                    row_states ret = ds.get_row_states();
+                    ret.updated = ds.BulkUpdate();
                     return ret;
             } 
            
@@ -2317,14 +2458,14 @@ public async Task<int> uploadSingle(Guid projectId, List<MONV> save_items){
             using ( SqlConnection cnn = new SqlConnection(dbConnectStr)) 
             {
                 cnn.Open();
-                dsTable<MONV> ds_MONV = new gINTTables().MONV;
-                ds_MONV.setConnection (cnn);        
+                dsTable<MONV> ds = new gINTTables().MONV;
+                ds.setConnection (cnn);        
                 //ds_MOND.getDataTable ();  
                 // reduce the dataset only to the esri feature attribute records, all logger records could be massive
-                ds_MONV.sqlWhere($"gINTProjectID={gINTProjectID} and ge_source like '%esri%'");
-                ds_MONV.getDataSet();
+                ds.sqlWhere($"gINTProjectID={gINTProjectID} and ge_source like '%esri%'");
+                ds.getDataSet();
                 
-                DataTable dtMONV = ds_MONV.getDataTable();
+                DataTable dtMONV = ds.getDataTable();
                 DataRow row = null;
                 
                 foreach (MONV item in save_items) {
@@ -2332,10 +2473,10 @@ public async Task<int> uploadSingle(Guid projectId, List<MONV> save_items){
                         row = dtMONV.Select ($"ge_source='{item.ge_source}' and ge_otherId='{item.ge_otherId}'").SingleOrDefault();
                        
                         if (row == null) {
-                            row = ds_MONV.NewRow();
+                            row = ds.NewRow();
                             row["ge_source"] = item.ge_source;
                             row["ge_otherId"] = item.ge_otherId;
-                            ds_MONV.addRow (row);
+                            ds.addRow (row);
                            // row.SetAdded();     
                         } else{
                            // row.SetModified();
@@ -2343,7 +2484,7 @@ public async Task<int> uploadSingle(Guid projectId, List<MONV> save_items){
                         
                         setValues(item, row);   
                 }
-                ret = ds_MONV.Update();
+                ret = ds.Update();
             } 
            return ret;
         });

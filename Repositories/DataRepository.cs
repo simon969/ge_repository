@@ -31,11 +31,18 @@ namespace ge_repository.repositories
                 .ToListAsync();
         }
        
-        public async Task<ge_data> GetWithProjectAsync(Guid id)
+        public async Task<ge_data> GetWithProjectAsync(Guid Id)
         {
             return await ge_DbContext.ge_data
                 .Include(a => a.project)
-                .SingleOrDefaultAsync(a => a.Id == id);
+                .SingleOrDefaultAsync(a => a.Id == Id);
+        }
+        public async Task<ge_data_big> GetFileAsync(Guid Id) {
+
+            return await ge_DbContext.ge_data_big
+                                    .AsNoTracking()
+                                    .SingleOrDefaultAsync(m => m.Id == Id);
+
         }
         public async Task<IEnumerable<ge_data>>  GetAllByProjectIdAsync(Guid Id) 
         {
@@ -51,54 +58,7 @@ namespace ge_repository.repositories
                 .ToListAsync();
 
         }
-		
-		public async Task<T> getDataAsClass<T> (Guid Id, string format="xml") {
-  
-			var _data = await ge_DbContext.ge_data
-                                    .AsNoTracking()
-                                    .SingleOrDefaultAsync(m => m.Id == Id);
-            if (_data == null)
-                {
-                return default(T);
-            }
-
-            Encoding encoding = _data.GetEncoding();
-
-            var _data_big = await ge_DbContext.ge_data_big
-                                    .AsNoTracking()
-                                    .SingleOrDefaultAsync(m => m.Id == Id);
-            
-            if (_data_big == null)
-            {
-                return default(T);
-            }
-            bool removeBOM = true;
-
-            string s =_data_big.getString(encoding,removeBOM);
-            
-            try {
-                
-                if (format == "xml") {
-                    XmlSerializer serializer = new XmlSerializer(typeof(T));
-                    using (TextReader reader = new StringReader(s))
-                    {
-                    T cs = (T) serializer.Deserialize(reader);
-                    return cs; 
-                    }
-                }
-                
-                if (format == "json") {
-                    T cs = JsonConvert.DeserializeObject<T>(s);
-                    return cs;
-                }
-                
-                return default(T);
-            
-            } catch (Exception e) {
-                Console.Write (e.Message);
-                return default(T);
-            }
-    }
+				
         private ge_DbContext ge_DbContext
         {
             get { return Context as ge_DbContext; }

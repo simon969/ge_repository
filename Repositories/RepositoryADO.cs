@@ -42,7 +42,9 @@ namespace ge_repository.repositories
         {
            return null;
         }
-
+        public Task<TEntity> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate){
+            return null;
+        }
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return await Task.Run (() => {

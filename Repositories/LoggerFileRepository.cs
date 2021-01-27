@@ -60,13 +60,12 @@ namespace ge_repository.repositories
         public override async Task<ge_log_file> GetByIdAsync(int Id) {
            return null;
         } 
-        public override async Task<ge_log_file> GetByIdAsync(Guid Id) {
+        private async Task<ge_log_file> GetWhereParentAsync(string _where) {
         return await Task.Run (() =>
                                     {
-                                          string where = $"Guid={Id}";
-                                          DataRow row = _parent.dataTable.Select (where).SingleOrDefault();
+                                          DataRow row = _parent.dataTable.Select (_where).SingleOrDefault();
                                           if (row==null) {
-                                              _parent.sqlWhere(where);
+                                              _parent.sqlWhere(_where);
                                               _parent.getDataTable();
                                               row = _parent.dataTable.Rows[0];
                                           }
@@ -97,6 +96,14 @@ namespace ge_repository.repositories
 
                              );
            
+
+        }
+        public override async Task<ge_log_file> GetByIdAsync(Guid Id) {
+            return await GetWhereParentAsync ($"Id='{Id}'");
+
+        }
+        public async Task<ge_log_file> GetByDataIdAsync(Guid Id, string table) {
+            return await GetWhereParentAsync ($"DataId='{Id}' and channel='{table}'");
 
         }
        public async Task<int> AddAsync (ge_log_file file) {

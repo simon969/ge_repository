@@ -160,11 +160,11 @@ namespace ge_repository.Models {
             if (data_xml !=null ) {
                 s = data_xml;
             }
-
-            if (s.StartsWith(_byteOrderMarkUtf8) && removeBOM ==true) {
-                s = s.Remove(0, _byteOrderMarkUtf8.Length);
+            
+            if (removeBOM==true) {
+                s = s.Trim(new char[]{'\uFEFF','\u200B'});
             }
-
+            
            return s;
        }
        public XDocument getXMLDoc(Encoding encode = null) {
@@ -188,7 +188,7 @@ namespace ge_repository.Models {
                 return doc;
             }
        }
-
+        
         public string getParsedXMLstring(Encoding encode = null) {
             
             XDocument  xdoc = getXMLDoc(encode);
