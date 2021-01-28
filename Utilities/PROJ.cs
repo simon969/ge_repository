@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
 namespace ge_repository.OtherDatabase  {
 
-    public class PROJ {
-
+    public class PROJ : AGSGroup  {
 
 // CREATE TABLE [dbo].[PROJECT](
     [Key] [Display(Name = "GintRecID")] public int GintRecId {get;set;} 
@@ -34,5 +34,26 @@ namespace ge_repository.OtherDatabase  {
 // 	[Depth_Log_Page] [real] NULL,
 // 	[Site Map on Log Radius] [float] NULL,
 
+    
+    public  PROJ() : base ("PROJ") {}
+    public override int setValues(string[] header, string[] values) {
+         try {
+            for (int i=0;i<header.Length;i++) {
+                if (header[i] == "PROJ_CLNT") PROJ_CLNT = values[i];
+                if (header[i] == "PROJ_CONT") PROJ_CONT = values[i];
+                if (header[i] == "PROJ_ENG") PROJ_ENG = values[i];
+                if (header[i] == "PROJ_ID") PROJ_ID = values[i];
+                if (header[i] == "PROJ_GRID") PROJ_GRID = values[i];
+                if (header[i] == "PROJ_LOC") PROJ_LOC = values[i];
+                if (header[i] == "PROJ_MEMO") PROJ_MEMO = values[i];
+                if (header[i] == "PROJ_NAME") PROJ_NAME = values[i];
+            }
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+     }
     }
+
 }

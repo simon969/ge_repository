@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
+
 namespace ge_repository.OtherDatabase  {
 
-    public class TRAN {
+    public class TRAN : AGSGroup {
     // CREATE TABLE [dbo].[TRAN](
     [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
     //	[GintRecID] [int] IDENTITY(1,1) NOT NULL,
@@ -35,6 +37,8 @@ namespace ge_repository.OtherDatabase  {
 // 	[TRAN_REM] [ntext] NULL,
     [Display(Name = "File Set")] public string FILE_FSET {get;set;} 
 // 	[FILE_FSET] [nvarchar](255) NULL,
+    public TRAN() : base ("TRAN") {}
+    
     }
 
 }

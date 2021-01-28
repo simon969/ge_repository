@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ge_repository.Models;
 using ge_repository.interfaces;
+using ge_repository.OtherDatabase;
+using ge_repository.AGS;
 
 namespace ge_repository.services
 {
@@ -42,6 +44,7 @@ namespace ge_repository.services
             return await _unitOfWork.Data
                 .GetByIdAsync(id);
         }
+
         public async Task<MemoryStream> GetFileAsMemoryStream(Guid Id) {
           
             var _data = await _unitOfWork.Data.GetByIdAsync(Id);
@@ -157,6 +160,34 @@ namespace ge_repository.services
                 return default(T);
             }
     }
+        public async Task<OtherDbConnections> GetOtherDbConnectionsByDataId(Guid dataId) {
+
+            ge_data data = await _unitOfWork.Data.GetWithProjectAsync(dataId);
+            
+            if (data.project.otherDbConnectId == null) {
+                return null;
+            }
+
+            OtherDbConnections odb = await GetFileAsClass<OtherDbConnections>(data.project.otherDbConnectId.Value);
+
+            return odb;
+
+        }
+        public async Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups) {
+
+            string[] _lines = await GetFileAsLines(Id);
+
+            if (_lines == null) {
+                return null;
+            }
+            
+            AGSReader reader = new AGSReader(_lines);
+            AGS404GroupTables ags_tables = reader.CreateAGS404GroupTables(groups);
+            
+            return ags_tables;
+        }
+
+
     public async Task<IEnumerable<ge_data>> GetDataByProjectId(Guid projectId)
         {
             return await _unitOfWork.Data

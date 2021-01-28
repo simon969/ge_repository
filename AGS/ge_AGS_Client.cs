@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ge_repository.Authorization;
 using System.Xml;
 using System.Xml.Linq;
-namespace ge_repository.AGS 
+namespace ge_repository.AGS
 
 {
 

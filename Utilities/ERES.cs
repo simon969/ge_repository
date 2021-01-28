@@ -1,9 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using ge_repository.AGS;
 
 namespace ge_repository.OtherDatabase  {
 
-    public class ERES {
+    public class ERES : AGSGroup {
         
 // CREATE TABLE [dbo].[ERES](
     [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
@@ -117,8 +118,71 @@ namespace ge_repository.OtherDatabase  {
     public string ge_otherId {get;set;}
  
     [Display (Name = "Survey Round Ref")] 
-    	public string RND_REF {get;set;}
+    public string RND_REF {get;set;}
 	  // RND_REF [nvarchar](255) NULL,
+    public ERES () : base ("ERES") {}
+
+     public override int setValues(string[] header, string[] values) {
+         try {
+            for (int i=0;i<header.Length;i++) {
+                if (header[i] == "LOCA_ID" && values[i] != "") PointID = values[i];
+                if (header[i] == "SAMP_TOP" && values[i] != "") SAMP_Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_REF" && values[i]!= "") SAMP_REF = values[i];
+                if (header[i] == "SAMP_TYPE" && values[i] != "") SAMP_TYPE = values[i];
+                if (header[i] == "SAMP_ID" && values[i] != "") SAMP_ID = values[i];
+                if (header[i] == "SPEC_DPTH" && values[i] != "") Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SPEC_REF" && values[i] != "") SPEC_REF = values[i];
+                if (header[i] == "ERES_CODE" && values[i] != "") ItemKey = values[i];
+                if (header[i] == "ERES_METH" && values[i] != "") ERES_METH = values[i];
+                if (header[i] == "Matrix-Run Type" && values[i] != "") Matrix_Run_Type= values[i];
+                if (header[i] == "ERES_MATX" && values[i] != "") ERES_MATX = values[i];
+                if (header[i] == "ERES_RTYP" && values[i] != "") ERES_RTYP = values[i];
+                if (header[i] == "ERES_TESN" && values[i] != "") ERES_TESN = values[i]; 
+                if (header[i] == "ERES_NAME" && values[i] != "") ERES_NAME = values[i]; 
+                if (header[i] == "ERES_TNAM" && values[i] != "") ERES_TNAM = values[i]; 
+                if (header[i] == "ERES_RVAL" && values[i] != "") ERES_RVAL = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_RUNI" && values[i] != "") ERES_RUNI = values[i]; 
+                if (header[i] == "ERES_RTXT" && values[i] != "") ERES_RTXT = values[i]; 
+                if (header[i] == "ERES_RTCD" && values[i] != "") ERES_RTCD = values[i]; 
+                if (header[i] == "ERES_RRES" && values[i] != "") ERES_RRES = Convert.ToBoolean(values[i]);  
+                if (header[i] == "ERES_DETF" && values[i] != "") ERES_DETF = Convert.ToBoolean(values[i]); 
+                if (header[i] == "ERES_ORG" && values[i] != "") ERES_ORG = Convert.ToBoolean(values[i]); 
+                if (header[i] == "ERES_IQLF" && values[i] != "") ERES_IQLF = values[i]; 
+                if (header[i] == "ERES_LQLF" && values[i] != "") ERES_LQLF = values[i]; 
+                if (header[i] == "ERES_RDLM" && values[i] != "") ERES_RDLM =  Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_MDLM" && values[i] != "") ERES_MDLM = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_QLM" && values[i] != "") ERES_QLM =  Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_DUNI" && values[i] != "") ERES_DUNI = values[i]; 
+                if (header[i] == "ERES_TPICP" && values[i] != "") ERES_TPICP = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_TICT" && values[i] != "") ERES_TICT = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_RDAT" && values[i] != "") ERES_RDAT = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_SGRP" && values[i] != "") ERES_SGRP = values[i]; 
+                if (header[i] == "SPEC_DESC" && values[i] != "") SPEC_DESC = values[i]; 
+                if (header[i] == "SPEC_PREP" && values[i] != "") SPEC_PREP = values[i]; 
+                if (header[i] == "ERES_DTIM" && values[i] != "") ERES_DTIM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_TEST" && values[i] != "") ERES_TEST = values[i]; 
+                if (header[i] == "ERES_TORD" && values[i] != "") ERES_TORD = values[i]; 
+                if (header[i] == "ERES_LOCN" && values[i] != "") ERES_LOCN = values[i]; 
+                if (header[i] == "ERES_BAS" && values[i] != "") ERES_BAS = values[i]; 
+                if (header[i] == "ERES_DIL" && values[i] != "") ERES_DIL = Convert.ToInt16(values[i]); 
+                if (header[i] == "ERES_LMTH" && values[i] != "") ERES_LMTH = values[i]; 
+                if (header[i] == "ERES_LDTM" && values[i] != "") ERES_LDTM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "ERES_IREF" && values[i] != "") ERES_IREF = values[i]; 
+                if (header[i] == "ERES_SIZE" && values[i] != "") ERES_SIZE = values[i]; 
+                if (header[i] == "ERES_PERP" && values[i] != "") ERES_PERP = Convert.ToDouble(values[i]); 
+                if (header[i] == "ERES_REM" && values[i] != "") ERES_REM = values[i]; 
+                if (header[i] == "ERES_LAB" && values[i] != "") ERES_LAB = values[i]; 
+                if (header[i] == "ERES_CRED" && values[i] != "") ERES_CRED = values[i]; 
+                if (header[i] == "TEST_STAT" && values[i] != "") TEST_STAT = values[i]; 
+                if (header[i] == "FILE_FSET") FILE_FSET= values[i];
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
     }
     
 }

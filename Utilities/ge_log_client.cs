@@ -28,8 +28,11 @@ public class ge_log_client {
     public string round_ref {get;set;}  
     public string userId {get;set;}
     private static int NOT_FOUND = -1;
+    private static int OK = 1;
 
-    public Boolean save_log {get;set;} = false;
+    public Boolean read_logger {get;set;} = true;
+    public Boolean save_logger {get;set;} = true;
+    public Boolean apply_overrides {get;set;} = true;
 
     public Boolean save_MOND {get;set;}= false;
 
@@ -42,54 +45,68 @@ public class ge_log_client {
     public enum enumStatus
         {  
             Start,
-            loadDataFile,
-            loadTemplateFile,
-            readTemplateAndLines,
-            createFileLogger,
-            saveLogFile,
-            loadLogFile,
-            createMOND,
-            updateMOND,
+            DataFileLoaded,
+            TemplateFileLoaded,
+            TemplateAndLinesRead,
+            LoggerFileSaved,
+            LoggerFileLoaded,
+            MONDcreated,
+            MONDupdated,
             Stop
         }
 
 
- public ge_log_client.enumStatus start() {
+ public async Task<ge_log_client.enumStatus> start() {
  
             while (status != enumStatus.Stop) {
                 
-                if (status == enumStatus.Start || status == enumStatus.loadDataFile) {
-                    loadDataFile();
-                }
-
-                if (status == enumStatus.loadTemplateFile) {
-                    loadTemplateFile();
-                }
-
-                if (status == enumStatus.readTemplateAndLines) {
-                    loadTemplateAndLines();
-                
-                }
-                if (status == enumStatus.createFileLogger) {
-                    createFileLogger();
+                if (status == enumStatus.Start) {
+                    int resp = await loadDataFile();
+                    if (resp==OK) status = enumStatus.DataFileLoaded;
                 }
                 
-                if (status == enumStatus.saveLogFile) {
-                    saveFileLogger();
+                if (status == enumStatus.DataFileLoaded && read_logger==true ) {
+                    int resp = await loadTemplateFile();
+                    if (resp==OK) status = enumStatus.TemplateFileLoaded;
                 }
 
-                if (status == enumStatus.Start || status == enumStatus.loadLogFile) {
-                    loadFileLogger();
+                if (status == enumStatus.TemplateFileLoaded && read_logger==true) {
+                    int resp = await loadTemplateAndLines();
+                    if (resp==OK) status = enumStatus.TemplateAndLinesRead;
+                }
+
+                if (status == enumStatus.TemplateAndLinesRead && read_logger==true ) {
+                    int resp = createFileLogger();
+                    if (resp==OK) status = enumStatus.LoggerFileLoaded;
+                }
+                
+                if (status == enumStatus.LoggerFileLoaded && save_logger==true) {
+                    int resp = await saveFileLogger();
+                    if (resp==OK) status = enumStatus.LoggerFileSaved;
+                }
+
+                if (status == enumStatus.DataFileLoaded && read_logger==false) {
+                    int resp = await loadFileLogger();
+                    if (resp==OK) status = enumStatus.LoggerFileLoaded;
                 }
                                
-                if (status == enumStatus.createMOND) {
-                    createMOND();
+                if (status == enumStatus.LoggerFileLoaded || status == enumStatus.LoggerFileSaved) {
+                    int resp = createMOND();
+                    if (resp==OK) status = enumStatus.MONDcreated;
                 }
 
-                if (status == enumStatus.updateMOND) {
-                    updateMOND();
+                if (status == enumStatus.MONDcreated && save_MOND==true) {
+                    int resp = await updateMOND();
+                    if (resp==OK) status = enumStatus.MONDupdated;
                 }
-        
+
+                if (status == enumStatus.MONDupdated && save_MOND==true) {
+                    status = enumStatus.Stop;
+                }
+
+                if (status == enumStatus.MONDcreated && save_MOND==false) {
+                    status = enumStatus.Stop;
+                }
         
         }
 
@@ -169,44 +186,45 @@ public class ge_log_client {
     }
 
       
-    public void createFileLogger() {
+    public int createFileLogger() {
 
             log_file = _logService.CreateLogFile( template_loaded,
                                                     lines,
                                                     Id,
                                                     templateId.Value);
-            
+            if (apply_overrides==true) {
             ge_log_helper gf = new ge_log_helper();
-
             gf.log_file = log_file;
-
             gf.AddOverrides (probe_depth, bh_ref);
+            }
+
+            return 1;
+
+    }
+
+    public async Task<int> loadFileLogger() {
+
+            log_file = await _logService.GetByDataId(Id, table);
+           
+            if (apply_overrides==true) {
+                ge_log_helper gf = new ge_log_helper();
+                gf.log_file = log_file;
+                gf.AddOverrides (probe_depth, bh_ref);
+            }
+
+            return 1;
   
     }
 
-    public void loadFileLogger() {
+    public int createMOND() {
 
-            var Log_File = _logService.GetByDataId(Id, table);
-            
-            log_file = Log_File.Result;
-
-            ge_log_helper gf = new ge_log_helper();
-
-            gf.log_file = log_file;
-
-            gf.AddOverrides (probe_depth, bh_ref);
-  
+    
+            return 1;
     }
-
-    public void createMOND() {
-
-    
-    
-    }
-    public void updateMOND() {
+    public async Task<int> updateMOND() {
 
     
-    
+            return 1;
     }
     public  async void setProcessFlag(int value) {
 

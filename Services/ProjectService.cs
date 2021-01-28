@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ge_repository.Models;
 using ge_repository.interfaces;
-
+using ge_repository.OtherDatabase;
 
 namespace ge_repository.services
 {
@@ -39,7 +39,7 @@ namespace ge_repository.services
             return await _unitOfWork.Project
                 .GetByIdAsync(id);
         }
-
+       
         public async Task<IEnumerable<ge_project>> GetProjectByGroupId(Guid groupId)
         {
             return await _unitOfWork.Project

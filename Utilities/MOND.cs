@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
+
 namespace ge_repository.OtherDatabase  {
 
-    public class MOND {
+    public class MOND : AGSGroup {
 
    [Key] 
    [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
@@ -57,6 +59,8 @@ namespace ge_repository.OtherDatabase  {
     [Display (Name = "Survey Round Ref")] 
     	public string RND_REF {get;set;}
 	  // RND_REF [nvarchar](255) NULL,
+    public MOND() : base ("MOND") {}
+
     public string DateTimeFormated(string format, string enclosed) {
       try {
           if (enclosed==null) {

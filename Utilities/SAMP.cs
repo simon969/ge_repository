@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ge_repository.Authorization;
+using System.Linq;
+using ge_repository.AGS;
 
 namespace ge_repository.OtherDatabase  {
 
-    public class SAMP {
+    public class SAMP : AGSGroup  {
 
     //  [Key] CREATE TABLE [dbo].[SAMP](
     [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
@@ -92,5 +91,56 @@ namespace ge_repository.OtherDatabase  {
     [Display (Name = "Survey Round Ref")] 
     	public string RND_REF {get;set;}
 	  // RND_REF [nvarchar](255) NULL,
+    
+    public  SAMP() : base ("SAMP") {
+        
     }
+
+    public override int setValues(string[] header, string[] values) {
+         try {
+            for (int i=0;i<header.Count();i++) {
+                if (header[i] == "LOCA_ID" && values[i] != "") PointID = values[i];
+                if (header[i] == "SAMP_TOP" && values[i] != "") Depth = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_REF" && values[i]!= "") SAMP_REF = values[i];
+                if (header[i] == "SAMP_TYPE" && values[i] != "") SAMP_TYPE = values[i];
+                if (header[i] == "SAMP_ID" && values[i] != "") SAMP_ID = values[i];
+                if (header[i] == "SAMP_BASE" && values[i] != "") SAMP_BASE = Convert.ToDouble(values[i]);
+                if (header[i] == "SAMP_LINK" && values[i] != "") SAMP_LINK = values[i];
+                if (header[i] == "SAMP_DTIM" && values[i] != "") SAMP_DTIM = Convert.ToDateTime(values[i]);
+                if (header[i] == "SAMP_UBLO" && values[i] != "") SAMP_UBLO =Convert.ToInt16(values[i]);
+                if (header[i] == "SAMP_CONT" && values[i] != "") SAMP_CONT = values[i];
+                if (header[i] == "SAMP_PREP" && values[i] != "") SAMP_PREP = values[i];
+                if (header[i] == "SAMP_DIA" && values[i] != "") SAMP_DIA = values[i];
+                if (header[i] == "SAMP_WDEP" && values[i] != "") SAMP_WDEP = Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_RECV" && values[i] != "") SAMP_RECV = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_TECH" && values[i] != "") SAMP_TECH = values[i]; 
+                if (header[i] == "SAMP_MATX" && values[i] != "") SAMP_MATX = values[i]; 
+                if (header[i] == "SAMP_TYPC" && values[i] != "") SAMP_TYPC = values[i]; 
+                if (header[i] == "SAMP_WHO" && values[i] != "") SAMP_WHO = values[i]; 
+                if (header[i] == "SAMP_WHY" && values[i] != "") SAMP_WHY = values[i]; 
+                if (header[i] == "SAMP_DESC" && values[i] != "") SAMP_DESC = values[i];  
+                if (header[i] == "SAMP_DESD" && values[i] != "") SAMP_DESD = Convert.ToDateTime(values[i]); 
+                if (header[i] == "SAMP_LOG" && values[i] != "") SAMP_LOG = values[i]; 
+                if (header[i] == "SAMP_COND" && values[i] != "") SAMP_COND = values[i]; 
+                if (header[i] == "SAMP_CLSS" && values[i] != "") SAMP_CLSS = values[i]; 
+                if (header[i] == "SAMP_BAR" && values[i] != "") SAMP_BAR =  Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_TEMP" && values[i] != "") SAMP_TEMP = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_PRES" && values[i] != "") SAMP_PRES =  Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_FLOW" && values[i] != "") SAMP_FLOW = Convert.ToDouble(values[i]); 
+                if (header[i] == "SAMP_ETIM" && values[i] != "") SAMP_ETIM = Convert.ToDateTime(values[i]); 
+                if (header[i] == "SAMP_DURN" && values[i] != "") SAMP_DURN = Convert.ToInt16(values[i]); 
+                if (header[i] == "SAMP_CAPT" && values[i] != "") SAMP_CAPT = values[i]; 
+                if (header[i] == "GEOL_STAT" && values[i] != "") GEOL_STAT = values[i]; 
+                if (header[i] == "SAMP_RECL" && values[i] != "") SAMP_RECL = values[i]; 
+                if (header[i] == "FILE_FSET" && values[i] != "") FILE_FSET= values[i];
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
 }
+}
+

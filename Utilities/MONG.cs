@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
 namespace ge_repository.OtherDatabase  {
 
-    public class MONG {
+    public class MONG : AGSGroup {
 
 
 // CREATE TABLE [dbo].[MONG](
@@ -56,7 +57,8 @@ namespace ge_repository.OtherDatabase  {
 	[Display(Name = "Associated file reference")] public string FILE_FSET {get;set;} 
 //	[FILE_FSET] [nvarchar](255) NULL,
 
-    
+	public MONG() : base ("MONG") {}
+	
     }
 
 }

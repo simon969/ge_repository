@@ -40,6 +40,7 @@ using ge_repository.Authorization;
         public string host_esri {get;set;}
         public string host_logger {get;set;}
         public string host_gint {get;set;}
+        public string host_ags {get;set;}
         public string host_transform {get;set;}
         public string user {get;set;}
         public string version {get;set;}

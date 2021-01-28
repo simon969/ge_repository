@@ -17,6 +17,10 @@ using ge_repository.Authorization;
 using ge_repository.AGS;
 using ge_repository.OtherDatabase;
 using ge_repository.Extensions;
+using ge_repository.services;
+using ge_repository.repositories;
+using ge_repository.interfaces;
+
 
 namespace ge_repository.Controllers 
 {
@@ -52,16 +56,16 @@ namespace ge_repository.Controllers
              _agsConfig = agsConfig;
              context.Database.SetCommandTimeout(1200);
         }
-         public ge_agsController(
-            ge_DbContext context,
-            IAuthorizationService authorizationService,
-            UserManager<ge_user> userManager,
-            IHostingEnvironment env,
-		 	IOptions<ge_config> ge_config)
-            : base(context, authorizationService, userManager, env, ge_config)
-        {
+        //  public ge_agsController(
+        //     ge_DbContext context,
+        //     IAuthorizationService authorizationService,
+        //     UserManager<ge_user> userManager,
+        //     IHostingEnvironment env,
+		//  	IOptions<ge_config> ge_config)
+        //     : base(context, authorizationService, userManager, env, ge_config)
+        // {
           
-        } 
+        // } 
          public async Task<IActionResult> CreateXML(Guid Id, string dictionary_file, string data_structure)
         {
             
@@ -237,6 +241,26 @@ namespace ge_repository.Controllers
                 return -1;
             }
         }
+        public async Task<IActionResult> ReadFile(Guid Id,
+                                             string[] tables,
+                                             string format = "view", 
+                                             Boolean save = false ) {
+        
+            IUnitOfWork _unit = new UnitOfWork(_context); 
+            IDataService _dataservice = new DataService(_unit);
+            AGS404GroupTables ags_tables = await _dataservice.GetAGS404GroupTables (Id, tables);
+            
+            if (format=="view") {
+                return View (ags_tables);
+            }
+
+            if (format=="json") {
+                return Json(ags_tables);
+            }
+
+            return Ok (ags_tables);
+        }
+
        public async Task<IActionResult> Read(Guid Id,
                                              string[] tables,
                                              string format = "view", 

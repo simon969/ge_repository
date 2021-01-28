@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ge_repository.Models;
+using ge_repository.OtherDatabase;
 
 namespace ge_repository.interfaces
 {

@@ -59,6 +59,52 @@ namespace ge_repository.Controllers
         {
            
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ProcessFileBackground( Guid Id, 
+                                              Guid templateId, 
+                                              string table, 
+                                              string sheet,
+                                              string bh_ref, 
+                                              float probe_depth, 
+                                              string round_ref,
+                                              string options = "",
+                                              string format = "view",
+                                              Boolean read_logger = true,
+                                              Boolean save_logger = true, 
+                                              Boolean save_mond = true) { 
+            
+            IUnitOfWork _unit = new UnitOfWork(_context);
+            IDataService _dataservice = new DataService(_unit);
+            OtherDbConnections _dbConnections = await _dataservice.GetOtherDbConnectionsByDataId(Id);
+            
+            if (_dbConnections ==null) {
+                return BadRequest();
+
+            }
+
+            dbConnectDetails _connectGint = _dbConnections.getConnectType("gINT");
+            dbConnectDetails _connectLogger = _dbConnections.getConnectType("ge_logger");
+            
+            if (_connectGint ==  null || _connectLogger ==null) {
+                return BadRequest();
+            }
+            
+            await runLogClientAsync(Id,
+                              templateId,
+                              table,
+                              sheet,
+                              bh_ref,
+                              probe_depth,
+                              _connectGint,
+                              _connectLogger,
+                              read_logger,
+                              save_logger,
+                              save_mond);
+
+             return Ok("Processing File");
+            }
+
         public async Task<ge_log_client.enumStatus> runLogClientAsync(Guid Id,
                                           Guid? templateId,
                                           string table,
@@ -67,7 +113,8 @@ namespace ge_repository.Controllers
                                           float? probe_depth,
                                           dbConnectDetails connectGint,
                                           dbConnectDetails connectLogger,
-                                          Boolean save_log = false,
+                                          Boolean read_logger = false,
+                                          Boolean save_logger = false,
                                           Boolean save_MOND = false)    {
         
             return await Task.Run(()=> runLogClient (Id,
@@ -78,8 +125,9 @@ namespace ge_repository.Controllers
                                           probe_depth,
                                           connectGint,
                                           connectLogger,
-                                          save_log = false,
-                                          save_MOND = false));
+                                          read_logger,
+                                          save_logger,
+                                          save_MOND));
         }
         
         public ge_log_client.enumStatus runLogClient(
@@ -91,30 +139,38 @@ namespace ge_repository.Controllers
                                           float? probe_depth,
                                           dbConnectDetails connectGint,
                                           dbConnectDetails connectLogger,
-                                          Boolean save_log = false,
+                                          Boolean read_logger = false,
+                                          Boolean save_logger = false,
                                           Boolean save_MOND = false
                                           ) {
            // var u = GetUserAsync();
 
-            IUnitOfWork _unit = new UnitOfWork(_context);
-            IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
-            ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
-
+            IUnitOfWork _unit = new UnitOfWork(_context); 
             IDataService _dataservice = new DataService(_unit);
+           
+            IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
             IGintService<MOND> _gintservice = new MONDService (_gunit);
+            
+            ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
             ILoggerFileService _logservice = new LoggerFileService (_lunit);
             
-            // ILogFileService _logservice = new Log            
             ge_log_client ac = new ge_log_client(_dataservice, _logservice, _gintservice);
+                
             ac.Id = Id;
             ac.templateId = templateId;
             ac.table = table;
             ac.sheet = sheet;
             ac.bh_ref = bh_ref;
             ac.probe_depth = probe_depth;
-            ac.save_log =save_log;
+
+            ac.read_logger = read_logger;
+            ac.save_logger = save_logger;
             ac.save_MOND = save_MOND;
-            return ac.start(); 
+
+            ac.start(); 
+        
+            return ge_log_client.enumStatus.Start;
+
         }
 private async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
+
 namespace ge_repository.OtherDatabase  {
 
-    public class POINT {
+    public class POINT : AGSGroup {
 
 // CREATE TABLE [dbo].[POINT](
 	[Key] [Display(Name = "GintRecID")] public int GintRecId {get;set;} 
@@ -100,7 +102,34 @@ namespace ge_repository.OtherDatabase  {
 
 	 [Display(Name = "Associated File")] public string FILE_FSET {get;set;} 
 	// [FILE_FSET] [nvarchar](255) NULL,
-    
+	public POINT() : base ("LOCA") {}
+
+	public override int setValues(string[] header, string[] values) {
+         try {
+            for (int i=0;i<header.Length;i++) {
+                if (header[i] == "LOCA_NATE" && values[i] != "") East = Convert.ToDouble(values[i]);
+                if (header[i] == "LOCA_GL" && values[i] != "") Elevation = Convert.ToDouble(values[i]);
+                if (header[i] == "FILE_FSET") FILE_FSET= values[i];
+                if (header[i] == "LOCA_FDEP" && values[i]!= "") HoleDepth = Convert.ToDouble(values[i]);
+                if (header[i] == "LOCA_ALID") LOCA_ALID = values[i];
+                if (header[i] == "LOCA_CKBY") LOCA_CKBY = values[i];
+                if (header[i] == "LOCA_CKDT" && values[i] != "") LOCA_CKDT = Convert.ToDateTime(values[i]);
+                if (header[i] == "LOCA_CLST") LOCA_CLST = values[i];
+                if (header[i] == "LOCA_CNGE") LOCA_CNGE = values[i];
+                if (header[i] == "LOCA_DATM") LOCA_DATM = values[i];
+                if (header[i] == "LOCA_ELAT" && values[i] != "") LOCA_ELAT = Convert.ToDouble(values[i]);
+                if (header[i] == "LOCA_ELON" && values[i] != "") LOCA_ELON = Convert.ToDouble(values[i]);
+                if (header[i] == "LOCA_ENDD" && values[i] != "") LOCA_ENDD = Convert.ToDateTime(values[i]);
+                if (header[i] == "LOCA_ETRV" && values[i] != "") LOCA_ETRV = Convert.ToDouble(values[i]);
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
+	
     }
 }
 

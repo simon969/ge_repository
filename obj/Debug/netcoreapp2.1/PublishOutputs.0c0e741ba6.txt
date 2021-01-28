@@ -53,6 +53,7 @@ C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcorea
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\wwwroot\lib\jquery\dist\jquery.min.js
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\wwwroot\lib\jquery\dist\jquery.min.map
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\wwwroot\lib\jquery\LICENSE.txt
+C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\web.config
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\appsettings.Development.json
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\appsettings.json
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\publish\bundleconfig.json

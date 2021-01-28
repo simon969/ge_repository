@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
+using ge_repository.AGS;
+
 namespace ge_repository.OtherDatabase  {
 
-    public class GRAG {
+    public class GRAG : AGSGroup {
 
 // CREATE TABLE [dbo].[GRAG](
 
@@ -74,7 +76,8 @@ namespace ge_repository.OtherDatabase  {
 	 [Display(Name = "Associated file reference")] public string FILE_FSET {get;set;} 
 	// [FILE_FSET] [nvarchar](255) NULL,
     
-    }
+    public GRAG(): base ("GRAG") {}
+	}
 
 	[Display(Name ="GRAG with GRAT children")] public class GRAG_WC : GRAG 
 	{
