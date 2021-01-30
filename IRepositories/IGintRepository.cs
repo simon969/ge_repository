@@ -12,5 +12,6 @@ namespace ge_repository.interfaces
         Task<IEnumerable<T>> GetWhereAsync(string where);
        
         Task<int> CommitAsync();
+        void set_values(T item, DataRow row);
     }
 }

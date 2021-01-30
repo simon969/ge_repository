@@ -26,7 +26,7 @@ public class MONDRepository : RepositoryADO<MOND>, IGintRepository<MOND>
                                     });
 
     }
-    private void setValues(MOND item, DataRow row) {
+    public void set_values(MOND item, DataRow row) {
                         
                         row["gINTProjectID"] = item.gINTProjectID;
                         row["PointID"] = item.PointID;

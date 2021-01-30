@@ -13,7 +13,8 @@ namespace ge_repository.interfaces
         Task<IEnumerable<ge_data>> GetAllWithProject();
         Task<ge_data> GetDataById(Guid Id);
         Task<OtherDbConnections> GetOtherDbConnectionsByDataId(Guid Id);
-
+        Task SetProcessFlag(Guid Id, int value);
+        Task<int> GetProcessFlag(Guid Id);
         Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups);
         Task<T> GetFileAsClass<T>(Guid Id);
         Task<string[]> GetFileAsLines(Guid Id);

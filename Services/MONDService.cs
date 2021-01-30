@@ -6,12 +6,19 @@ using ge_repository.interfaces;
 
 namespace ge_repository.services
 {
-    public class MONDService : IGintService<MOND>
+    public class MONDService : gINTBaseService, IGintTableService2<MONG, MOND>
     {
         private readonly IGintUnitOfWork _unitOfWork;
-        public MONDService(IGintUnitOfWork unitOfWork)
+        public MONDService(IGintUnitOfWork unitOfWork) 
         {
             _unitOfWork = unitOfWork;
+        }
+
+        public Task<MONG> GetParentById(int Id) {
+            return null;
+        }
+        public Task<IEnumerable<MONG>> GetParentWhere(string where) {
+            return null;
         }
         public async Task<IEnumerable<MOND>> GetAllRecords() {
             return await _unitOfWork.MOND.GetAllAsync();

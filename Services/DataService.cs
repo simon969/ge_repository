@@ -173,6 +173,20 @@ namespace ge_repository.services
             return odb;
 
         }
+        public async Task SetProcessFlag(Guid Id, int value) {
+            
+            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
+            
+            data.pflag = value;
+            
+            await _unitOfWork.CommitAsync();
+        }
+        public async Task<int> GetProcessFlag(Guid Id) {
+            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
+            
+            return data.pflag;
+        }
+        
         public async Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups) {
 
             string[] _lines = await GetFileAsLines(Id);
@@ -203,7 +217,7 @@ namespace ge_repository.services
         }
         public async Task UpdateData(ge_data data)
         {
-            
+            ge_data to =  await _unitOfWork.Data.GetByIdAsync(data.Id);
 
             await _unitOfWork.CommitAsync();
         }

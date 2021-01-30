@@ -3,9 +3,11 @@ using System.IO;
 using System.Text;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.DDF;
+using NPOI.SS.Format;
 using NPOI.HSSF.Extractor;
 using NPOI.HSSF.UserModel;
-
+using NPOI.Util;
 namespace ge_repository.OtherDatabase
 {
 
@@ -19,7 +21,7 @@ namespace ge_repository.OtherDatabase
     public ICellRange<ICell> data {get; private set;}
     public IFormulaEvaluator evaluator {get; private set;}
     DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
-    string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
+    string DateTimeFORMAT ="{0:yyyy-MM-dd HH:mm:ss.sss}";
 
     public int MAX_SEARCH_LINES {get;set;}
     public int current_data_row;
@@ -226,34 +228,49 @@ namespace ge_repository.OtherDatabase
         DateTime cell_DT = DateTime.FromOADate(cell.NumericCellValue);
         return string.Format(DateTimeFORMAT, cell_DT);
     }
+    public string ExcelDateFormatterFromCell(ICell cell) {
+
+        return formatter.FormatCellValue(cell,evaluator);
+    }
     public string ExcelDateFormatter2(string DateTimeFORMAT, ICell cell) {
     DateTime cell_DT = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc).AddDays(cell.NumericCellValue-1);
     return string.Format(DateTimeFORMAT, cell_DT);
     }
-
+        // https://www.codota.com/code/java/methods/org.apache.poi.ss.usermodel.DataFormatter/performDateFormatting
+        // private String getFormattedDateString(ICell cell, ConditionalFormattingEvaluator cfEvaluator) {
+        // if (cell == null) {
+        //     return null;
+        // }
+        // Format dateFormat = getFormat(cell, cfEvaluator);
+        // if(dateFormat instanceof ExcelStyleDateFormatter) {
+        //     // Hint about the raw excel value
+        //     ((ExcelStyleDateFormatter)dateFormat).setDateToBeFormatted(
+        //     cell.getNumericCellValue()
+        //     );
+        // }
+        // Date d = cell.getDateCellValue();
+        // return performDateFormatting(d, dateFormat);
+        // }
+        //https://stackoverflow.com/questions/5794659/how-do-i-set-cell-value-to-date-and-apply-default-excel-date-format
     public string DataFormatter(ICell cell) {
+       
+        if (cell==null) { return "";}
+
+        try {   
         
-        if (cell!=null) {
-            if (cell.CellType==CellType.Numeric) {
-                if (DateUtil.IsCellDateFormatted(cell)) {
-                    return ExcelDateFormatter(DateTimeFORMAT,cell);
-                    // try {
-                    //     return String.Format(DateTimeFORMAT, cell.DateCellValue);
-                    // } catch {
-                    //     return ExcelDateFormatter(DateTimeFORMAT, cell);
-                    // }
-                }
+            if (cell.CellType==CellType.Numeric || cell.CellType==CellType.Formula) {
+                        if (DateUtil.IsCellDateFormatted(cell)) {
+                            return ExcelDateFormatter(DateTimeFORMAT,cell);
+                        }
             }
-            try {
-                return formatter.FormatCellValue(cell,evaluator);
-            } catch {
-
-            }
+            
+            return formatter.FormatCellValue(cell,evaluator);
+        } catch (Exception ex) {   
+            // return $"{ex.Message} error converting cell {cell.Address} to string format";
+            return formatter.FormatCellValue(cell,evaluator);
         }
-
-            return "";
-
     }
+
     public string matchReturnValue(string find_string, int ret_offset_col, int ret_offset_row, Boolean exact = false) {
        
         ICell cell = findCellContainsValue(find_string, exact); 

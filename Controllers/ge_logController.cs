@@ -78,9 +78,16 @@ namespace ge_repository.Controllers
             IDataService _dataservice = new DataService(_unit);
             OtherDbConnections _dbConnections = await _dataservice.GetOtherDbConnectionsByDataId(Id);
             
+            // check current process status
+            int Status = await _dataservice.GetProcessFlag(Id);
+            
+            if (Status != pflagCODE.NORMAL) {
+                ge_data data = await _dataservice.GetDataById(Id);
+                return UnprocessableEntity($"{data.filename} is currently being processed. Some large logger files can take more than 20 mins, please wait until pflag on this file is set to normal before re-running the process.");
+            }  
+
             if (_dbConnections ==null) {
                 return BadRequest();
-
             }
 
             dbConnectDetails _connectGint = _dbConnections.getConnectType("gINT");
@@ -90,6 +97,7 @@ namespace ge_repository.Controllers
                 return BadRequest();
             }
             
+
             await runLogClientAsync(Id,
                               templateId,
                               table,
@@ -102,10 +110,10 @@ namespace ge_repository.Controllers
                               save_logger,
                               save_mond);
 
-             return Ok("Processing File");
+            return Ok("Processing File");
             }
 
-        public async Task<ge_log_client.enumStatus> runLogClientAsync(Guid Id,
+        private async Task<ge_log_client.enumStatus> runLogClientAsync(Guid Id,
                                           Guid? templateId,
                                           string table,
                                           string sheet,
@@ -130,7 +138,7 @@ namespace ge_repository.Controllers
                                           save_MOND));
         }
         
-        public ge_log_client.enumStatus runLogClient(
+        private ge_log_client.enumStatus runLogClient(
                                           Guid Id,
                                           Guid? templateId,
                                           string table,
@@ -149,7 +157,7 @@ namespace ge_repository.Controllers
             IDataService _dataservice = new DataService(_unit);
            
             IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
-            IGintService<MOND> _gintservice = new MONDService (_gunit);
+            IGintTableService2<MONG,MOND> _gintservice = new MONDService (_gunit);
             
             ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
             ILoggerFileService _logservice = new LoggerFileService (_lunit);
@@ -429,7 +437,7 @@ public async Task<IActionResult> ReadFile(Guid Id,
 
 [HttpPost]
 public async Task<IActionResult> ReadFile(Guid Id,
-                                          Guid templateId,
+                                          Guid? templateId,
                                           string table,
                                           string bh_ref,
                                           float? probe_depth,
@@ -440,7 +448,7 @@ public async Task<IActionResult> ReadFile(Guid Id,
  }
 
  private async Task<IActionResult> ReadFileWith(Guid Id,
-                                          Guid templateId,
+                                          Guid? templateId,
                                           string table,
                                           string sheet,
                                           string bh_ref,
@@ -449,56 +457,65 @@ public async Task<IActionResult> ReadFile(Guid Id,
                                           Boolean save = false
                                             ) {
 
-           var read_resp = await ReadFile(Id, templateId, table, sheet);
-           
-           var okResult = read_resp as OkObjectResult;   
+           if (templateId!=null) {
             
-            if (okResult == null) {
-                return (read_resp);
-            }
-
-            if (okResult.StatusCode != 200) {
-                return (read_resp);
-            }
-
-            if (okResult.StatusCode == 200) {
-                log_file = okResult.Value as ge_log_file;
-            }
-
-           ge_log_helper gf = new ge_log_helper();
-
-           gf.log_file = log_file;
-
-           gf.AddOverrides (probe_depth, bh_ref);
+                var read_resp = await ReadFile(Id, templateId.Value, table, sheet);
            
+                var read_okResult = read_resp as OkObjectResult;   
+            
+                if (read_okResult == null) {
+                    return (read_resp);
+                }
+
+                if (read_okResult.StatusCode != 200) {
+                    return (read_resp);
+                }
+
+                if (read_okResult.StatusCode == 200) {
+                    log_file = read_okResult.Value as ge_log_file;
+                }
+           }
+
+            ge_log_file exist_log_file = null;
+            
             var exist_resp = await  new ge_logdbController( _context,
                                                 _authorizationService,
                                                 _userManager,
                                                 _env ,
-                                                _ge_config).Get(Id, table, false);
+                                                _ge_config).Get(Id, table, true);
 
-            okResult = exist_resp as OkObjectResult;
+            var exist_okResult = exist_resp as OkObjectResult;
 
-            ge_log_file exist_log_file = null;
-
-            if (okResult != null) {
-                exist_log_file  = okResult.Value as ge_log_file;
+            if (exist_okResult != null) {
+                exist_log_file  = exist_okResult.Value as ge_log_file;
             }
 
-                    if (exist_log_file==null) {
-                        ViewData["fileStatus"] = "File records not written";
-                    } else {
-                        if (exist_log_file.readingAggregates == log_file.readingAggregates) {
-                            ViewData["fileStatus"] = "File records written match";
-                        } else {
-                            ViewData["fileStatus"] = "File records written do not match";
-                        }
-                    }
-                    
-                    if (save==true) {
+            if (log_file==null && exist_log_file==null) {
+                return BadRequest($"The logger file {Id} for table {table} has not been read and there is no existing processed logger saved");
+            }
+            
+            if (exist_log_file!=null && log_file!=null) {
+                if (exist_log_file.readingAggregates == log_file.readingAggregates) {
+                    ViewData["fileStatus"] = "File records written match";
+                } else {
+                    ViewData["fileStatus"] = "File records written do not match";
+                }
+            }
+
+            if (log_file!=null && exist_log_file==null){
+                ViewData["fileStatus"] = "File records not written";
+            }
+            
+            if (log_file==null && exist_log_file!=null) {
+                log_file = exist_log_file;
+            }
+
+            ge_log_helper gf = new ge_log_helper();
+            gf.log_file = log_file;
+            gf.AddOverrides (probe_depth, bh_ref);      
+            
+            if (save==true) {
                         if (exist_log_file !=null) {
-                           // int del = await DeleteFile(Id);
-                           // ViewData["fileStatus"] = $"Existing records deleted ({del})";
                            log_file.Id  = exist_log_file.Id;
                            int updated = await UpdateFile(log_file,true);
                            ViewData["fileStatus"] = $"File records updated ({updated})";
@@ -510,7 +527,6 @@ public async Task<IActionResult> ReadFile(Guid Id,
                         }
                     }
                   
-            //      return Ok();
             if (format == "view") {
             return View("ReadData", log_file);
             }
@@ -1460,7 +1476,7 @@ public async Task<IActionResult> ProcessWQ( Guid Id, Guid? templateId, string bh
 
 [HttpPost]
 public async Task<IActionResult> ProcessFile( Guid Id, 
-                                              Guid templateId, 
+                                              Guid? templateId, 
                                               string table, 
                                               string sheet,
                                               string bh_ref, 
@@ -1469,24 +1485,31 @@ public async Task<IActionResult> ProcessFile( Guid Id,
                                               string options = "",
                                               string format = "view", 
                                               Boolean save = false ) { 
-    Boolean save_readings= true;
+    Boolean save_logger = true;
     
-    if (options.Contains("save exclude readings")) {
-        save_readings = false;
+    if (options==null) options = "";
+
+    if (options.Contains("read_logger_only")) {
+        save_logger = false;    
     }
 
-    var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", save_readings);
-    
-    var okResult = calc_resp as OkObjectResult;   
-    
-    if (okResult == null) { 
-        return Json(calc_resp);
-    } 
+     var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", save_logger);
+     var okResult = calc_resp as OkObjectResult;   
+     if (okResult == null) { 
+            return Json(calc_resp);
+     }
 
-    if (okResult.StatusCode!=200) {
-        return Json(calc_resp);
-    }
-
+     if (options.Contains("view_logger")) {
+         ge_log_file log_file  = okResult.Value as ge_log_file;
+         if (format == "view") {
+            return View ("ReadData", log_file);
+         }
+         if (format=="json") {
+             return Json(log_file);
+         }
+         return Ok (log_file);
+     } 
+        
     return await createMOND (Id,table, null, null, round_ref, format, save);
     
 }
@@ -1717,7 +1740,7 @@ public async Task<IActionResult> Calculate2(Guid Id,
             return Json(log_file);
             }
 
-            return Ok();
+            return Ok(log_file);
     }
 [HttpPost]
 public async Task<IActionResult> CalculateWQ(Guid Id,
@@ -2018,7 +2041,7 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             return Json(ge_diver.log_file);
             }
 
-            return Ok();
+            return Ok(ge_diver.log_file);
     }
 
 
@@ -2869,7 +2892,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     int intValue18,
                     int intRemark,
                     int intValueCheckForDry,
-                    string dateformat = "") {
+                    string dateformat) {
 
     for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
@@ -3273,10 +3296,11 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 
     return 0;
  }
- private DateTime getDateTime(string s1, string dateformat = "") {
+ private DateTime getDateTime(string s1, string dateformat) {
 
                     DateTime dt;
                     
+                        
                         if (dateformat=="") { 
                             dt = DateTime.Parse(s1);
                         } else {

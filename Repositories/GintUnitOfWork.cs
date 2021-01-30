@@ -12,10 +12,10 @@ namespace ge_repository.repositories
         
         private readonly SqlConnection _connection;
         
-       // public PROJRepository PROJ {get; }
-       // public POINTRepository POINT {get; }
-      //  public MONGRepository MONG {get;} 
-        private MONDRepository _MOND;
+        private PROJRepository _PROJ;
+        private POINTRepository _POINT; 
+        private MONGRepository _MONG; 
+        private MONDRepository _MOND; 
 
        // public MONVRepository MONV {get; }
        // public ERESRepository ERES {get; }
@@ -26,7 +26,9 @@ namespace ge_repository.repositories
             _connection = new SqlConnection(connect.AsConnectionString());
         }
         public IGintRepository<MOND> MOND => _MOND = _MOND ?? new MONDRepository(_connection);
-
+        public IGintRepository<MONG> MONG => _MONG = _MONG ?? new MONGRepository(_connection);
+        public IGintRepository<POINT> POINT => _POINT = _POINT ?? new POINTRepository(_connection);
+        public IGintRepository<PROJ> PROJ => _PROJ = _PROJ ?? new PROJRepository(_connection);
        public async Task<int> CommitAsync(){
 
             var t = await _MOND.CommitAsync();

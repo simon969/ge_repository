@@ -1121,9 +1121,11 @@ namespace ge_repository.OtherDatabase  {
         
         if (ret=="") {
             int colChannel = getChannelColId ("CalibrationFactors");
+            if (colChannel != -1) {
             string ch_device =  getArrayString("Model",colChannel);
             string ch_serial =  getArrayString("Serial",colChannel);
             ret = ch_device + " " + ch_serial;
+            }
         }
 
         return ret;
