@@ -1,26 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
+//using System.Data.DataSetExtensions;
 
 namespace ge_repository.repositories
 {
-    public class RepositoryADO<TEntity> : IRepository<TEntity> where TEntity : class
+    public class RepositoryADO<TEntity> : IADORepository<TEntity> where TEntity : class
     {
         protected readonly dsTable<TEntity> _table;
         protected readonly string _primarykey;
-
+        
         public RepositoryADO (dsTable<TEntity> t) {
             _table = t;
         }
         public RepositoryADO(string name,string primarykey, SqlConnection conn)
         {
             _table = new dsTable<TEntity>(name,conn);
+            _primarykey = primarykey;
+
+        }
+         public RepositoryADO(string name,string primarykey, SqlConnection conn, int gINTProjectId)
+        {
+            _table = new dsTable<TEntity>(name,conn, gINTProjectId);
             _primarykey = primarykey;
 
         }
@@ -32,20 +38,36 @@ namespace ge_repository.repositories
                                  });
 
         }
-
+       
         public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
             
         }
-
-        public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate)
+        public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, string exist_where)
         {
-           return null;
+            
         }
-        public Task<TEntity> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate){
-            return null;
+
+        public async Task<List<TEntity>> FindAsync(string where)
+        {
+            return await Task.Run (() => {
+                                            _table.sqlWhere(where);
+                                            _table.getDataTable();
+                                            return _table.TableAsList();
+                                    });
         }
-        public async Task<IEnumerable<TEntity>> GetAllAsync()
+        public async Task<TEntity> FindSingleAsync(string where){
+             return await Task.Run (() => {
+                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
+                                          if (row==null) {
+                                              _table.sqlWhere(where);
+                                              _table.getDataTable();
+                                              row = _table.dataTable.Rows[0];
+                                          }
+                                          return _table.GetItem(row);
+                                    });
+        }
+        public async Task<List<TEntity>> GetAllAsync()
         {
             return await Task.Run (() => {
                                             _table.getDataTable();
@@ -104,10 +126,18 @@ namespace ge_repository.repositories
         {
            
         }
-
-        public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            return null;
+        public async Task<TEntity> SingleOrDefaultAsync(string where) {
+        
+            return await Task.Run (() => {
+                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
+                                          if (row==null) {
+                                              _table.sqlWhere(where);
+                                              _table.getDataTable();
+                                              row = _table.dataTable.Rows[0];
+                                          }
+                                          return _table.GetItem(row);
+                                    });
         }
+        
     }
 }

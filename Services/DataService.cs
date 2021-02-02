@@ -137,7 +137,7 @@ namespace ge_repository.services
             
             try {
                 
-                if (format == "xml") {
+                if (format == "text/xml") {
                     string s =_data_big.getParsedXMLstring(encoding);
                     XmlSerializer serializer = new XmlSerializer(typeof(T));
                     using (TextReader reader = new StringReader(s))

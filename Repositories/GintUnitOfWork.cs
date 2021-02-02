@@ -25,10 +25,10 @@ namespace ge_repository.repositories
             _connect = connect;
             _connection = new SqlConnection(connect.AsConnectionString());
         }
-        public IGintRepository<MOND> MOND => _MOND = _MOND ?? new MONDRepository(_connection);
-        public IGintRepository<MONG> MONG => _MONG = _MONG ?? new MONGRepository(_connection);
-        public IGintRepository<POINT> POINT => _POINT = _POINT ?? new POINTRepository(_connection);
-        public IGintRepository<PROJ> PROJ => _PROJ = _PROJ ?? new PROJRepository(_connection);
+        public IGintRepository<MOND> MOND => _MOND = _MOND ?? new MONDRepository(_connection, _connect.ProjectId);
+        public IGintRepository<MONG> MONG => _MONG = _MONG ?? new MONGRepository(_connection, _connect.ProjectId);
+        public IGintRepository<POINT> POINT => _POINT = _POINT ?? new POINTRepository(_connection, _connect.ProjectId);
+        public IGintRepository<PROJ> PROJ => _PROJ = _PROJ ?? new PROJRepository(_connection, _connect.ProjectId);
        public async Task<int> CommitAsync(){
 
             var t = await _MOND.CommitAsync();

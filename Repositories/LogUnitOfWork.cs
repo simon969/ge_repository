@@ -12,7 +12,7 @@ namespace ge_repository.repositories
         
         private readonly SqlConnection _connection;
         
-        private LoggerFileRepository _loggerFileRepository;
+        private LoggerFileRepositoryADO _loggerFileRepository;
        
         public LogUnitOfWork(dbConnectDetails connect)
         {
@@ -20,7 +20,7 @@ namespace ge_repository.repositories
             _connection = new SqlConnection(connect.AsConnectionString());
           
         }
-        public ILoggerFileRepository LoggerFile => _loggerFileRepository = _loggerFileRepository ?? new LoggerFileRepository(_connection);
+        public ILoggerFileRepository LoggerFile => _loggerFileRepository = _loggerFileRepository ?? new LoggerFileRepositoryADO(_connection);
 
        public async Task<int> CommitAsync(){
 

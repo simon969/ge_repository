@@ -9,13 +9,13 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.repositories
 {
-    public class LoggerFileRepository : RepositoryADOParentChild<ge_log_file, ge_log_reading>, ILoggerFileRepository
+    public class LoggerFileRepositoryADO : RepositoryADOParentChild<ge_log_file, ge_log_reading>, ILoggerFileRepository
     {
         
-        public LoggerFileRepository(SqlConnection conn) 
+        public LoggerFileRepositoryADO(SqlConnection conn) 
             : base("ge_log_file", "Id", "ge_log_reading","fileId", conn)
         { }
-        public LoggerFileRepository(dsTable<ge_log_file> log_file, dsTable<ge_log_reading> log_reading) 
+        public LoggerFileRepositoryADO(dsTable<ge_log_file> log_file, dsTable<ge_log_reading> log_reading) 
             : base(log_file, log_reading)
         { }
         public async Task<IEnumerable<ge_log_file>> GetAllLoggerFilesAsync() {

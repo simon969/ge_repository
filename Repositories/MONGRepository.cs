@@ -8,24 +8,13 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.repositories
 {
-public class MONGRepository : RepositoryADO<MONG>, IGintRepository<MONG>
+public class MONGRepository : GintRepositoryADO<MONG>, IGintRepository<MONG>
     {
 
-     public MONGRepository(SqlConnection conn) 
-            : base("MOND","GintRecId",conn)
+     public MONGRepository(SqlConnection conn,int gINTProjectID) 
+            : base("MOND","GintRecId",conn, gINTProjectID)
         { }
-    public async Task<IEnumerable<MONG>> GetWhereAsync(string where) {
-
-        return await Task.Run (() => {
-                                          DataRow[] row = _table.dataTable.Select (where);
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                          }
-                                          return _table.TableAsList();
-                                    });
-
-    }
+   
     public void set_values(MONG item, DataRow row) {
                         
                         // row["gINTProjectID"] = item.gINTProjectID;

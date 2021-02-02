@@ -3,12 +3,10 @@ using System.IO;
 using System.Text;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
-using NPOI.DDF;
-using NPOI.SS.Format;
-using NPOI.HSSF.Extractor;
-using NPOI.HSSF.UserModel;
-using NPOI.Util;
+using ge_repository.Extensions;
+
 namespace ge_repository.OtherDatabase
+
 {
 
     public class ge_log_workbook {
@@ -21,8 +19,9 @@ namespace ge_repository.OtherDatabase
     public ICellRange<ICell> data {get; private set;}
     public IFormulaEvaluator evaluator {get; private set;}
     DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
-    string DateTimeFORMAT ="{0:yyyy-MM-dd HH:mm:ss.sss}";
-
+    public string DateTimeFORMAT {get;} = "yyyy-MM-ddTHH:mm:ss" ;
+    public string DateTimeFORMAT2 {get;} = "yyyy-MM-ddTHH:mm" ;
+    
     public int MAX_SEARCH_LINES {get;set;}
     public int current_data_row;
     public int start_data_row;
@@ -84,11 +83,11 @@ namespace ge_repository.OtherDatabase
                     sb.Append (","); 
                 }
                 if (Encapsulate==true) {
-                    sb.Append("\"" + DataFormatter(cell) + "\"");
+                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2)+ "\"");
                     continue;
                 }
 
-                sb.Append (DataFormatter(cell));
+                sb.Append (cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2));
 
             }
         }
@@ -102,11 +101,11 @@ namespace ge_repository.OtherDatabase
 
         foreach (ICell cell in row) { 
                 if (Encapsulate==true) {
-                    sb.Append("\"" + DataFormatter(cell) + "\"");
+                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2) + "\"");
                     continue;
                 }
 
-                sb.Append (DataFormatter(cell));
+                sb.Append (cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2));
 
         }
            
@@ -168,11 +167,23 @@ namespace ge_repository.OtherDatabase
             return null;
         }
 
-        return getCellValue(cell);
+        return cell.GetCellValue(evaluator);
     }
 
     public ISheet setWorksheet (string name) {
+        if (name.Contains("*")) {
+            string name_like = name.Replace("*","");
+            foreach (ISheet sheet in workbook) {
+                if (sheet.SheetName.Contains(name_like)) {
+                    worksheet = sheet;
+                    break;
+                }
+
+            }
+        } else {
         worksheet = workbook.GetSheet (name);
+        }
+
         return worksheet;
     }
     public Boolean setOnlyWorksheet() {
@@ -215,27 +226,6 @@ namespace ge_repository.OtherDatabase
 
     }
 
-    public static DateTime FromExcelSerialDateTime(double SerialDate) {
-    if (SerialDate > 59) SerialDate -= 1; //Excel/Lotus 2/29/1900 bug   
-    return new DateTime(1899, 12, 31).AddDays(SerialDate);
-    }
-
-    public string ExcelDateFormatter(string DateTimeFORMAT, ICell cell) {
-        DateTime cell_DT = FromExcelSerialDateTime(cell.NumericCellValue);
-        return string.Format(DateTimeFORMAT, cell_DT);
-    }
-    public string ExcelDateFormatter3(string DateTimeFORMAT, ICell cell) {
-        DateTime cell_DT = DateTime.FromOADate(cell.NumericCellValue);
-        return string.Format(DateTimeFORMAT, cell_DT);
-    }
-    public string ExcelDateFormatterFromCell(ICell cell) {
-
-        return formatter.FormatCellValue(cell,evaluator);
-    }
-    public string ExcelDateFormatter2(string DateTimeFORMAT, ICell cell) {
-    DateTime cell_DT = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc).AddDays(cell.NumericCellValue-1);
-    return string.Format(DateTimeFORMAT, cell_DT);
-    }
         // https://www.codota.com/code/java/methods/org.apache.poi.ss.usermodel.DataFormatter/performDateFormatting
         // private String getFormattedDateString(ICell cell, ConditionalFormattingEvaluator cfEvaluator) {
         // if (cell == null) {
@@ -252,24 +242,9 @@ namespace ge_repository.OtherDatabase
         // return performDateFormatting(d, dateFormat);
         // }
         //https://stackoverflow.com/questions/5794659/how-do-i-set-cell-value-to-date-and-apply-default-excel-date-format
-    public string DataFormatter(ICell cell) {
-       
-        if (cell==null) { return "";}
 
-        try {   
-        
-            if (cell.CellType==CellType.Numeric || cell.CellType==CellType.Formula) {
-                        if (DateUtil.IsCellDateFormatted(cell)) {
-                            return ExcelDateFormatter(DateTimeFORMAT,cell);
-                        }
-            }
-            
-            return formatter.FormatCellValue(cell,evaluator);
-        } catch (Exception ex) {   
-            // return $"{ex.Message} error converting cell {cell.Address} to string format";
-            return formatter.FormatCellValue(cell,evaluator);
-        }
-    }
+
+    
 
     public string matchReturnValue(string find_string, int ret_offset_col, int ret_offset_row, Boolean exact = false) {
        
@@ -278,7 +253,7 @@ namespace ge_repository.OtherDatabase
         if (cell!=null) {
             ICell val_cell = worksheet.GetRow(cell.RowIndex + ret_offset_row).GetCell(cell.ColumnIndex + ret_offset_col);
             if (val_cell!=null) {
-              return DataFormatter(val_cell);
+              return val_cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
             }
         }
 
@@ -305,7 +280,7 @@ namespace ge_repository.OtherDatabase
                 break;
             }
             foreach (ICell cell in row) {
-                string s1 = DataFormatter(cell);
+                string s1 = cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
                   if (s1.Equals(value)) {
                   return cell;
                   }
@@ -324,7 +299,7 @@ namespace ge_repository.OtherDatabase
         if (row!=null) { 
             foreach (ICell cell in row) {
                 if (cell.ColumnIndex >= start_col) {
-                    string s1 = DataFormatter(cell);
+                    string s1 = cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
                     if (s1.Equals(value)) {
                     return cell;
                     }
@@ -337,59 +312,7 @@ namespace ge_repository.OtherDatabase
 
         return null;
     }
-   private object getCellValue(ICell cell) {
-    
-    object cValue = string.Empty;
 
-    switch (cell.CellType)
-    {
-        case (CellType.Unknown | CellType.Formula | CellType.Blank):
-            cValue = cell.ToString();
-            break;
-        case CellType.Numeric:
-            if (DateUtil.IsCellDateFormatted(cell)) {
-                return cell.DateCellValue;
-            }
-            cValue = cell.NumericCellValue;
-            break;
-        case CellType.String:
-            cValue = cell.StringCellValue;
-            break;
-        case CellType.Boolean:
-            cValue = cell.BooleanCellValue;
-            break;
-        case CellType.Error:
-            cValue = cell.ErrorCellValue;
-            break;
-        default:
-            cValue = string.Empty;
-            break;
-    }
-    return cValue;
-}
-
-    private string DataFormatter2(ICell cell) {
-    string DateTimeFORMAT ="{0:yyyy-MM-ddTHH:mm:ss}";
-    
-    switch (cell.CellType)
-    {
-        case (CellType.Unknown | CellType.Formula | CellType.Blank):
-            return cell.ToString();
-        case CellType.Numeric:
-            if (DateUtil.IsCellDateFormatted(cell)) {
-                return String.Format(DateTimeFORMAT, cell.DateCellValue);
-            }
-            return  Convert.ToString(cell.NumericCellValue);
-        case CellType.String:
-            return cell.StringCellValue;
-        case CellType.Boolean:
-            return Convert.ToString(cell.BooleanCellValue);
-        case CellType.Error:
-            return Convert.ToString(cell.ErrorCellValue);
-        default:
-            return string.Empty;
-    }
-}
 
 public string [] WorksheetToTable() {
 

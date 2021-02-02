@@ -374,15 +374,18 @@
                         // ge_log_workbook is zero based array of worksheet so will match string[] 
                         int found = wb.matchReturnRow(si.search_text, si.MatchExact());
                         if (found != NOT_FOUND) {
+                            
                             if (si.length>1) {
-                            si.value = wb.matchReturnValueCSV(si.search_text, si.start_offset, si.row_offset,si.length, si.MatchExact());
+                                si.value = wb.matchReturnValueCSV(si.search_text, si.start_offset, si.row_offset,si.length, si.MatchExact());
                             } else {
-                            si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset,si.MatchExact());
+                                si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset,si.MatchExact());
                             }
+
                             si.row = found;
                             si.col = wb.matchReturnColumn(si.search_text, si.MatchExact());
                             si.row_text = wb.RowCSV(si.row, si.col + si.col_offset);
                             gs_ws.search_items.Add (si);
+
                         }
                 }
                 

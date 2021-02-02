@@ -5,15 +5,18 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.interfaces
 {
-    public interface IGintTableService<T> where T : class 
+    public interface IGintTableService<T> where T : class , IGintTable
     {
         Task<PROJ> GetProjectById(int Id);
         Task<POINT> GetPointById(int Id);
-        Task<IEnumerable<POINT>> GetAllPointWhere(string where);
-        Task<IEnumerable<T>> GetAllRecords();
+        Task<POINT> GetPointByHoleId(string Id);
+        Task<List<POINT>> GetAllPointWhere(string where);
+        Task<List<T>> GetAllRecords();
         Task<T> GetRecordById(int Id);
-        Task<IEnumerable<T>> GetAllWhere(string where);
+        Task<List<T>> GetAllWhere(string where);
         Task CreateRecord(T newRecord);
+        Task CreateRange(List<T> records);
+        Task UpdateRange(List<T> records, string exist_where);
         Task UpdateRecord(T recordToBeUpdated, T record);
         Task DeleteRecord(T record);
     }
@@ -21,13 +24,14 @@ namespace ge_repository.interfaces
     {
         Task<PROJ> GetProjectById(int Id);
         Task<POINT> GetPointById(int Id);
-        Task<IEnumerable<POINT>> GetAllPointWhere(string where);
+        Task<List<POINT>> GetAllPointWhere(string where);
     }
 
-    public interface IGintTableService2<TParent, TChild> : IGintTableService<TChild> where TParent : class where TChild : class
+    public interface IGintTableService2<TParent, TChild> : IGintTableService<TChild> where TParent : class where TChild : class, IGintTable
     {
         Task<TParent> GetParentById(int Id);
-        Task<IEnumerable<TParent>> GetParentWhere(string where);
+        Task<List<TParent>> GetParentsByHoleId(string Id);
+        Task<List<TParent>> GetParentsWhere(string where);
     }
     
 

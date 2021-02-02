@@ -123,5 +123,4 @@ namespace ge_repository.OtherDatabase  {
 	[Display(Name = "Are topographic readings required from this visit")] public string MONV_TOPR {get;set;} 
 //	[MONV_TOPR] [nvarchar](255) NULL,
 	}
-
 }

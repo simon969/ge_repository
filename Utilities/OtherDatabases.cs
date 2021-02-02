@@ -5,6 +5,8 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
+using ge_repository.Extensions;
+
 namespace ge_repository.OtherDatabase {
 
 
@@ -39,17 +41,31 @@ public class dsTable<T> {
     private SqlConnection connection;
     private SqlDataAdapter dataAdapter;
     private SqlCommandBuilder builder;
+    private string dataProjectsONLY;
     private StringBuilder sb;
     private int current = 0;
     public int COMMAND_TIMEOUT {get;set;} = 1200;
     public string sortOrder {get;set;} = "";
     public string UniqueKey {get;set;}= "Id";
-
+    public dsTable(string TableName, SqlConnection conn, int gINTProjectID) {
+        tableName = TableName;
+        sqlQuery = "select * from " + tableName + " where 0 = 1";
+        sortOrder = "";
+        dataProjectsONLY =  $"gINTProjectId={gINTProjectID}";
+        connection = conn;
+    }
+    public dsTable(string TableName, SqlConnection conn, int[] gINTProjectID) {
+        tableName = TableName;
+        sqlQuery = "select * from " + tableName + " where 0 = 1";
+        sortOrder = "";
+        dataProjectsONLY =  $"gINTProjectId in ({gINTProjectID.ToCSV()})";
+        connection = conn;
+    }
     public dsTable(string TableName, SqlConnection conn) {
         tableName = TableName;
         sqlQuery = "select * from " + tableName + " where 0 = 1";
         sortOrder = "";
-
+        connection = conn;
     }
     
     public dsTable(string TableName, string SortOrder="") {
@@ -58,6 +74,10 @@ public class dsTable<T> {
         sortOrder = SortOrder;
     }
     public void sqlWhere(string where) {
+    if (!string.IsNullOrEmpty(dataProjectsONLY)) {
+        where =  dataProjectsONLY + where;  
+    } 
+        
     if (string.IsNullOrEmpty(where)) {
         sqlQuery = "select * from " + tableName;
     } else {
@@ -82,6 +102,13 @@ public class dsTable<T> {
             }  
             return data;  
     }  
+    public IEnumerable<DataRow> AsEnumerable()
+    {
+        for (int i = 0; i < dataTable.Rows.Count; i++)
+        {
+            yield return dataTable.Rows[i];
+        }
+    }
     public T GetItem (DataRow dr)  
         {  
             Type temp = typeof(T);  

@@ -66,7 +66,7 @@ public class AGSGroupReader <T> where T: IAGSGroup {
             }
             string[] _values = QuoteSplit(line);
             T item = Activator.CreateInstance<T>();
-            item.setValues(_header, _values);
+            item.set_values(_header, _values);
             values.Add (item);
         }
 

@@ -7,11 +7,15 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.interfaces
 {
-    public interface IGintRepository<T> : IRepository<T> where T : class
+    public interface IGintRepository<T> : IADORepository<T> where T : class, IGintTable
     {
-        Task<IEnumerable<T>> GetWhereAsync(string where);
-       
+        int gINTProjectID();
         Task<int> CommitAsync();
         void set_values(T item, DataRow row);
     }
+
+    public interface IGintTable {
+        void set_values(DataRow row);
+    }
+
 }

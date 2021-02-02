@@ -4,20 +4,16 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using ge_repository.Models;
 using ge_repository.Authorization;
-using static ge_repository.Authorization.Constants;
 using ge_repository.Extensions;
-using System.Data.SqlClient;
-using System.Data;
 using ge_repository.OtherDatabase;
 using ge_repository.interfaces;
 using ge_repository.spatial;
@@ -29,7 +25,7 @@ namespace ge_repository.Controllers
 
     public class ge_logController: ge_Controller  {     
    
-       
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         public ge_log_file log_file {get;set;}
         public string[] tables_wdepth {get;} = new string[] {"",""};
         public string[] tables_wquality {get;}= new string[] {"",""};
@@ -41,28 +37,29 @@ namespace ge_repository.Controllers
         
         private string[] READ_STOPS = {"\"\"",""};
 
-
-        private static string DATE_FORMAT_AGS = "yyyy-MM-dd HH:mm:ss";
+        public static string DATETIME_FORMAT {get;} = "yyyy-MM-ddTHH:mm:ss";
+        public static string DATE_FORMAT {get;} = "yyyy-MM-dd";
+       
         private static string DP3 = "0.000";
         private static string DP2 = "0.00";
         private static string DP1 = "0.0";
 
        
          public ge_logController(
-
             ge_DbContext context,
+            IServiceScopeFactory serviceScopeFactory,
             IAuthorizationService authorizationService,
             UserManager<ge_user> userManager,  
             IHostingEnvironment env ,
             IOptions<ge_config> ge_config)
             : base(context, authorizationService, userManager, env, ge_config)
         {
-           
+           _serviceScopeFactory = serviceScopeFactory;
         }
 
         [HttpPost]
         public async Task<IActionResult> ProcessFileBackground( Guid Id, 
-                                              Guid templateId, 
+                                              Guid? templateId, 
                                               string table, 
                                               string sheet,
                                               string bh_ref, 
@@ -70,35 +67,44 @@ namespace ge_repository.Controllers
                                               string round_ref,
                                               string options = "",
                                               string format = "view",
-                                              Boolean read_logger = true,
-                                              Boolean save_logger = true, 
-                                              Boolean save_mond = true) { 
-            
+                                              Boolean save = false) { 
+            Boolean read_logger = true;
+            Boolean save_logger = true; 
+            Boolean save_mond = true;
+            Boolean ignore_pflag = false;
+
+            read_logger = options.Contains("read_logger");
+            save_logger = ! options.Contains("read_logger_ONLY");
+            save_logger = options.Contains("save_logger");
+            ignore_pflag = options.Contains("ignore_pflag");
+            save_mond = save;
+
             IUnitOfWork _unit = new UnitOfWork(_context);
             IDataService _dataservice = new DataService(_unit);
             OtherDbConnections _dbConnections = await _dataservice.GetOtherDbConnectionsByDataId(Id);
             
             // check current process status
-            int Status = await _dataservice.GetProcessFlag(Id);
-            
-            if (Status != pflagCODE.NORMAL) {
-                ge_data data = await _dataservice.GetDataById(Id);
-                return UnprocessableEntity($"{data.filename} is currently being processed. Some large logger files can take more than 20 mins, please wait until pflag on this file is set to normal before re-running the process.");
+            ge_data data = await _dataservice.GetDataById(Id);
+
+            if (ignore_pflag == false && data.pflag != pflagCODE.NORMAL) {
+                 return UnprocessableEntity($"{data.filename} is currently being processed. Some large logger files can take more than 20 mins, please wait until pflag on this file is set to normal before re-running the process.");
             }  
 
             if (_dbConnections ==null) {
-                return BadRequest();
+                return BadRequest($"Cannot load OtherDbConnection file for {data.filename}, please check project");
             }
 
             dbConnectDetails _connectGint = _dbConnections.getConnectType("gINT");
-            dbConnectDetails _connectLogger = _dbConnections.getConnectType("ge_logger");
+            dbConnectDetails _connectLogger = _dbConnections.getConnectType("logger");
             
             if (_connectGint ==  null || _connectLogger ==null) {
-                return BadRequest();
+                return BadRequest($"Cannot load gINT or logger connection details for {data.filename}, please check project");
             }
             
 
-            await runLogClientAsync(Id,
+            var resp = await runLogClientAsync(
+                              _serviceScopeFactory,
+                              Id,
                               templateId,
                               table,
                               sheet,
@@ -110,10 +116,12 @@ namespace ge_repository.Controllers
                               save_logger,
                               save_mond);
 
-            return Ok("Processing File");
+            return Ok($"Processing File {data.filename} ({data.filesize} bytes), the pflag status will remain as 'Processing' until this workflow is complete");
             }
 
-        private async Task<ge_log_client.enumStatus> runLogClientAsync(Guid Id,
+        private async Task<ge_log_client.enumStatus> runLogClientAsync(
+                                          IServiceScopeFactory serviceScopeFactory,
+                                          Guid Id,
                                           Guid? templateId,
                                           string table,
                                           string sheet,
@@ -125,7 +133,9 @@ namespace ge_repository.Controllers
                                           Boolean save_logger = false,
                                           Boolean save_MOND = false)    {
         
-            return await Task.Run(()=> runLogClient (Id,
+                return await Task.Run(()=> runLogClient (
+                                          serviceScopeFactory,
+                                          Id,
                                           templateId,
                                           table,
                                           sheet,
@@ -139,6 +149,7 @@ namespace ge_repository.Controllers
         }
         
         private ge_log_client.enumStatus runLogClient(
+                                          IServiceScopeFactory serviceScopeFactory,
                                           Guid Id,
                                           Guid? templateId,
                                           string table,
@@ -151,19 +162,10 @@ namespace ge_repository.Controllers
                                           Boolean save_logger = false,
                                           Boolean save_MOND = false
                                           ) {
-           // var u = GetUserAsync();
-
-            IUnitOfWork _unit = new UnitOfWork(_context); 
-            IDataService _dataservice = new DataService(_unit);
-           
-            IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
-            IGintTableService2<MONG,MOND> _gintservice = new MONDService (_gunit);
-            
-            ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
-            ILoggerFileService _logservice = new LoggerFileService (_lunit);
-            
-            ge_log_client ac = new ge_log_client(_dataservice, _logservice, _gintservice);
-                
+              
+            ge_log_client ac = new ge_log_client(serviceScopeFactory, 
+                                                connectLogger, 
+                                                connectGint);
             ac.Id = Id;
             ac.templateId = templateId;
             ac.table = table;
@@ -174,10 +176,9 @@ namespace ge_repository.Controllers
             ac.read_logger = read_logger;
             ac.save_logger = save_logger;
             ac.save_MOND = save_MOND;
-
             ac.start(); 
-        
-            return ge_log_client.enumStatus.Start;
+
+            return ge_log_client.enumStatus.Start; 
 
         }
 private async Task<IActionResult> ReadFile(Guid Id,
@@ -2893,6 +2894,10 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     int intRemark,
                     int intValueCheckForDry,
                     string dateformat) {
+    
+    
+    string[] dateformats = SplitDateFormats(dateformat);
+
 
     for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
@@ -2910,7 +2915,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     
                     if (intReadTime != NOT_FOUND) {
                         if (ContainsError(values[intReadTime])) {continue;}
-                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformat);
+                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
                     }
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
@@ -2943,6 +2948,30 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
     }
 
     return list.Count();
+
+ }
+
+ private string[] SplitDateFormats(string dateformat="") {
+
+    string[] dateformats;
+
+    if (dateformat == null) {
+        dateformat = "";
+    }
+
+    if (dateformat.Length > 0) {
+        dateformat = dateformat + "," + DATETIME_FORMAT;
+    } else {
+        dateformat = DATETIME_FORMAT;
+    }
+
+    if (dateformat.Contains(",")) {
+        dateformats = dateformat.Split(",");
+    } else { 
+    dateformats = new string[] {dateformat};
+    }
+
+    return dateformats;
 
  }
 
@@ -3296,21 +3325,21 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 
     return 0;
  }
- private DateTime getDateTime(string s1, string dateformat) {
+ private DateTime getDateTime(string s1, string[] dateformats) {
 
-                    DateTime dt;
-                    
-                        
-                        if (dateformat=="") { 
-                            dt = DateTime.Parse(s1);
-                        } else {
-                            dt = DateTime.ParseExact(s1, dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
+                        if (dateformats!=null) {
+                            foreach (string dateformat in dateformats) {
+                                DateTime dateTime;
+                                Boolean formatOK = DateTime.TryParseExact(s1, dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite, out dateTime);
+                                if (formatOK) {
+                                    return dateTime;
+                                }
+                            }
                         }
-                    
-                    return dt;
 
-
+                        return DateTime.Parse(s1);
  }
+
  private float? getFloat(string s1, float? retOnError) {
      float? fl;
      try {
@@ -3518,7 +3547,6 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
         
         int line_end = dic.data_end_row(lines.Count());
 
-        
         int readlines = addReadingsAny(file.readings, 
                                     lines, 
                                     line_start, 

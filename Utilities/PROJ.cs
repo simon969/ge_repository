@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ge_repository.Authorization;
+using System.Data;
 using ge_repository.AGS;
+using ge_repository.interfaces;
 namespace ge_repository.OtherDatabase  {
 
-    public class PROJ : AGSGroup  {
+    public class PROJ : AGSGroup, IGintTable  {
 
 // CREATE TABLE [dbo].[PROJECT](
     [Key] [Display(Name = "GintRecID")] public int GintRecId {get;set;} 
@@ -36,7 +34,7 @@ namespace ge_repository.OtherDatabase  {
 
     
     public  PROJ() : base ("PROJ") {}
-    public override int setValues(string[] header, string[] values) {
+    public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) {
                 if (header[i] == "PROJ_CLNT") PROJ_CLNT = values[i];
@@ -54,6 +52,13 @@ namespace ge_repository.OtherDatabase  {
          
          return 0;
      }
+
+    public void set_values (DataRow row) {
+
+
+
+
+    }
     }
 
 }

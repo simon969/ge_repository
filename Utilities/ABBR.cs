@@ -26,7 +26,7 @@ namespace ge_repository.OtherDatabase  {
     // 	[FILE_FSET] [nvarchar](255) NOT NULL,
     public ABBR() : base ("ABBR") {}
     
-    public override int setValues(string[] header, string[] values) {
+    public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) {
                 if (header[i] == "ABBR_CODE") ABBR_CODE = values[i];

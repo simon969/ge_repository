@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ge_repository.Authorization;
+using ge_repository.interfaces;
 using ge_repository.AGS;
 namespace ge_repository.OtherDatabase  {
 
-    public class MONG : AGSGroup {
+    public class MONG : AGSGroup, IGintTable {
 
 
 // CREATE TABLE [dbo].[MONG](
@@ -58,7 +57,14 @@ namespace ge_repository.OtherDatabase  {
 //	[FILE_FSET] [nvarchar](255) NULL,
 
 	public MONG() : base ("MONG") {}
-	
+
+	public void set_values (DataRow row) {
+
+
+
+
+    }
+
     }
 
 }

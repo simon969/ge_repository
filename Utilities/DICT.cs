@@ -40,7 +40,7 @@ namespace ge_repository.OtherDatabase  {
         // 	[FILE_FSET] [nvarchar](255) NULL,
         public DICT() : base ("DICT") {}
     
-        public override int setValues(string[] header, string[] values) {
+        public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) { 
                 if (header[i] == "DICT_DESC") DICT_DESC = values[i];

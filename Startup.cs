@@ -141,7 +141,7 @@ namespace ge_repository
             //                         options.IdleTimeout = TimeSpan.FromSeconds(10);
             //                         options.Cookie.HttpOnly = true;
             //                     });
-                        
+
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
@@ -150,8 +150,8 @@ namespace ge_repository
                 config.Filters.Add(new AuthorizeFilter(policy));
             })
             .AddXmlSerializerFormatters()
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+            .AddMvcOptions (m => m.ModelMetadataDetailsProviders.Add(new AGSMetadataProvider()));
             //.AddRazorPagesOptions(options =>
             // {
             // options.Conventions.AddPageRoute("/Pages/Index", "");

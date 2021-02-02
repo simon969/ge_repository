@@ -99,6 +99,10 @@ ViewData["Title"] = "All Data Index";
                 <text> | </text>
                 <text>Processing AGS</text>
             }
+            @if ((item.fileext == ".xlsx" || item.fileext == ".csv") && item.pflag == pflagCODE.PROCESSING) {
+                <text> | </text>
+                <text>Processing Logger File</text>
+            }
             @if (item.fileext == ".xml") {
                 <text> | </text>
                 <a title="Create a transform to view this xml data" asp-page="../Transform/Create" asp-route-projectId="@item.projectId">Create Transform</a>

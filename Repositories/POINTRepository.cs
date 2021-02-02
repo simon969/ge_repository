@@ -8,11 +8,11 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.repositories
 {
-public class POINTRepository : RepositoryADO<POINT>, IGintRepository<POINT>
+public class POINTRepository : GintRepositoryADO<POINT>, IGintRepository<POINT>
     {
 
-     public POINTRepository(SqlConnection conn) 
-            : base("POINT","GintRecId",conn)
+     public POINTRepository(SqlConnection conn,int gINTProjectID) 
+            : base("MOND","GintRecId",conn, gINTProjectID)
         { }
     public async Task<IEnumerable<POINT>> GetWhereAsync(string where) {
 

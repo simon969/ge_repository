@@ -6,26 +6,34 @@ using ge_repository.interfaces;
 
 namespace ge_repository.services
 {
-    public class gINTBaseService : gINTProjectService,  IGintBaseService
+
+    public class gINTBaseService :IGintBaseService
     {
 
-        public Task<POINT> GetPointById(int Id) {
-            return null;
+        protected  readonly IGintUnitOfWork _unitOfWork;
+
+        public gINTBaseService(IGintUnitOfWork unitOfWork) {
+            _unitOfWork = unitOfWork;
         }
-        public Task<IEnumerable<POINT>> GetAllPointWhere(string where) {
-            return null;
-        }
 
-
-    }
-
-
-    public class gINTProjectService 
-    {
         public Task<PROJ> GetProjectById(int Id) {
             return null;
         }
-      
+        public async Task<POINT> GetPointByHoleId(string Id) {
+
+            return await _unitOfWork.POINT.FindSingleAsync($"POINTId='{Id}'");
+
+        }
+       public async Task<POINT> GetPointById(int Id) {
+
+          return await _unitOfWork.POINT.FindSingleAsync($"GintRecId={Id}");
+        
+        }
+        public async Task<List<POINT>> GetAllPointWhere(string where) {
+           
+           return await _unitOfWork.POINT.FindAsync(where);
+        
+        }
 
     }
 

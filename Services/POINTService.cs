@@ -8,20 +8,18 @@ namespace ge_repository.services
 {
     public class POINTService : gINTBaseService, IGintTableService<POINT>
     {
-        private readonly IGintUnitOfWork _unitOfWork;
-        public POINTService(IGintUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-        public async Task<IEnumerable<POINT>> GetAllRecords() {
+      
+        public POINTService(IGintUnitOfWork unitOfWork) : base (unitOfWork) {}
+
+        public async Task<List<POINT>> GetAllRecords() {
             return await _unitOfWork.POINT.GetAllAsync();
         }
 
         public async Task<POINT> GetRecordById(int Id) {
             return await _unitOfWork.POINT.GetByIdAsync(Id);
         }
-        public async Task<IEnumerable<POINT>> GetAllWhere(string where) {
-            return await _unitOfWork.POINT.GetWhereAsync (where);
+        public async Task<List<POINT>> GetAllWhere(string where) {
+            return await _unitOfWork.POINT.FindAsync (where);
         }
 
         public async Task CreateRecord(POINT newRecord) {
@@ -34,7 +32,14 @@ namespace ge_repository.services
             
             await _unitOfWork.CommitAsync();
         }
+        public async Task CreateRange(List<POINT> records) {
 
+            
+        }
+        public async Task UpdateRange(List<POINT> records, string where) {
+
+            
+        }
         public async Task DeleteRecord(POINT record) {
                 _unitOfWork.POINT.Remove(record);
                 await _unitOfWork.CommitAsync();

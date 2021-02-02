@@ -1,22 +1,31 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ge_repository.Authorization;
 using ge_repository.AGS;
+using ge_repository.interfaces;
 
 namespace ge_repository.OtherDatabase  {
 
-    public class POINT : AGSGroup {
+    public class POINT : AGSGroup , IGintTable{
 
 // CREATE TABLE [dbo].[POINT](
 	[Key] [Display(Name = "GintRecID")] public int GintRecId {get;set;} 
 //	[GintRecID] [int] IDENTITY(1,1) NOT NULL,
   	[Display(Name = "gINTProjectID")] public int gINTProjectID {get;set;} 
 //	[gINTProjectID] [int] NOT NULL,
-    [Display(Name = "Location identifier")] public string PointID {get;set;} 
+
+    [Display(Name = "Location identifier", Description=""), 
+		AGSAttribute("ags_unit","NA"), 
+		AGSAttribute("ags_heading","LOCA"),
+		AGSAttribute("ags_type","ID")] 
+	public string PointID {get;set;} 
 	// [PointID] [nvarchar](255) NOT NULL,
-    [Display(Name = "Final depth")] public double HoleDepth {get;set;} 
+
+    [Display(Name = "Final depth"),
+	 	AGSAttribute("ags_unit","m"), 
+		AGSAttribute("ags_heading","LOCA_FDEP"),
+		AGSAttribute("ags_type","2DP")]
+	public double HoleDepth {get;set;} 
     // [HoleDepth] [float] NOT NULL,
     [Display(Name = "Elevation")] public double? Elevation {get;set;} 
 	// [Elevation] [float] NULL,
@@ -104,7 +113,7 @@ namespace ge_repository.OtherDatabase  {
 	// [FILE_FSET] [nvarchar](255) NULL,
 	public POINT() : base ("LOCA") {}
 
-	public override int setValues(string[] header, string[] values) {
+	public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) {
                 if (header[i] == "LOCA_NATE" && values[i] != "") East = Convert.ToDouble(values[i]);
@@ -129,6 +138,12 @@ namespace ge_repository.OtherDatabase  {
          
          return 0;
         }
+	public void set_values (DataRow row) {
+
+
+
+
+    }
 	
     }
 }

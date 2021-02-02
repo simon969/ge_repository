@@ -122,7 +122,7 @@ namespace ge_repository.OtherDatabase  {
 	  // RND_REF [nvarchar](255) NULL,
     public ERES () : base ("ERES") {}
 
-     public override int setValues(string[] header, string[] values) {
+     public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) {
                 if (header[i] == "LOCA_ID" && values[i] != "") PointID = values[i];

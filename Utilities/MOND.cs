@@ -1,14 +1,13 @@
 
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ge_repository.Authorization;
+using ge_repository.interfaces;
 using ge_repository.AGS;
 
 namespace ge_repository.OtherDatabase  {
 
-    public class MOND : AGSGroup {
+    public class MOND : AGSGroup, IGintTable {
 
    [Key] 
    [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
@@ -74,6 +73,107 @@ namespace ge_repository.OtherDatabase  {
         return null;
       }
     }
-    
+    public string ValueToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {
+      return "";
     }
+
+    public string HeaderToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {
+      return "";
+    }
+
+    public string UnitToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {
+      return "";
+    }
+    
+    public string TypeToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {
+      return "";
+    }
+
+     public override int set_values(string[] header, string[] values) {
+         try {
+            for (int i=0;i<header.Length;i++) {
+                // if (header[i] == "LOCA_ID" && values[i] != "") PointID = values[i];
+                // if (header[i] == "MOND_" && values[i] != "") DateTime = Convert.ToDouble(values[i]);
+                // if (header[i] == "SAMP_REF" && values[i]!= "") SAMP_REF = values[i];
+                // if (header[i] == "SAMP_TYPE" && values[i] != "") SAMP_TYPE = values[i];
+                // if (header[i] == "SAMP_ID" && values[i] != "") SAMP_ID = values[i];
+                // if (header[i] == "SAMP_BASE" && values[i] != "") SAMP_BASE = Convert.ToDouble(values[i]);
+                // if (header[i] == "SAMP_LINK" && values[i] != "") SAMP_LINK = values[i];
+                // if (header[i] == "SAMP_DTIM" && values[i] != "") SAMP_DTIM = Convert.ToDateTime(values[i]);
+                // if (header[i] == "SAMP_UBLO" && values[i] != "") SAMP_UBLO =Convert.ToInt16(values[i]);
+                // if (header[i] == "SAMP_CONT" && values[i] != "") SAMP_CONT = values[i];
+                // if (header[i] == "SAMP_PREP" && values[i] != "") SAMP_PREP = values[i];
+                // if (header[i] == "SAMP_DIA" && values[i] != "") SAMP_DIA = values[i];
+                // if (header[i] == "SAMP_WDEP" && values[i] != "") SAMP_WDEP = Convert.ToDouble(values[i]); 
+                // if (header[i] == "SAMP_RECV" && values[i] != "") SAMP_RECV = Convert.ToInt16(values[i]); 
+                // if (header[i] == "SAMP_TECH" && values[i] != "") SAMP_TECH = values[i]; 
+            }
+
+         } catch {
+             return -1;
+         }
+         
+         return 0;
+        }
+
+    public void set_values (DataRow row) {
+            row["gINTProjectID"] = gINTProjectID;
+            row["PointID"] = PointID;
+            row["MOND_REF"] = MOND_REF;
+            row["ItemKey"] = ItemKey;
+            if (MONG_DIS == null) {row["MONG_DIS"] = DBNull.Value;} else {row["MONG_DIS"] = MONG_DIS;}
+            row["DateTime"] = DateTime;    
+            row["MOND_TYPE"] = MOND_TYPE;
+            row["MOND_RDNG"] = MOND_RDNG;
+            row["MOND_NAME"] = MOND_NAME;
+            row["MOND_UNIT"] = MOND_UNIT;
+            row["MOND_REM"] = MOND_REM; 
+            row["MOND_CONT"] = MOND_CONT;
+            row["MOND_INST"] = MOND_INST;
+            row["MOND_CRED"] = MOND_CRED;
+            if (MOND_LIM == null) {row["MOND_LIM"] = DBNull.Value;} else {row["MOND_LIM"] = MOND_LIM;}
+            row["MOND_METH"] = MOND_METH;
+            if (MOND_ULIM == null) {row["MOND_ULIM"] = DBNull.Value;} else {row["MOND_ULIM"] = MOND_ULIM;}
+            row["FILE_FSET"] = FILE_FSET;
+
+            //Non standard LTC  fields
+            row["ge_source"] = ge_source;
+            row["ge_otherId"] = ge_otherId;
+            row["RND_REF"] = RND_REF;
+    }
+
+     public static explicit operator MOND (DataRow row)
+    {
+        MOND output = new MOND() ;
+
+        output.gINTProjectID  = (int) row["gINTProjectID"];
+        output.PointID  = (string) row["PointID"] ;
+        output.MOND_REF = (string) row["MOND_REF"] ;
+        output.ItemKey = (string) row["ItemKey"];
+        if (row["MONG_DIS"] == DBNull.Value) {output.MONG_DIS = null;} else {output.MONG_DIS = (float) row["MONG_DIS"];}
+        output.DateTime = (DateTime) row["DateTime"];    
+        output.MOND_TYPE = (string) row["MOND_TYPE"];
+        output.MOND_RDNG = (string) row["MOND_RDNG"];
+        output.MOND_NAME = (string) row["MOND_NAME"];
+        output.MOND_UNIT= (string) row["MOND_UNIT"];
+        output.MOND_REM = (string) row["MOND_REM"]; 
+        output.MOND_CONT= (string) row["MOND_CONT"];
+        output.MOND_INST= (string) row["MOND_INST"];
+        output.MOND_CRED= (string) row["MOND_CRED"];
+        if (row["MOND_LIM"] == DBNull.Value) {output.MOND_LIM = null;} else {output.MOND_LIM = (float) row["MOND_LIM"];}
+        output.MOND_METH = (string) row["MOND_METH"];
+        if (row["MOND_ULIM"] == DBNull.Value) {output.MOND_ULIM = null;} else {output.MOND_ULIM = (float) row["MOND_ULIM"];}
+        output.FILE_FSET = (string) row["FILE_FSET"];
+
+        //Non standard LTC  fields
+        output.ge_source = (string) row["ge_source"];
+        output.ge_otherId = (string) row["ge_otherId"];
+        output.RND_REF = (string) row["RND_REF"];
+        return output;
+    }
+
+
+    }
+
+
 }
