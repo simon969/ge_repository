@@ -49,7 +49,7 @@
 
                 case CellType.Formula:
                     if (eval != null)
-                        return GetFormattedCellValue(eval.EvaluateInCell(cell),null,ImposeDatetimeFormat);
+                        return GetFormattedCellValue(eval.EvaluateInCell(cell),eval,ImposeDatetimeFormat);
                     else
                         return cell.CellFormula;
 

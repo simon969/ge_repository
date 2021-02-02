@@ -246,7 +246,6 @@ private async Task<IActionResult> ReadFile(Guid Id,
                     wb.setWorksheet(template_loaded.search_tables[0].sheet);
                     lines = wb.WorksheetToTable();
                     wb.close();
-
                 }
             }
 

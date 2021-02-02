@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
+using NPOI.Util;
 using ge_repository.Extensions;
 
 namespace ge_repository.OtherDatabase
@@ -28,17 +29,23 @@ namespace ge_repository.OtherDatabase
     public int end_data_row;    
     public ge_log_workbook(FileStream fs) {
         workbook = new XSSFWorkbook(fs);
+        evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
+        LocaleUtil.SetUserTimeZone(TimeZone.CurrentTimeZone);
     }
     public ge_log_workbook(MemoryStream ms) {
         workbook = new XSSFWorkbook(ms);
         evaluator = workbook.GetCreationHelper().CreateFormulaEvaluator();
+        LocaleUtil.SetUserTimeZone(TimeZone.CurrentTimeZone);
     }
     public void close() {
-
-        worksheet = null;
+        
+        evaluator = null;
+        formatter = null;
+        
         headers = null;
         data = null;
-        evaluator = null;
+        worksheet = null;
+        
         workbook.Close();
         workbook = null;
 
