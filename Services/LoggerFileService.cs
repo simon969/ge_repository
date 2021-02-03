@@ -11,6 +11,9 @@ namespace ge_repository.services
     public class LoggerFileService : ILoggerFileService
     {
         private static int NOT_FOUND = -1;
+        public static string DATETIME_FORMAT {get;} = "yyyy-MM-ddTHH:mm:ss";
+        public static string DATE_FORMAT {get;} = "yyyy-MM-dd";
+        
         private readonly ILoggerFileUnitOfWork _unitOfWork;
         public LoggerFileService(ILoggerFileUnitOfWork unitOfWork)
         {
@@ -46,8 +49,8 @@ namespace ge_repository.services
             _unitOfWork.LoggerFile.Remove(dataToBeDeleted);
             await _unitOfWork.CommitAsync();
         }
-
-        public ge_log_file CreateLogFile(ge_search dic, 
+        
+        public ge_log_file NewLogFile(ge_search dic, 
                                   string[] lines,
                                   Guid dataId,
                                   Guid templateId) {
@@ -274,6 +277,8 @@ namespace ge_repository.services
                     int intValueCheckForDry,
                     string dateformat = "") {
 
+    string[] dateformats = SplitDateFormats(dateformat);
+
     for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
                 if (line.Length>0) {
@@ -282,7 +287,7 @@ namespace ge_repository.services
                     if (values[0].Contains("\"")) {
                             values = QuoteSplit(line);
                     }
-                    if (values[0] == "") {
+                    if (values[intReadTime] == "") {
                         break;
                     }
                    
@@ -374,12 +379,34 @@ namespace ge_repository.services
             return retIfError;
         }
     }
-  }
+    }
    private static string[] QuoteSplit (string s1) {
             string s2 = s1.Substring(1, s1.Length-2);
             return s2.Split("\",\"");
     }
 
+    private string[] SplitDateFormats(string dateformat="") {
+
+    string[] dateformats;
+
+    if (dateformat == null) {
+        dateformat = "";
     }
-    
+
+    if (dateformat.Length > 0) {
+        dateformat = dateformat + "," + DATETIME_FORMAT;
+    } else {
+        dateformat = DATETIME_FORMAT;
+    }
+
+    if (dateformat.Contains(",")) {
+        dateformats = dateformat.Split(",");
+    } else { 
+    dateformats = new string[] {dateformat};
+    }
+
+    return dateformats;
+    }
+
+ }
 }

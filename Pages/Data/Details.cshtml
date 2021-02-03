@@ -16,7 +16,7 @@
                 <text> | </text>
                 <a asp-controller="ge_ags" asp-action="CreateXML" asp-route-Id=@Model.data.Id>Create XML</a>
             }
-            @if (@Model.data.fileext == ".ags" && @Model.data.pflag == pflagCODE.PROCESSING) {
+            @if (@Model.data.pflag == pflagCODE.PROCESSING) {
                 <text> | </text>
                 <text>Processing AGS</text>
             }

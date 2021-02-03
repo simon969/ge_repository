@@ -14,7 +14,7 @@ namespace ge_repository.interfaces
         Task CreateLogFile(ge_log_file newData);
         Task UpdateLogFile(ge_log_file dataToBeUpdated, ge_log_file data);
         Task DeleteLogFile(ge_log_file data);
-        ge_log_file CreateLogFile(ge_search dic, 
+        ge_log_file NewLogFile(ge_search dic, 
                                   string[] lines,
                                   Guid dataId,
                                   Guid templateId);

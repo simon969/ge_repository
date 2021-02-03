@@ -10,7 +10,7 @@ using ge_repository.Models;
 namespace ge_repository.Migrations
 {
     [DbContext(typeof(ge_DbContext))]
-    [Migration("20201217232232_InitialCreate")]
+    [Migration("20210203024947_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -212,6 +212,8 @@ namespace ge_repository.Migrations
 
                     b.Property<int>("pflag");
 
+                    b.Property<string>("phistory");
+
                     b.Property<Guid>("projectId");
 
                     b.Property<int>("pstatus");
@@ -337,6 +339,8 @@ namespace ge_repository.Migrations
 
                     b.Property<int>("pflag");
 
+                    b.Property<string>("phistory");
+
                     b.Property<string>("project_operations")
                         .HasMaxLength(255);
 
@@ -434,6 +438,8 @@ namespace ge_repository.Migrations
 
                     b.Property<int>("pflag");
 
+                    b.Property<string>("phistory");
+
                     b.Property<int>("pstatus");
 
                     b.Property<DateTime>("start_date");
@@ -483,6 +489,8 @@ namespace ge_repository.Migrations
                     b.Property<string>("parameters");
 
                     b.Property<int>("pflag");
+
+                    b.Property<string>("phistory");
 
                     b.Property<Guid?>("projectId");
 
@@ -596,6 +604,8 @@ namespace ge_repository.Migrations
                         .HasMaxLength(255);
 
                     b.Property<int>("pflag");
+
+                    b.Property<string>("phistory");
 
                     b.Property<Guid?>("projectId");
 

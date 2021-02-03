@@ -196,12 +196,15 @@
                 public int row {get;set;} 
                 public int row_offset {get;set;} 
                 public int col {get;set;} 
-                public int col_offset {get;set;} 
+                public int col_offset {get; set;} 
                 public int found {get;set;} = -1;   
                 public string units {get;set;}
                 public string comments {get;set;} 
                 public string source {get;set;} 
                 public string match_exact {get;set;} = "false";
+                public int getcoloffset() {
+                    return Math.Max(col_offset,start_offset);
+                }
 
                 public Boolean MatchExact() {return match_exact=="true";}
             public search_item(){}
@@ -289,6 +292,7 @@
             public string required {get;set;} = "true";
             public search_range start_offset {get;set;}
             public Boolean IsRequired() {return required=="true";}
+            
         }
 
         public class search_table {
@@ -369,7 +373,10 @@
                         return gs_ws;
                     }
                 } 
- 
+                
+                // recalcuate an formula cells ahead of search
+                wb.evaluateSheet();
+
                 foreach  (search_item si in dic.search_items) { 
                         // ge_log_workbook is zero based array of worksheet so will match string[] 
                         int found = wb.matchReturnRow(si.search_text, si.MatchExact());
@@ -418,15 +425,17 @@
                     }
 
                     foreach (value_header vh in st.headers) { 
-            
-                                int start_offset = 0;
+                               
+                                int col_start = 0;
                                 
                                 if (vh.start_offset!=null) {
-                                search_item si3 =  gs_ws.search_items.Find(e=>e.name==vh.start_offset.search_item);
-                                start_offset = si3.col + si3.start_offset;
+                                    search_item si3 =  gs_ws.search_items.Find(e=>e.name==vh.start_offset.search_item);
+                                    if (si3 != null) {
+                                        col_start = si3.col + si3.getcoloffset();
+                                    } 
                                 }
                                 
-                                int i = wb.matchReturnColumn(vh.search_text,header_row,header_offset, start_offset);
+                                int i = wb.matchReturnColumn(vh.search_text,header_row, header_offset, col_start);
                                 
                                 if (i == NOT_FOUND && vh.IsRequired() == true) {
                                     gs_ws.status = $"column search text [{vh.search_text}] of table [{table}] not found";

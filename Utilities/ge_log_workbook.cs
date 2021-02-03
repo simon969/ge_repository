@@ -19,9 +19,11 @@ namespace ge_repository.OtherDatabase
     public ICellRange<ICell> headers {get;private set;}
     public ICellRange<ICell> data {get; private set;}
     public IFormulaEvaluator evaluator {get; private set;}
+    public Boolean useCachedFormulaResult {get;set;} = false;
+
     DataFormatter formatter = new DataFormatter(System.Globalization.CultureInfo.GetCultureInfo("en-GB"));
-    public string DateTimeFORMAT {get;} = "yyyy-MM-ddTHH:mm:ss" ;
-    public string DateTimeFORMAT2 {get;} = "yyyy-MM-ddTHH:mm" ;
+    public string DateTimeFORMAT {get;} = "yyyy-MM-ddTHH:mm" ;
+    public string DateTimeFORMAT2 {get;} = "yyyy-MM-ddTHH:mm:ss" ;
     
     public int MAX_SEARCH_LINES {get;set;}
     public int current_data_row;
@@ -90,11 +92,11 @@ namespace ge_repository.OtherDatabase
                     sb.Append (","); 
                 }
                 if (Encapsulate==true) {
-                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2)+ "\"");
+                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator,useCachedFormulaResult, DateTimeFORMAT2)+ "\"");
                     continue;
                 }
 
-                sb.Append (cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2));
+                sb.Append (cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2));
 
             }
         }
@@ -108,11 +110,11 @@ namespace ge_repository.OtherDatabase
 
         foreach (ICell cell in row) { 
                 if (Encapsulate==true) {
-                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2) + "\"");
+                    sb.Append("\"" + cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2) + "\"");
                     continue;
                 }
 
-                sb.Append (cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2));
+                sb.Append (cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2));
 
         }
            
@@ -166,6 +168,23 @@ namespace ge_repository.OtherDatabase
         return sb.ToString();
 
     }
+    public Boolean evaluateSheet() {
+    
+    // https://poi.apache.org/components/spreadsheet/eval.html
+    
+    foreach (IRow r in worksheet) {
+        foreach (ICell c in r) {
+            if (c.CellType == CellType.Formula) {
+                evaluator.EvaluateFormulaCell(c);
+            }
+        }
+    }
+
+    useCachedFormulaResult = true;
+    
+    return true;
+
+    }
 
     public object getValue(int row, int column) {
         ICell cell = worksheet.GetRow(row).GetCell(column);
@@ -190,7 +209,7 @@ namespace ge_repository.OtherDatabase
         } else {
         worksheet = workbook.GetSheet (name);
         }
-
+        useCachedFormulaResult = false;
         return worksheet;
     }
     public Boolean setOnlyWorksheet() {
@@ -260,7 +279,7 @@ namespace ge_repository.OtherDatabase
         if (cell!=null) {
             ICell val_cell = worksheet.GetRow(cell.RowIndex + ret_offset_row).GetCell(cell.ColumnIndex + ret_offset_col);
             if (val_cell!=null) {
-              return val_cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
+              return val_cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2);
             }
         }
 
@@ -287,7 +306,7 @@ namespace ge_repository.OtherDatabase
                 break;
             }
             foreach (ICell cell in row) {
-                string s1 = cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
+                string s1 = cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2);
                   if (s1.Equals(value)) {
                   return cell;
                   }
@@ -306,7 +325,7 @@ namespace ge_repository.OtherDatabase
         if (row!=null) { 
             foreach (ICell cell in row) {
                 if (cell.ColumnIndex >= start_col) {
-                    string s1 = cell.GetFormattedCellValue(evaluator,DateTimeFORMAT2);
+                    string s1 = cell.GetFormattedCellValue(evaluator, useCachedFormulaResult, DateTimeFORMAT2);
                     if (s1.Equals(value)) {
                     return cell;
                     }

@@ -36,3 +36,21 @@
             @Html.DisplayFor(model => model.editedDT)
         </dd>
         </div>
+        <dt>
+            @Html.DisplayNameFor(model => model.pflag)
+        </dt>
+        <dd>
+            @if (@Model.pflag == pflagCODE.PROCESSING) {
+                <text>Processing in Progress</text>
+            } else {
+                <text>Normal</text>
+            }
+        </dd>
+        </div>
+        <dt>
+            @Html.DisplayNameFor(model => model.phistory)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.phistory)
+        </dd>
+        </div>

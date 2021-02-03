@@ -62,41 +62,43 @@ namespace ge_repository.repositories
         } 
         private async Task<ge_log_file> GetWhereParentAsync(string _where) {
         return await Task.Run (() =>
-                                    {
-                                          DataRow row = _parent.dataTable.Select (_where).SingleOrDefault();
-                                          if (row==null) {
-                                              _parent.sqlWhere(_where);
-                                              _parent.getDataTable();
-                                              row = _parent.dataTable.Rows[0];
-                                          }
-                                                        
-                                          ge_log_file file = new ge_log_file();
-                                          get_values(row, file);
-                                          
-                                          string rwhere = $"fileId={file.Id}";
-                                          DataRow[] rows = _child.dataTable.Select (rwhere);
-                                          if (rows==null) {
-                                              _child.sqlWhere(rwhere);
-                                              _child.getDataTable();
-                                              rows = _child.dataTable.Select();
-                                          }
+                                    {       
+                                        _parent.sqlWhere(_where);
+                                        _parent.getDataTable();
+                                        
+                                        if (_parent.dataTable==null) {
+                                            return null;
+                                        }       
+                                            
+                                        DataRow row = _parent.dataTable.Rows[0];
+                                                                                           
+                                        ge_log_file file = new ge_log_file();
+                                        get_values(row, file);
+                                        
+                                        string rwhere = $"fileId='{file.Id}'";
+                                            _child.sqlWhere(rwhere);
+                                            _child.getDataTable();
+                                        
+                                        if (_child.dataTable==null) {
+                                            return file;
+                                        }   
+                                            DataRow[] rows = _child.dataTable.Select();
+                                        //}
+                                            
+                                        file.readings = new List<ge_log_reading>();
 
-                                          file.readings = new List<ge_log_reading>();
+                                        foreach(DataRow rrow in rows)
+                                        {    
+                                            ge_log_reading r =  new ge_log_reading();
+                                            get_values(rrow, r);
+                                            file.readings.Add(r);
+                                        }
 
-                                          foreach(DataRow rrow in rows)
-                                            {    
-                                                ge_log_reading r =  new ge_log_reading();
-                                                get_values(rrow, r);
-                                                file.readings.Add(r);
-                                            }  
                                         file.OrderReadings();
                                         file.unpack_exist_file();
                                         return file;
                                     }
-
-                             );
-           
-
+                                );
         }
         public override async Task<ge_log_file> GetByIdAsync(Guid Id) {
             return await GetWhereParentAsync ($"Id='{Id}'");

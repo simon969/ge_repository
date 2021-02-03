@@ -173,6 +173,17 @@ namespace ge_repository.services
             return odb;
 
         }
+        public async Task SetProcessFlagAddEvents(Guid Id, int value, string events) {
+            
+            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
+            
+            data.pflag = value;
+            data.phistory += events;
+
+            await _unitOfWork.CommitAsync();
+
+        }
+
         public async Task SetProcessFlag(Guid Id, int value) {
             
             ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);

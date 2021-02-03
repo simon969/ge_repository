@@ -95,13 +95,9 @@ ViewData["Title"] = "All Data Index";
                 <text> | </text>
                 <a title="Create an xml file from this ags file" asp-controller="ge_ags" asp-action="CreateXML" asp-route-Id=@item.Id>Create XML</a>
             }
-            @if (item.fileext == ".ags" && item.pflag == pflagCODE.PROCESSING) {
+            @if (item.pflag == pflagCODE.PROCESSING) {
                 <text> | </text>
-                <text>Processing AGS</text>
-            }
-            @if ((item.fileext == ".xlsx" || item.fileext == ".csv") && item.pflag == pflagCODE.PROCESSING) {
-                <text> | </text>
-                <text>Processing Logger File</text>
+                <text>Processing in Progress</text>
             }
             @if (item.fileext == ".xml") {
                 <text> | </text>

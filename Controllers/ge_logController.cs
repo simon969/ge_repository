@@ -56,6 +56,47 @@ namespace ge_repository.Controllers
         {
            _serviceScopeFactory = serviceScopeFactory;
         }
+        [HttpPost]
+        // public async Task<IActionResult> ProcessFile( Guid Id, 
+        //                                       Guid? templateId, 
+        //                                       string table, 
+        //                                       string sheet,
+        //                                       string bh_ref, 
+        //                                       float probe_depth, 
+        //                                       string round_ref,
+        //                                       string process,
+        //                                       string options,
+        //                                       string format = "view",
+        //                                       Boolean save_logger = true,
+        //                                       Boolean save_mond = true) {
+        
+        
+        // if (process == "Foreground") {
+        //         return await ProcessFile (Id, 
+        //                             templateId, 
+        //                             table, 
+        //                             sheet,
+        //                             bh_ref, 
+        //                             probe_depth, 
+        //                             round_ref,
+        //                             options,
+        //                             format, 
+        //                             save_mond);
+        // }
+        
+        // if (process == "Background") {
+        //         return await ProcessFileBackground (Id, 
+        //                                       templateId, 
+        //                                       table, 
+        //                                       sheet,
+        //                                       bh_ref, 
+        //                                       probe_depth, 
+        //                                       round_ref,
+        //                                       options);
+        // }
+
+
+        //}
 
         [HttpPost]
         public async Task<IActionResult> ProcessFileBackground( Guid Id, 
@@ -65,9 +106,8 @@ namespace ge_repository.Controllers
                                               string bh_ref, 
                                               float probe_depth, 
                                               string round_ref,
-                                              string options = "",
-                                              string format = "view",
-                                              Boolean save = false) { 
+                                              string options = ""
+                                              ) { 
             Boolean read_logger = true;
             Boolean save_logger = true; 
             Boolean save_mond = true;
@@ -77,7 +117,7 @@ namespace ge_repository.Controllers
             save_logger = ! options.Contains("read_logger_ONLY");
             save_logger = options.Contains("save_logger");
             ignore_pflag = options.Contains("ignore_pflag");
-            save_mond = save;
+            save_mond = options.Contains("save_mond");
 
             IUnitOfWork _unit = new UnitOfWork(_context);
             IDataService _dataservice = new DataService(_unit);
@@ -166,11 +206,15 @@ namespace ge_repository.Controllers
             ge_log_client ac = new ge_log_client(serviceScopeFactory, 
                                                 connectLogger, 
                                                 connectGint);
+            
+            
+            
             ac.Id = Id;
             ac.templateId = templateId;
             ac.table = table;
             ac.sheet = sheet;
             ac.bh_ref = bh_ref;
+            ac.ge_source = get_ge_source(table);
             ac.probe_depth = probe_depth;
 
             ac.read_logger = read_logger;
@@ -179,6 +223,26 @@ namespace ge_repository.Controllers
             ac.start(); 
 
             return ge_log_client.enumStatus.Start; 
+
+        }
+        private string get_ge_source(string table) {
+
+            if (table.Contains("waterquality") || 
+                table.Contains("wq") ) {
+                return "ge_flow";
+            }
+ 
+            if (table.Contains("depth") || 
+                table.Contains("head") || 
+                table.Contains("pressure") || 
+                table.Contains("channel") || 
+                table.Contains("r0") ||
+                table.Contains("r1")
+                ) {
+                return "ge_logger";
+            }
+
+            return "";
 
         }
 private async Task<IActionResult> ReadFile(Guid Id,
@@ -1475,19 +1539,31 @@ public async Task<IActionResult> ProcessWQ( Guid Id, Guid? templateId, string bh
 // } 
 
 [HttpPost]
-public async Task<IActionResult> ProcessFile( Guid Id, 
-                                              Guid? templateId, 
-                                              string table, 
-                                              string sheet,
-                                              string bh_ref, 
-                                              float probe_depth, 
-                                              string round_ref,
-                                              string options = "",
-                                              string format = "view", 
-                                              Boolean save = false ) { 
+public async Task<IActionResult> ProcessFile(   Guid Id, 
+                                                Guid? templateId, 
+                                                string table, 
+                                                string sheet,
+                                                string bh_ref, 
+                                                float probe_depth, 
+                                                string round_ref,
+                                                string options = "",
+                                                string format = "view", 
+                                                Boolean save = false ) { 
     Boolean save_logger = true;
     
     if (options==null) options = "";
+    
+    if (options.Contains("background")) {
+        return await ProcessFileBackground (Id, 
+                                            templateId, 
+                                            table, 
+                                            sheet,
+                                            bh_ref, 
+                                            probe_depth, 
+                                            round_ref,
+                                            options);
+    
+    }
 
     if (options.Contains("read_logger_only")) {
         save_logger = false;    
@@ -2904,9 +2980,9 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     string[] values = line.Split(",");
                     
                     if (values[0].Contains("\"")) {
-                            values = line.QuoteSplit();
+                        values = line.QuoteSplit();
                     }
-                    if (values[0] == "") {
+                    if (values[intReadTime] == "") {
                         break;
                     }
                    

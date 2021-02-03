@@ -17,6 +17,7 @@ namespace ge_repository.Models {
         [Display(Name = "Last Edited DateTime")] public DateTime? editedDT {get;set;}
         [Display(Name = "Operations Allowed")] [StringLength(255)] public string operations {get;set;}
         [Display (Name = "Processing Flag")] public int pflag {get;set;}
+        [Display (Name = "Processing Result")] public string phistory {get;set;}
         
     }
        

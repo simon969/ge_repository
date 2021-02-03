@@ -14,6 +14,7 @@ namespace ge_repository.interfaces
         Task<ge_data> GetDataById(Guid Id);
         Task<OtherDbConnections> GetOtherDbConnectionsByDataId(Guid Id);
         Task SetProcessFlag(Guid Id, int value);
+        Task SetProcessFlagAddEvents(Guid Id, int value, string add);
         Task<int> GetProcessFlag(Guid Id);
         Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups);
         Task<T> GetFileAsClass<T>(Guid Id);

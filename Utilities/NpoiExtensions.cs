@@ -9,12 +9,18 @@
     {
     public static DateTime MIN_DATE = new DateTime (2000,1,1);
     public static DateTime MAX_DATE = new DateTime (2022,1,1);
-    public static string GetFormattedCellValue(this ICell cell, IFormulaEvaluator eval = null, string ImposeDatetimeFormat = "")
+    public static string GetFormattedCellValue(this ICell cell, IFormulaEvaluator eval = null, Boolean UseCachedFormulaResult = false, string ImposeDatetimeFormat = "")
     {
         
         if (cell != null)
         {
-            switch (cell.CellType)
+            CellType cellType = cell.CellType;
+
+            if (UseCachedFormulaResult == true && cellType==CellType.Formula) {
+                cellType=cell.CachedFormulaResultType;
+            } 
+
+            switch (cellType)
             {
                 case CellType.String:
                     return cell.StringCellValue;
@@ -48,8 +54,8 @@
                     return cell.BooleanCellValue ? "TRUE" : "FALSE";
 
                 case CellType.Formula:
-                    if (eval != null)
-                        return GetFormattedCellValue(eval.EvaluateInCell(cell),eval,ImposeDatetimeFormat);
+                    if (eval != null )
+                        return GetFormattedCellValue(eval.EvaluateInCell(cell),null,false,ImposeDatetimeFormat);
                     else
                         return cell.CellFormula;
 
@@ -60,8 +66,7 @@
         // null or blank cell, or unknown cell type
         return string.Empty;
     }
-
-
+    
     public static object GetCellValue(this ICell cell, IFormulaEvaluator eval = null) {
     
     object cValue = string.Empty;
