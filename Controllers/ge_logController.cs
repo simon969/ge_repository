@@ -150,6 +150,7 @@ namespace ge_repository.Controllers
                               sheet,
                               bh_ref,
                               probe_depth,
+                              round_ref,
                               _connectGint,
                               _connectLogger,
                               read_logger,
@@ -167,6 +168,7 @@ namespace ge_repository.Controllers
                                           string sheet,
                                           string bh_ref,
                                           float? probe_depth,
+                                          string round_ref,
                                           dbConnectDetails connectGint,
                                           dbConnectDetails connectLogger,
                                           Boolean read_logger = false,
@@ -181,6 +183,7 @@ namespace ge_repository.Controllers
                                           sheet,
                                           bh_ref,
                                           probe_depth,
+                                          round_ref,
                                           connectGint,
                                           connectLogger,
                                           read_logger,
@@ -196,6 +199,7 @@ namespace ge_repository.Controllers
                                           string sheet,
                                           string bh_ref,
                                           float? probe_depth,
+                                          string round_ref,
                                           dbConnectDetails connectGint,
                                           dbConnectDetails connectLogger,
                                           Boolean read_logger = false,
@@ -216,7 +220,7 @@ namespace ge_repository.Controllers
             ac.bh_ref = bh_ref;
             ac.ge_source = get_ge_source(table);
             ac.probe_depth = probe_depth;
-
+            ac.round_ref = round_ref;
             ac.read_logger = read_logger;
             ac.save_logger = save_logger;
             ac.save_MOND = save_MOND;
@@ -1554,6 +1558,11 @@ public async Task<IActionResult> ProcessFile(   Guid Id,
     if (options==null) options = "";
     
     if (options.Contains("background")) {
+        
+        if (save==true && !options.Contains("save_mond")){
+            options += ",save_mond";
+        }
+
         return await ProcessFileBackground (Id, 
                                             templateId, 
                                             table, 

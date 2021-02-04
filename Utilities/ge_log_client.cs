@@ -82,9 +82,10 @@ public class ge_log_client {
 
     public async Task<ge_log_client.enumStatus> start() {
 
-            status = enumStatus.Start;
             
+            status = enumStatus.Start;
             await _dataService.SetProcessFlag(Id,pflagCODE.PROCESSING);
+            init_start();
 
             while (status != enumStatus.Stop) {
                 
@@ -125,7 +126,7 @@ public class ge_log_client {
                     int resp = await saveFileLogger();
                     actionEnded("saveFileLogger",resp);
                     if (resp== NOT_OK) status = enumStatus.Stop;
-                    if (resp == OK) status = enumStatus.LoggerFileSaved;
+                    if (resp >= OK) status = enumStatus.LoggerFileSaved;
                 }
 
                 if (status == enumStatus.DataFileLoaded && read_logger==false) {
@@ -155,9 +156,15 @@ public class ge_log_client {
         return status;
     
  }
+    private void init_start() {
+    result =  $"Background ge_log_client started:{DateTime.Now} with " + System.Environment.NewLine;
+    result += $"sheet='{sheet}' table='{table}' bh_ref='{bh_ref}'" + System.Environment.NewLine;
+    result += $"probe_depth='{probe_depth}' round_ref='{round_ref}'" + System.Environment.NewLine;
+    }
+
     private void actionStarted (string s1) {
-        result += $"Started: {s1} {DateTime.Now}" + System.Environment.NewLine;
-        result += $"sheet:{sheet} table:{table} bh_ref:{bh_ref} probe_depth:{probe_depth} round_ref:{round_ref}" + System.Environment.NewLine;
+        result += $"{s1} started:{DateTime.Now}" + System.Environment.NewLine;
+       
     }
     private void actionEnded (string s1, int i) {
         string outcome = "";
@@ -165,7 +172,7 @@ public class ge_log_client {
         if (i == NOT_OK) outcome="Not Ok";
         if (i == OK) outcome="Ok";
         
-        result += $"Ended: {s1} {DateTime.Now} {outcome}" + System.Environment.NewLine;
+        result += $"{s1} ended:{DateTime.Now} result:{outcome}" + System.Environment.NewLine;
     }
     
     private async Task<int> loadTemplateAndLines () {
@@ -242,15 +249,15 @@ public class ge_log_client {
     }
     private async Task<int> saveFileLogger() {
 
-        ge_log_file exist = await _logService.GetByDataId(log_file.Id, table);
+        ge_log_file exist = await _logService.GetByDataId(Id, table);
     
         if (exist != null) {
-            await _logService.UpdateLogFile(exist, log_file);
+            log_file.Id = exist.Id;
+            return await _logService.UpdateLogFile(log_file, true);
         } else {
-            await _logService.CreateLogFile (log_file);
+            return await _logService.CreateLogFile (log_file);
         }
 
-        return 1;
     }
 
       

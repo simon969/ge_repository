@@ -12,7 +12,7 @@ public class MONGRepository : GintRepositoryADO<MONG>, IGintRepository<MONG>
     {
 
      public MONGRepository(SqlConnection conn,int gINTProjectID) 
-            : base("MOND","GintRecId",conn, gINTProjectID)
+            : base("MONG","GintRecId",conn, gINTProjectID)
         { }
    
     public void set_values(MONG item, DataRow row) {

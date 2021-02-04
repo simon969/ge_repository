@@ -13,7 +13,7 @@ public class MONDRepository : GintRepositoryADO<MOND>, IGintRepository<MOND>
     {
 
      public MONDRepository(SqlConnection conn, int gINTProjectId) 
-            : base("MOND", "GintRecId", conn, gINTProjectId)
+            : base("MOND", "GintRecID", conn, gINTProjectId)
         { }
     public async Task<IEnumerable<MOND>> GetWhereAsync(string where) {
 
@@ -54,7 +54,7 @@ public class MONDRepository : GintRepositoryADO<MOND>, IGintRepository<MOND>
                         row["RND_REF"] = item.RND_REF;
     }
 
-    public async Task<int> UpdateRangeAsync(List<MOND> save_items, 
+    public override async Task<int> UpdateRangeAsync(IEnumerable<MOND> save_items, 
                                  string where = null )
                                  {   
 

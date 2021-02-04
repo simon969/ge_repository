@@ -75,7 +75,7 @@ public class dsTable<T> {
     }
     public void sqlWhere(string where) {
     if (!string.IsNullOrEmpty(dataProjectsONLY)) {
-        where =  dataProjectsONLY + where;  
+        where =  dataProjectsONLY + " and " + where;  
     } 
         
     if (string.IsNullOrEmpty(where)) {
@@ -109,22 +109,48 @@ public class dsTable<T> {
             yield return dataTable.Rows[i];
         }
     }
-    public T GetItem (DataRow dr)  
+     public T GetItem (DataRow dr)  
         {  
             Type temp = typeof(T);  
             T obj = Activator.CreateInstance<T>();  
-        
-            foreach (DataColumn column in dr.Table.Columns)  
-            {  
-                foreach (PropertyInfo pro in temp.GetProperties())  
+            try {
+                foreach (DataColumn column in dr.Table.Columns)  
                 {  
-                    if (pro.Name == column.ColumnName)  
-                        pro.SetValue(obj, dr[column.ColumnName], null);  
-                    else  
-                        continue;  
+                    foreach (PropertyInfo pro in temp.GetProperties())  
+                    {  
+                        if (pro.Name == column.ColumnName) {
+                            object value =  dr[column.ColumnName];
+                            if (value==DBNull.Value) {value=null;}
+                            pro.SetValue(obj, value, null);  
+                        } else {  
+                            continue;
+                        }  
+                    }  
                 }  
+                return obj;
+            } catch (Exception e) {
+                return obj;
             }  
-            return obj;  
+        } 
+    private T GetItem2 (DataRow dr)  
+        {  
+            Type temp = typeof(T);  
+            T obj = Activator.CreateInstance<T>();  
+            try {
+                foreach (DataColumn column in dr.Table.Columns)  
+                {  
+                    foreach (PropertyInfo pro in temp.GetProperties())  
+                    {  
+                        if (pro.Name == column.ColumnName)  
+                            pro.SetValue(obj, dr[column.ColumnName], null);  
+                        else  
+                            continue;  
+                    }  
+                }  
+                return obj;
+            } catch (Exception e) {
+                return obj;
+            }  
         } 
     
     public DataSet getDataSet() {
@@ -241,7 +267,14 @@ public class dsTable<T> {
     }
 
     public int Update() {
+       try {
+       
        return dataAdapter.Update(dataSet,tableName);
+       
+       } catch (Exception e) {
+           return -1;
+
+       }
     }
     public int BulkUpdate() {
         int ret = 0;

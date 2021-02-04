@@ -43,9 +43,9 @@ namespace ge_repository.repositories
         {
             
         }
-        public async Task UpdateRangeAsync(IEnumerable<TEntity> entities, string exist_where)
+        public virtual async Task<int> UpdateRangeAsync(IEnumerable<TEntity> entities, string exist_where)
         {
-            
+            return -1;
         }
 
         public async Task<List<TEntity>> FindAsync(string where)
@@ -53,18 +53,42 @@ namespace ge_repository.repositories
             return await Task.Run (() => {
                                             _table.sqlWhere(where);
                                             _table.getDataTable();
+                                            
+                                            if (_table.dataTable == null) {
+                                            return null;
+                                            }
+                                            
                                             return _table.TableAsList();
+                                            
+                                            
                                     });
         }
         public async Task<TEntity> FindSingleAsync(string where){
              return await Task.Run (() => {
-                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                              row = _table.dataTable.Rows[0];
-                                          }
-                                          return _table.GetItem(row);
+                                            DataRow row = null;
+                                            
+                                            if (_table.dataTable!=null)  { 
+                                            // Is the record already in the dataTable
+                                                row = _table.dataTable.Select (where).SingleOrDefault();
+                                            }
+                                            
+                                            if (row == null) {
+                                            // record not in current datatable, requery data source,
+                                                _table.sqlWhere(where);
+                                                _table.getDataTable();
+
+                                                if (_table.dataTable == null){
+                                                    return null;
+                                                }
+                                                row = _table.dataTable.Rows[0];
+                                            }
+
+                                            if (row!=null) {
+                                               return _table.GetItem(row);
+                                            }
+
+                                            return null;  
+                                            
                                     });
         }
         public async Task<List<TEntity>> GetAllAsync()
@@ -75,47 +99,18 @@ namespace ge_repository.repositories
                                     });
         }
         public async Task<TEntity> GetByIdAsync(int Id)
-        {
-         return await Task.Run (() => {
-                                         string where = $"{_primarykey}={Id}";
-                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                              row = _table.dataTable.Rows[0];
-                                          }
-                                          return _table.GetItem(row);
-                                    });
-
+        { 
+            return await FindSingleAsync ($"{_primarykey}={Id}");
         }
         public async Task<TEntity> GetByIdAsync(Guid Id)
         {
-         return await Task.Run (() => {
-                                         string where = $"{_primarykey}='{Id}'";
-                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                              row = _table.dataTable.Rows[0];
-                                          }
-                                          return _table.GetItem(row);
-                                    });
-
+            return await FindSingleAsync ($"{_primarykey}={Id}");
         }
 
         
         public async Task<TEntity> GetByIdAsync(string Id)
         {
-           return await Task.Run (() => {
-                                         string where = $"{_primarykey}='{Id}'";
-                                          DataRow row = _table.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                              row = _table.dataTable.Rows[0];
-                                          }
-                                          return _table.GetItem(row);
-                                    });  
+            return await FindSingleAsync ($"{_primarykey}={Id}");
         }
         public void Remove(TEntity entity)
         {
@@ -126,17 +121,9 @@ namespace ge_repository.repositories
         {
            
         }
-        public async Task<TEntity> SingleOrDefaultAsync(string where) {
-        
-            return await Task.Run (() => {
-                                         DataRow row = _table.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _table.sqlWhere(where);
-                                              _table.getDataTable();
-                                              row = _table.dataTable.Rows[0];
-                                          }
-                                          return _table.GetItem(row);
-                                    });
+        public async Task<TEntity> SingleOrDefaultAsync(string where) 
+        {
+            return await FindSingleAsync (where);
         }
         
     }

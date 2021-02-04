@@ -15,7 +15,7 @@ namespace ge_repository.interfaces
         Task<TEntity> FindSingleAsync(string where);
         Task AddAsync(TEntity entity);
         Task AddRangeAsync(IEnumerable<TEntity> entities);
-        Task UpdateRangeAsync(IEnumerable<TEntity> entities, string exist_where);
+        Task<int> UpdateRangeAsync(IEnumerable<TEntity> entities, string exist_where);
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entities);
     }

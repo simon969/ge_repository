@@ -21,12 +21,12 @@ namespace ge_repository.services
         }
         public async Task<POINT> GetPointByHoleId(string Id) {
 
-            return await _unitOfWork.POINT.FindSingleAsync($"POINTId='{Id}'");
+            return await _unitOfWork.POINT.FindSingleAsync($"PointID='{Id}'");
 
         }
        public async Task<POINT> GetPointById(int Id) {
 
-          return await _unitOfWork.POINT.FindSingleAsync($"GintRecId={Id}");
+          return await _unitOfWork.POINT.FindSingleAsync($"GintRecID={Id}");
         
         }
         public async Task<List<POINT>> GetAllPointWhere(string where) {

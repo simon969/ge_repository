@@ -13,7 +13,7 @@ public class GintRepositoryADO<T> : RepositoryADO<T> where T : class {
     
     protected int _gINTProjectID {get;}
 
-    public GintRepositoryADO(string name,string primarykey, SqlConnection conn, int gINTProjectID) 
+    public GintRepositoryADO(string name, string primarykey, SqlConnection conn, int gINTProjectID) 
             : base(name, primarykey, conn, gINTProjectID)
         {
             _gINTProjectID = gINTProjectID;

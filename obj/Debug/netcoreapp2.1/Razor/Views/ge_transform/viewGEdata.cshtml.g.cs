@@ -59,7 +59,7 @@ using ge_repository.Extensions;
             WriteLiteral("<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n");
             EndContext();
             BeginContext(87, 34, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "3f211c3cfff04a31bcf6a016727cec97", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "adf131f88d3744a9b310caa98ebf234b", async() => {
                 BeginContext(108, 6, true);
                 WriteLiteral("\r\n    ");
                 EndContext();
@@ -80,7 +80,7 @@ using ge_repository.Extensions;
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(123, 279, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "a8ec64d67ead47e2baaae81b48437d1b", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c209a3c47e3840eab9980a17a804023e", async() => {
                 BeginContext(129, 266, true);
                 WriteLiteral(@"
     <form id=""form1"" runat=""server"">

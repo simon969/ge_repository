@@ -10,6 +10,7 @@ namespace ge_repository.interfaces
         IGintRepository<POINT> POINT {get; }
         IGintRepository<MONG> MONG {get;} 
         IGintRepository<MOND> MOND {get;}
+        
         // IGintRepository<MONV> MONV {get; }
         // IGintRepository<ERES> ERES {get; }
 

@@ -11,7 +11,7 @@ namespace ge_repository.OtherDatabase  {
 
 // CREATE TABLE [dbo].[GRAG](
 
-	[Key] [Display(Name = "GintRecID")] public int GintRecId {get;set;} 
+	[Key] [Display(Name = "GintRecID")] public int GintRecID {get;set;} 
 //	[GintRecID] [int] IDENTITY(1,1) NOT NULL,
   	[Display(Name = "gINTProjectID")] public int gINTProjectID {get;set;} 
 //	[gINTProjectID] [int] NOT NULL,

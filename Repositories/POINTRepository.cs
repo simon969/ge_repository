@@ -12,7 +12,7 @@ public class POINTRepository : GintRepositoryADO<POINT>, IGintRepository<POINT>
     {
 
      public POINTRepository(SqlConnection conn,int gINTProjectID) 
-            : base("MOND","GintRecId",conn, gINTProjectID)
+            : base("POINT","GintRecID",conn, gINTProjectID)
         { }
     public async Task<IEnumerable<POINT>> GetWhereAsync(string where) {
 

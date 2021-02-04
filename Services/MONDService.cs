@@ -17,7 +17,7 @@ namespace ge_repository.services
            return await _unitOfWork.MONG.GetByIdAsync(Id);
         }
         public Task<List<MONG>> GetParentsByHoleId(string Id) {
-            return _unitOfWork.MONG.FindAsync ($"POINT='{Id}'");
+            return _unitOfWork.MONG.FindAsync ($"PointID='{Id}'");
         }
         public Task <MONG> getMONG(string PointId, string MONG_DIS) {
             return null;
@@ -67,7 +67,7 @@ namespace ge_repository.services
                                         DateTime? toDT,
                                         Boolean save_MOND
                                         ) 
-    {
+        {
             
 
             int page_size = 1000;
@@ -139,14 +139,12 @@ namespace ge_repository.services
 
         MONG mg = null;
 
-        List<MONG> PointInstalls = mgs.FindAll(m=>m.PointID==pt.PointID);
-        
         string formatMATCH ="{0:00.0}";
 
-       if (PointInstalls.Count==1) {
-           mg = PointInstalls.FirstOrDefault();
+       if (mgs.Count==1) {
+           mg = mgs.FirstOrDefault();
        } else {
-            foreach (MONG m in PointInstalls) {
+            foreach (MONG m in mgs) {
                 if (m.MONG_DIS!=null) {
                     if (String.Format(formatMATCH, m.MONG_DIS.Value) == String.Format(formatMATCH,probe_depth)) {
                         mg = m;

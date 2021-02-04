@@ -11,9 +11,9 @@ namespace ge_repository.interfaces
         Task<ge_log_file> GetByDataId(Guid Id, string table);
         Task<ge_log_file> GetByIdNoReadings(Guid Id);
         Task<IEnumerable<ge_log_file>> GetAllByProjectIdNoReadings(Guid Id);
-        Task CreateLogFile(ge_log_file newData);
-        Task UpdateLogFile(ge_log_file dataToBeUpdated, ge_log_file data);
-        Task DeleteLogFile(ge_log_file data);
+        Task<int> CreateLogFile(ge_log_file newData);
+        Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings);
+        Task<int> DeleteLogFile(ge_log_file data);
         ge_log_file NewLogFile(ge_search dic, 
                                   string[] lines,
                                   Guid dataId,

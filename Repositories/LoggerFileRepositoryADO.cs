@@ -129,6 +129,121 @@ namespace ge_repository.repositories
 
                                     });
     }
+    private ge_log_file get_file(int row_id, Boolean includereadings) {
+            
+            if (_parent.dataTable !=null) {
+            DataRow row = _parent.dataTable.Rows[row_id]; 
+            ge_log_file file = new ge_log_file();
+            get_values (row, file);
+                if (includereadings) {
+                DataRow[] rows = _child.dataTable.Select($"FileId='{file.Id}'");
+                file.readings = new List<ge_log_reading>();
+                    foreach(DataRow rrow in rows)
+                    {    
+                        ge_log_reading r =  new ge_log_reading();
+                        get_values(rrow, r);
+                        file.readings.Add(r);
+                    }
+                file.OrderReadings();
+                file.unpack_exist_file();
+                }
+            return file;
+            }
+            return null;
+    }
+     
+     
+    public async Task<int> UpdateAsync (ge_log_file file, Boolean IncludeReadings) {
+
+            int NOT_OK = -1;
+            int ret = 0;
+            
+            file.packFieldHeaders();
+            file.packFileHeader();
+
+            return await Task.Run(() =>
+            
+            {
+                    if (_parent.dataTable==null) { 
+                    _parent.sqlWhere($"Id='{file.Id}' ");
+                    _parent.getDataSet();
+                    _parent.getDataTable();
+                    }
+                    DataTable dt_file = _parent.dataTable;
+
+                    if (dt_file == null) {
+                        return NOT_OK;
+                    } 
+                    
+                    if (dt_file.Rows.Count==0) {
+                        return NOT_OK;
+                    }
+
+                    DataRow file_row = dt_file.Rows[0];
+                    set_values (file, file_row);
+                // ret = _parent.Update();
+                    
+                    if (IncludeReadings) { 
+                        
+                        if (_child.dataTable==null) {
+                        _child.sqlWhere($"FileId='{file.Id}'");
+                        _child.getDataSet();
+                        _child.getDataTable();
+                        }
+                        DataTable dt_readings = _child.dataTable;
+
+                        Boolean checkExisting = false;
+                        
+                        if (dt_readings.Rows.Count>0) {
+                            checkExisting=true;
+                        }
+
+                        foreach (ge_log_reading reading in file.readings) {
+                            
+                            DataRow row = null;
+                            if (checkExisting==true) {
+                                if (reading.Id != Guid.Empty) {
+                                row = dt_readings.Select ($"Id='{reading.Id}'").SingleOrDefault();
+                                }
+
+                                if (row==null) {
+                                row =  dt_readings.Select ($"ReadingDateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss.ffff}",reading.ReadingDatetime)}'").SingleOrDefault();
+                                }
+                            }
+
+                            if (row==null) {
+                                row = _child.NewRow();
+                                reading.Id = Guid.NewGuid();
+                                reading.fileId = file.Id;
+                                _child.addRow (row); 
+                            } else {
+                                reading.Id = (Guid) row["Id"];
+                                reading.fileId = file.Id;
+                            }
+                        
+                            set_values (reading, row);
+                        }
+
+                        //what if there are other records (more) in dt_readings from a previous version of the ge_log_file? 
+                        // mark for deletion all records not 'new' or 'updated'
+                        if (file.readings.Count() < dt_readings.Rows.Count) {
+                            foreach (DataRow row in dt_readings.Rows) {
+                            if (row.RowState == DataRowState.Added | 
+                                row.RowState != DataRowState.Modified) {
+                                    row.Delete();
+                                }
+
+                            } 
+                        }
+
+                        return ret;
+                    } 
+
+                return ret;  
+                
+            });
+
+    } 
      private void get_values(DataRow row, ge_log_reading reading) {
 
                 reading.Id = (Guid) row ["Id"];
@@ -190,7 +305,7 @@ namespace ge_repository.repositories
                 row["NotDry"] = reading.NotDry;
 
     }
-    private void get_values(DataRow row, ge_log_file file) {
+    public void get_values(DataRow row, ge_log_file file) {
 
                 file.Id = (Guid) row["Id"];
                 file.dataId = (Guid) row["dataId"]; 

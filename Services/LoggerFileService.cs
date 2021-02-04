@@ -33,21 +33,31 @@ namespace ge_repository.services
             return await _unitOfWork.LoggerFile.GetAllLoggerFilesWithoutReadingsAsync();
         }
 
-        public async Task  CreateLogFile(ge_log_file newData) {
+        public async Task<int>  CreateLogFile(ge_log_file newData) {
              await _unitOfWork.LoggerFile.AddAsync (newData);
-             await _unitOfWork.CommitAsync();
-             
+             return await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateLogFile(ge_log_file dataToBeUpdated, ge_log_file data) {
-            var rec = await _unitOfWork.LoggerFile.GetByIdAsync(dataToBeUpdated.Id);
-            //int resp = 
-            await _unitOfWork.CommitAsync();
+        public async Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings) {
+
+            var existing = await _unitOfWork.LoggerFile.GetByIdAsync(data.Id);
+            
+            if (existing == null) {
+                return -1;
+            }
+
+            var ret = await _unitOfWork.LoggerFile.UpdateAsync(data, includereadings);
+            
+            if (ret == 0) {
+                return await _unitOfWork.CommitAsync();
+            }
+
+            return -1;
         }
 
-        public async Task DeleteLogFile(ge_log_file dataToBeDeleted) {
+        public async Task<int> DeleteLogFile(ge_log_file dataToBeDeleted) {
             _unitOfWork.LoggerFile.Remove(dataToBeDeleted);
-            await _unitOfWork.CommitAsync();
+            return await _unitOfWork.CommitAsync();
         }
         
         public ge_log_file NewLogFile(ge_search dic, 
@@ -244,8 +254,6 @@ namespace ge_repository.services
         file.init_new_file();
         file.calcReadingAggregates();
         
-       // _unitOfWork.LoggerFile.AddAsync(file);
-
         return file;
     
     }
@@ -295,7 +303,7 @@ namespace ge_repository.services
                     
                     if (intReadTime != NOT_FOUND) {
                         if (ContainsError(values[intReadTime])) {continue;}
-                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformat);
+                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
                     }
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
@@ -344,6 +352,20 @@ namespace ge_repository.services
 
 
  }
+  private DateTime getDateTime(string s1, string[] dateformats) {
+
+                        if (dateformats!=null) {
+                            foreach (string dateformat in dateformats) {
+                                DateTime dateTime;
+                                Boolean formatOK = DateTime.TryParseExact(s1, dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite, out dateTime);
+                                if (formatOK) {
+                                    return dateTime;
+                                }
+                            }
+                        }
+
+                        return DateTime.Parse(s1);
+ }
  private static float? getFloat(string s1, float? retOnError) {
      float? fl;
      try {
@@ -387,6 +409,13 @@ namespace ge_repository.services
 
     private string[] SplitDateFormats(string dateformat="") {
 
+    // there is a risk that the dateformat itself contains commas, in which case this method is unreliable
+    // a safer way may be to split by "','" and trim first "'". 
+    // But this would require that the incoming formats are encapsulated by ''
+    
+    // string encapse_delimeter = "','";
+    // string delimeter = ",";
+
     string[] dateformats;
 
     if (dateformat == null) {
@@ -394,11 +423,11 @@ namespace ge_repository.services
     }
 
     if (dateformat.Length > 0) {
-        dateformat = dateformat + "," + DATETIME_FORMAT;
+        dateformat = dateformat + "," + DATE_FORMAT + "," + DATETIME_FORMAT;
     } else {
-        dateformat = DATETIME_FORMAT;
+        dateformat = DATE_FORMAT + "," + DATETIME_FORMAT;
     }
-
+    
     if (dateformat.Contains(",")) {
         dateformats = dateformat.Split(",");
     } else { 
