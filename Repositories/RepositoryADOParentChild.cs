@@ -32,13 +32,8 @@ namespace ge_repository.repositories
             _parent = p;
             _child = c;
         }
-        public async Task AddAsync(TParent entity)
-        {
-            await Task.Run (()=>{
-                                _parent.addRow(entity);
-                                });
-
-        }
+        public abstract Task AddAsync(TParent entity);
+        
 
         public async Task AddRangeAsync(IEnumerable<TParent> entities)
         {

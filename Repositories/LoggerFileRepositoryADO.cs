@@ -69,7 +69,10 @@ namespace ge_repository.repositories
                                         if (_parent.dataTable==null) {
                                             return null;
                                         }       
-                                            
+                                        
+                                        if (_parent.dataTable.Rows.Count==0) {
+                                            return null;
+                                        }
                                         DataRow row = _parent.dataTable.Rows[0];
                                                                                            
                                         ge_log_file file = new ge_log_file();
@@ -81,10 +84,13 @@ namespace ge_repository.repositories
                                         
                                         if (_child.dataTable==null) {
                                             return file;
-                                        }   
-                                            DataRow[] rows = _child.dataTable.Select();
-                                        //}
-                                            
+                                        }
+                                        if (_child.dataTable.Rows.Count==0) {
+                                            return file;
+                                        }  
+                                        
+                                        DataRow[] rows = _child.dataTable.Select();
+                                                                                    
                                         file.readings = new List<ge_log_reading>();
 
                                         foreach(DataRow rrow in rows)
@@ -108,10 +114,19 @@ namespace ge_repository.repositories
             return await GetWhereParentAsync ($"DataId='{Id}' and channel='{table}'");
 
         }
-       public async Task<int> AddAsync (ge_log_file file) {
+         
+       public override async Task AddAsync (ge_log_file file) {
 
-       return await Task.Run(() =>
+            await Task.Run(() =>
                                     {
+                                            if (_parent.dataTable==null) {
+                                                _parent.getDataTable();
+                                            }
+
+                                            if (_child.dataTable==null) {
+                                                _child.getDataTable();
+                                            }
+
                                             DataRow new_file = _parent.NewRow();
                                             file.Id = Guid.NewGuid();
                                             set_values (file, new_file);
@@ -124,8 +139,7 @@ namespace ge_repository.repositories
                                                 set_values (reading, new_reading);
                                                 _child.addRow (new_reading);
                                             }
-                                            
-                                            return 1;
+                                                                                       
 
                                     });
     }
