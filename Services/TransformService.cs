@@ -32,7 +32,7 @@ namespace ge_repository.services
         }
         public async Task<ge_transform> GetTransformById(Guid id) {
             return await _unitOfWork.Transform
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
         public async Task<ge_transform> CreateTransform(ge_transform newTransform) {
             await _unitOfWork.Transform.AddAsync(newTransform);

@@ -55,9 +55,9 @@ namespace ge_repository.repositories
             return null;
         }
 
-        public abstract Task<TParent> GetByIdAsync(Guid id);
-        public abstract Task<TParent> GetByIdAsync(string id);
-        public abstract Task<TParent> GetByIdAsync(int id);
+        public abstract Task<TParent> FindByIdAsync(Guid id);
+        public abstract Task<TParent> FindByIdAsync(string id);
+        public abstract Task<TParent> FindByIdAsync(int id);
         
         // public async Task<TParent> GetByIdAsync(string id)
         // {
@@ -115,5 +115,8 @@ namespace ge_repository.repositories
             //Not implemented yet
             return null;
         }
+      
+        public abstract bool ExistsLocal(TParent entity);
+        public bool Exists(params object[] keys) { return false;}
     }
 }

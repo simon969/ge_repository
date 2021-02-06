@@ -15,5 +15,6 @@ namespace ge_repository.interfaces
         // IGintRepository<ERES> ERES {get; }
 
        Task<int> CommitAsync();
+       Task<int> CommitBulkAsync();
     }
 }

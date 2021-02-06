@@ -53,11 +53,11 @@ namespace ge_repository.repositories
                                           return file;
                                     });
         }
-        public override async Task<ge_log_file> GetByIdAsync(string Id) { 
+        public override async Task<ge_log_file> FindByIdAsync(string Id) { 
             Guid Guid = new Guid(Id);
-            return await GetByIdAsync(Guid);
+            return await FindByIdAsync(Guid);
         }
-        public override async Task<ge_log_file> GetByIdAsync(int Id) {
+        public override async Task<ge_log_file> FindByIdAsync(int Id) {
            return null;
         } 
         private async Task<ge_log_file> GetWhereParentAsync(string _where) {
@@ -106,7 +106,7 @@ namespace ge_repository.repositories
                                     }
                                 );
         }
-        public override async Task<ge_log_file> GetByIdAsync(Guid Id) {
+        public override async Task<ge_log_file> FindByIdAsync(Guid Id) {
             return await GetWhereParentAsync ($"Id='{Id}'");
 
         }
@@ -356,7 +356,25 @@ namespace ge_repository.repositories
                                     });
 
     }
+    public async Task<int> CommitBulkAsync(){ 
+        
+        return await Task.Run (() => {
+                                    int p = _parent.BulkUpdate();
+                                    int c = _child.BulkUpdate();
+                                    return p+c;
+                                    });
 
+    }
+
+    public override bool ExistsLocal(ge_log_file log_file)
+    {
+        return _parent.dataTable.Select($"Id='{log_file.Id}'") != null;
+    }
+    
+    public bool Exists(ge_log_file log_file)
+        {
+        return GetByIdWithoutReadingsAsync(log_file.Id) != null;
+        }
     }
 
 }

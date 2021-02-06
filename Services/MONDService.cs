@@ -53,7 +53,7 @@ namespace ge_repository.services
         }
         public async Task UpdateRange(List<MOND> records, string where) {
             await _unitOfWork.MOND.UpdateRangeAsync(records, where);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitBulkAsync();
         }
         public async Task DeleteRecord(MOND record) {
                 _unitOfWork.MOND.Remove(record);
@@ -101,6 +101,23 @@ namespace ge_repository.services
 
         return ordered;
 
+    }
+    private int getInt32(string s1) {
+        
+        char[] allowed_chars = new char[] {'0','1','2','3','4','5','6','7','8','9'}; 
+        
+        string s2 ="";
+
+        foreach(char c in s1) {
+            if (allowed_chars.Contains(c)) {
+                s2 += c;
+            }
+        }
+
+        int ret_val = 0;
+        Int32.TryParse(s2, out ret_val);
+        
+        return ret_val;
     }
     private async Task<List<MOND>> createMOND ( ge_log_file log_file,
                                                 int page_size,
@@ -173,7 +190,7 @@ namespace ge_repository.services
             gl = Convert.ToSingle(pt.LOCA_GL.Value);
         }
 
-        int round_no = Convert.ToInt16(round_ref);
+        // int round_no = getInt32(round_ref);
         
         string mond_rem_suffix = "";
         string mond_ref = "";
@@ -193,7 +210,7 @@ namespace ge_repository.services
                 foreach (value_header vh in log_file.field_headers) {
                     
                     if (ge_source =="ge_flow")  {
-                        mond_ref = String.Format("Round {0:00} Seconds {1:00}",round_no,reading.Duration);
+                        mond_ref = String.Format("Round {0} Seconds {1:00}",round_ref,reading.Duration);
                     }
 
                     if (vh.id == "WDEPTH" && vh.units=="m") {

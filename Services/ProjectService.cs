@@ -37,7 +37,7 @@ namespace ge_repository.services
         public async Task<ge_project> GetProjectById(Guid id)
         {
             return await _unitOfWork.Project
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
        
         public async Task<IEnumerable<ge_project>> GetProjectByGroupId(Guid groupId)

@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Globalization;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
+using ge_repository.Models;
 
 namespace ge_repository.services
 {
@@ -20,7 +22,7 @@ namespace ge_repository.services
             _unitOfWork = unitOfWork;
         }
         public async Task<ge_log_file> GetById(Guid Id) {
-             return await _unitOfWork.LoggerFile.GetByIdAsync(Id);
+             return await _unitOfWork.LoggerFile.FindByIdAsync(Id);
         }
         public async Task<ge_log_file> GetByDataId(Guid Id, string table) {
              return await _unitOfWork.LoggerFile.GetByDataIdAsync(Id, table);
@@ -35,12 +37,12 @@ namespace ge_repository.services
 
         public async Task<int>  CreateLogFile(ge_log_file newData) {
              await _unitOfWork.LoggerFile.AddAsync (newData);
-             return await _unitOfWork.CommitAsync();
+             return await _unitOfWork.CommitBulkAsync();
         }
 
         public async Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings) {
 
-            var existing = await _unitOfWork.LoggerFile.GetByIdAsync(data.Id);
+            var existing = await _unitOfWork.LoggerFile.FindByIdAsync(data.Id);
             
             if (existing == null) {
                 return -1;
@@ -48,8 +50,12 @@ namespace ge_repository.services
 
             var ret = await _unitOfWork.LoggerFile.UpdateAsync(data, includereadings);
             
-            if (ret == 0) {
+            if (ret == 0 && includereadings==false) {
                 return await _unitOfWork.CommitAsync();
+            }
+
+            if (ret == 0 && includereadings==true) {
+                return await _unitOfWork.CommitBulkAsync();
             }
 
             return -1;
@@ -60,10 +66,108 @@ namespace ge_repository.services
             return await _unitOfWork.CommitAsync();
         }
         
-        public ge_log_file NewLogFile(ge_search dic, 
-                                  string[] lines,
-                                  Guid dataId,
-                                  Guid templateId) {
+        public int loadTemplateAndLines (ge_data data_file, 
+                                          ge_search template, 
+                                          string table, 
+                                          string sheet, 
+                                          IDataService _dataService,  
+                                          out ge_search template_loaded, 
+                                          out string[] lines ) {
+
+        lines = null;
+        template_loaded = null;
+        
+        if (data_file.fileext == ".csv") {
+                var resp = _dataService.GetFileAsLines(data_file.Id);
+                lines = (string[]) resp.Result;
+                SearchTerms st = new SearchTerms();
+                template_loaded = st.findSearchTerms(template,table, lines);
+                if (template_loaded.search_tables.Count==0) {
+                    return -1;
+                }
+        }
+
+        if (data_file.fileext == ".xlsx") {
+            var resp = _dataService.GetFileAsMemoryStream(data_file.Id);
+            using (MemoryStream ms = (MemoryStream) resp.Result) {
+                ge_log_workbook wb = new ge_log_workbook(ms);
+                SearchTerms st = new SearchTerms();  
+                if (sheet.Contains(",")) {
+                string[] sheets = sheet.Split (",");
+                template_loaded =  st.findSearchTerms (template, table, wb, sheets);  
+                } else {
+                template_loaded  =  st.findSearchTerms (template, table, wb, sheet);
+                }
+                
+                if (template_loaded.search_tables.Count==0) {
+                    lines = null;
+                    return -1;
+                }
+                
+                wb.setWorksheet(template_loaded.search_tables[0].sheet);
+                wb.evaluateSheet();
+                lines = wb.WorksheetToTable();
+                wb.close();
+                
+                return 1;
+            }
+        }
+        
+        return -1;
+  }
+
+        public async Task<ge_log_file> NewLogFile(Guid Id, Guid templateId, string table, string sheet, IDataService _dataService) {
+
+        string[] lines = null;
+        ge_search template_loaded = null;
+
+        ge_search template = await _dataService.GetFileAsClass<ge_search>(templateId);
+        ge_data data_file = await _dataService.GetDataById(Id);
+
+        if (data_file.fileext == ".csv") {
+                lines = await _dataService.GetFileAsLines(data_file.Id);
+                SearchTerms st = new SearchTerms();
+                template_loaded = st.findSearchTerms(template,table, lines);
+                if (template_loaded.search_tables.Count==0) {
+                    return null;
+                }
+        }
+
+        if (data_file.fileext == ".xlsx") {
+            using (MemoryStream ms = await _dataService.GetFileAsMemoryStream(data_file.Id)) {
+                ge_log_workbook wb = new ge_log_workbook(ms);
+                SearchTerms st = new SearchTerms();  
+                if (sheet.Contains(",")) {
+                string[] sheets = sheet.Split (",");
+                template_loaded =  st.findSearchTerms (template, table, wb, sheets);  
+                } else {
+                template_loaded  =  st.findSearchTerms (template, table, wb, sheet);
+                }
+                
+                if (template_loaded.search_tables.Count==0) {
+                    return null;
+                }
+                
+                wb.setWorksheet(template_loaded.search_tables[0].sheet);
+                wb.evaluateSheet();
+                lines = wb.WorksheetToTable();
+                wb.close();
+            }
+        }
+        
+        return NewLogFile ( template_loaded, 
+                            lines, 
+                            Id, 
+                            templateId);
+
+  }
+       
+
+
+        public ge_log_file NewLogFile ( ge_search dic, 
+                                        string[] lines,
+                                        Guid dataId,
+                                        Guid templateId) {
     
             ge_log_file file = new ge_log_file();
             

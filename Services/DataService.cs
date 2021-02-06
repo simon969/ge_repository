@@ -9,6 +9,7 @@ using ge_repository.Models;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
 using ge_repository.AGS;
+using ge_repository.Extensions;
 
 namespace ge_repository.services
 {
@@ -42,12 +43,12 @@ namespace ge_repository.services
         public async Task<ge_data> GetDataById(Guid id)
         {
             return await _unitOfWork.Data
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
 
         public async Task<MemoryStream> GetFileAsMemoryStream(Guid Id) {
           
-            var _data = await _unitOfWork.Data.GetByIdAsync(Id);
+            var _data = await _unitOfWork.Data.FindByIdAsync(Id);
 
             if (_data == null)
             {
@@ -71,7 +72,7 @@ namespace ge_repository.services
         }
         public  async Task<string> GetFileAsString (Guid Id, bool removeBOM = false) {
             
-           var _data = await _unitOfWork.Data.GetByIdAsync(Id);
+           var _data = await _unitOfWork.Data.FindByIdAsync(Id);
 
             if (_data == null)
             {
@@ -95,7 +96,7 @@ namespace ge_repository.services
         
         public async Task<string[]> GetFileAsLines(Guid Id) {
 
-            var _data = await _unitOfWork.Data.GetByIdAsync(Id);
+            var _data = await _unitOfWork.Data.FindByIdAsync(Id);
 
             var encode = _data.GetEncoding();
 
@@ -173,31 +174,7 @@ namespace ge_repository.services
             return odb;
 
         }
-        public async Task SetProcessFlagAddEvents(Guid Id, int value, string events) {
-            
-            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
-            
-            data.pflag = value;
-            data.phistory += events;
 
-            await _unitOfWork.CommitAsync();
-
-        }
-
-        public async Task SetProcessFlag(Guid Id, int value) {
-            
-            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
-            
-            data.pflag = value;
-            
-            await _unitOfWork.CommitAsync();
-        }
-        public async Task<int> GetProcessFlag(Guid Id) {
-            ge_data data = await _unitOfWork.Data.GetByIdAsync(Id);
-            
-            return data.pflag;
-        }
-        
         public async Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups) {
 
             string[] _lines = await GetFileAsLines(Id);
@@ -219,18 +196,48 @@ namespace ge_repository.services
                 .GetAllByProjectIdAsync(projectId);
         }
 
-        public async Task UpdateData(ge_data dataToBeUpdated, ge_data data)
+        public async Task UpdateData(ge_data Exist, ge_data data)
         {
-           ge_data to =  await _unitOfWork.Data.GetByIdAsync(dataToBeUpdated.Id);
+           ge_data exist =  await _unitOfWork.Data.FindByIdAsync(Exist.Id);
             
-
+         //  Extensions.Extensions.Copy<ge_data>(exist,data);
+           
            await _unitOfWork.CommitAsync();
         }
         public async Task UpdateData(ge_data data)
         {
-            ge_data to =  await _unitOfWork.Data.GetByIdAsync(data.Id);
+            ge_data exist = null;
+
+            exist =  await _unitOfWork.Data.FindByIdAsync(data.Id);
+                        
+            Extensions.Extensions.Copy<ge_data>(data, exist);
 
             await _unitOfWork.CommitAsync();
+        }
+        public async Task SetProcessFlag(Guid Id, int value) {
+           
+            ge_data data = await _unitOfWork.Data.FindByIdAsync (Id);
+            data.pflag = value;
+
+        }
+        public async Task SetProcessFlagAddEvents(Guid Id, int value, string add) {
+            
+            ge_data data = await _unitOfWork.Data.FindByIdAsync (Id);
+            data.pflag = value;
+            data.phistory += add;
+
+        }
+        
+        public async Task<int> GetProcessFlag(Guid Id) {
+
+            ge_data data = await _unitOfWork.Data.FindByIdAsync (Id);
+            
+            if (data==null) {
+                return -1;
+            }
+
+            return data.pflag;
+        
         }
     }
 }

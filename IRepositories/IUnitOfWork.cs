@@ -14,5 +14,6 @@ namespace ge_repository.interfaces
 
 
         Task<int> CommitAsync();
+        
     }
 }

@@ -38,11 +38,11 @@ public class dsTable<T> {
     public string sqlQuery {get;private set;}
     public DataSet dataSet {get;private set;}
     public DataTable dataTable {get;private set;}
-    private SqlConnection connection;
-    private SqlDataAdapter dataAdapter;
-    private SqlCommandBuilder builder;
+    private SqlConnection _connection;
+    private SqlDataAdapter _dataAdapter;
+    private SqlCommandBuilder _builder;
     private string dataProjectsONLY;
-    private StringBuilder sb;
+    private StringBuilder _sb;
     private int current = 0;
     public int COMMAND_TIMEOUT {get;set;} = 1200;
     public string sortOrder {get;set;} = "";
@@ -52,20 +52,20 @@ public class dsTable<T> {
         sqlQuery = "select * from " + tableName + " where 0 = 1";
         sortOrder = "";
         dataProjectsONLY =  $"gINTProjectId={gINTProjectID}";
-        connection = conn;
+        _connection = conn;
     }
     public dsTable(string TableName, SqlConnection conn, int[] gINTProjectID) {
         tableName = TableName;
         sqlQuery = "select * from " + tableName + " where 0 = 1";
         sortOrder = "";
         dataProjectsONLY =  $"gINTProjectId in ({gINTProjectID.ToCSV()})";
-        connection = conn;
+        _connection = conn;
     }
     public dsTable(string TableName, SqlConnection conn) {
         tableName = TableName;
         sqlQuery = "select * from " + tableName + " where 0 = 1";
         sortOrder = "";
-        connection = conn;
+        _connection = conn;
     }
     
     public dsTable(string TableName, string SortOrder="") {
@@ -85,7 +85,7 @@ public class dsTable<T> {
     }
     }
     public void setConnection (SqlConnection Connection) {
-    connection = Connection;
+    _connection = Connection;
     }
     public void Reset() {
         sqlQuery = "select * from " + tableName + " where 0 = 1";;
@@ -155,10 +155,10 @@ public class dsTable<T> {
     
     public DataSet getDataSet() {
         try {
-        dataAdapter = new SqlDataAdapter(sqlQuery, connection);
-        builder = new SqlCommandBuilder(dataAdapter);
+        _dataAdapter = new SqlDataAdapter(sqlQuery, _connection);
+        _builder = new SqlCommandBuilder(_dataAdapter);
         dataSet = new DataSet();
-        dataAdapter.Fill(dataSet,tableName);
+        _dataAdapter.Fill(dataSet,tableName);
         dataSet.Tables[0].DefaultView.Sort = sortOrder;
         return dataSet;
         } catch (Exception e) {
@@ -269,33 +269,59 @@ public class dsTable<T> {
     public int Update() {
        try {
        
-       return dataAdapter.Update(dataSet,tableName);
+       return _dataAdapter.Update(dataSet,tableName);
        
        } catch (Exception e) {
            return -1;
 
        }
     }
+
+    private Boolean _ensureConnectionOpen() {
+
+        if (_connection.State == ConnectionState.Closed)
+                {  
+                    _connection.Open();  
+                }
+    
+        return _connection.State == ConnectionState.Open;  
+    }
+
     public int BulkUpdate() {
+        
+        if (_ensureConnectionOpen()==false) {
+            return -1;
+        }
+        
         int ret = 0;
+
+        row_states rs = get_row_states();
+        
         // initialise string builder to collect insert update strings
-        sb = new StringBuilder();
+        _sb = new StringBuilder();
+        
         // add event handller to get upadte records to compile batch sql string
-        dataAdapter.UpdateCommand = builder.GetUpdateCommand();
-        dataAdapter.InsertCommand = builder.GetInsertCommand();
-        dataAdapter.RowUpdating += new SqlRowUpdatingEventHandler(da_RowUpdating);
+        _dataAdapter.UpdateCommand = _builder.GetUpdateCommand();
+        _dataAdapter.InsertCommand = _builder.GetInsertCommand();
+        _dataAdapter.RowUpdating += new SqlRowUpdatingEventHandler(da_RowUpdating);
 
       //  int rows = dataAdapter.Update(dataSet,tableName);
         int rows_updated = Update();
-        
-        string s1 = sb.ToString();
+        int rows_total = dataTable.Rows.Count;
+
+        string s1 = _sb.ToString();
         
         if (s1.Length>0) {
-         
-            SqlCommand cmd = new SqlCommand(sb.ToString(), connection);
-            cmd.CommandTimeout = COMMAND_TIMEOUT; 
-            // Execute the update command.
-            var int32Execute = cmd.ExecuteScalar();
+            try {
+                SqlCommand cmd = new SqlCommand(_sb.ToString(), _connection);
+                cmd.CommandTimeout = COMMAND_TIMEOUT; 
+                // Execute the update command.
+                var int32Execute = cmd.ExecuteScalar();
+                //no confirmation from executescalar but return the records cound submitted
+                return rows_total; 
+            } catch (Exception exception) {
+                return -1;
+            }
         }
 
         return ret;
@@ -311,12 +337,12 @@ public class dsTable<T> {
         return us;
     }
     public int Delete() {
-        SqlCommand s1 = builder.GetDeleteCommand();
+        SqlCommand s1 = _builder.GetDeleteCommand();
         int count = dataTable.Rows.Count;
         for (int i = dataTable.Rows.Count - 1; i >= 0; i--) {
         dataTable.Rows[i].Delete();
         }
-        return dataAdapter.Update(dataTable);
+        return _dataAdapter.Update(dataTable);
     }
     private void da_RowUpdating(object sender, SqlRowUpdatingEventArgs e)
     {  
@@ -338,13 +364,13 @@ public class dsTable<T> {
             continue;
         }
         
-        if (parm.SqlDbType == SqlDbType.NVarChar ||parm.SqlDbType == SqlDbType.NText) {
+        if (parm.SqlDbType == SqlDbType.NVarChar || parm.SqlDbType == SqlDbType.NText || parm.SqlDbType == SqlDbType.UniqueIdentifier) {
             // Quotes around the nvarchar and ntype fields
             sqlText.Replace(parm.ParameterName,"'" + parm.Value.ToString( ) + "'");
             continue;
         }
         
-        if (parm.SqlDbType==SqlDbType.DateTime) {
+        if (parm.SqlDbType==SqlDbType.DateTime || parm.SqlDbType==SqlDbType.DateTime2) {
            // format datetime 
             sqlText.Replace(parm.ParameterName, String.Format("'{0:yyyy-MM-ddTHH:mm:ss}'",parm.Value));
             continue;
@@ -353,7 +379,7 @@ public class dsTable<T> {
         sqlText.Replace(parm.ParameterName, parm.Value.ToString( ));
     }
     // Add the row command to the aggregate update command.
-    sb.Append(sqlText.ToString( ) + ";");
+    _sb.Append(sqlText.ToString( ) + ";");
 
     // Skip the DataAdapter update of the row.
     e.Status = UpdateStatus.SkipCurrentRow;

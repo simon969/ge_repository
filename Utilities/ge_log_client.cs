@@ -34,9 +34,13 @@ public class ge_log_client {
     public float? probe_depth  {get;set;}
     public string round_ref {get;set;}  
 
-    public string result {get;set;}
+   
+    public Boolean saveByAction {get;set;} = false;
     public DateTime? fromDT {get;set;}
     public DateTime? toDT {get;set;}
+    private DateTime _started; 
+    private DateTime _started_action; 
+    private string _result {get;set;}
     public string userId {get;set;}
     private static int NOT_OK = -1;
     private static int OK = 1;
@@ -44,6 +48,9 @@ public class ge_log_client {
     public Boolean read_logger {get;set;} = true;
     public Boolean save_logger {get;set;} = true;
     public Boolean apply_overrides {get;set;} = true;
+    public Boolean bulk_update = true;
+
+    public string options {get;set;}
 
     public Boolean save_MOND {get;set;}= false;
 
@@ -84,65 +91,65 @@ public class ge_log_client {
 
             
             status = enumStatus.Start;
-            await _dataService.SetProcessFlag(Id,pflagCODE.PROCESSING);
-            init_start();
+            
+            await init_actions( true);
 
             while (status != enumStatus.Stop) {
                 
                 if (status == enumStatus.Start) {
-                    actionStarted("loadDateFile");
-                    int resp =  await loadDataFile();
-                    actionEnded("loadDataFile",resp);
+                    await actionStarted("loadDataFile");
+                    int resp =  await ensureDataFile();
+                    await actionEnded("loadDataFile",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) status = enumStatus.DataFileLoaded;
+                    if (resp >= OK) status = enumStatus.DataFileLoaded;
                 }
                 
                 if (status == enumStatus.DataFileLoaded && read_logger==true ) {
-                    actionStarted("loadTemplateFile");
+                    await actionStarted("loadTemplateFile");
                     int resp = await loadTemplateFile();
-                    actionEnded("loadTemplateFile",resp);
+                    await actionEnded("loadTemplateFile",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) status = enumStatus.TemplateFileLoaded;
+                    if (resp >= OK) status = enumStatus.TemplateFileLoaded;
                 }
 
                 if (status == enumStatus.TemplateFileLoaded && read_logger==true) {
-                    actionStarted("loadTemplateAndLines");
+                    await actionStarted("loadTemplateAndLines");
                     int resp =  await loadTemplateAndLines();
-                    actionEnded("loadTemplateAndLines",resp);
+                    await actionEnded("loadTemplateAndLines",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) status = enumStatus.TemplateAndLinesRead;
+                    if (resp >= OK) status = enumStatus.TemplateAndLinesRead;
                 }
 
                 if (status == enumStatus.TemplateAndLinesRead && read_logger==true ) {
-                     actionStarted("NewFileLogger");
+                    await actionStarted("NewFileLogger");
                     int resp = NewFileLogger();
-                    actionEnded("NewFileLogger",resp);
+                    await actionEnded("NewFileLogger",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) status = enumStatus.LoggerFileLoaded;
+                    if (resp >= OK) status = enumStatus.LoggerFileLoaded;
                 }
                 
                 if (status == enumStatus.LoggerFileLoaded && save_logger==true) {
-                    actionStarted("saveFileLogger");
+                    await actionStarted("saveFileLogger");
                     int resp = await saveFileLogger();
-                    actionEnded("saveFileLogger",resp);
+                    await actionEnded("saveFileLogger",resp);
                     if (resp== NOT_OK) status = enumStatus.Stop;
                     if (resp >= OK) status = enumStatus.LoggerFileSaved;
                 }
 
                 if (status == enumStatus.DataFileLoaded && read_logger==false) {
-                    actionStarted("loadFileLogger");
+                    await actionStarted("loadFileLogger");
                     int resp = await loadFileLogger();
-                    actionEnded("loadFileLogger",resp);
+                    await actionEnded("loadFileLogger",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) {status = enumStatus.LoggerFileLoaded;}
+                    if (resp >= OK) {status = enumStatus.LoggerFileLoaded;}
                 }
                                
                 if (status == enumStatus.LoggerFileLoaded || status == enumStatus.LoggerFileSaved) {
-                    actionStarted("createMOND");
+                    await actionStarted("createMOND");
                     int resp = await createMOND();
-                    actionEnded("createMOND",resp);
+                    await actionEnded("createMOND",resp);
                     if (resp== NOT_OK) {status = enumStatus.Stop;}
-                    if (resp == OK) status = enumStatus.MONDcreated;
+                    if (resp >= OK) status = enumStatus.MONDcreated;
                 }
 
                 if (status == enumStatus.MONDcreated) {
@@ -151,28 +158,82 @@ public class ge_log_client {
         
         }
         
-        await _dataService.SetProcessFlagAddEvents(Id,pflagCODE.NORMAL,result);
+        await close_actions();
         
         return status;
     
  }
-    private void init_start() {
-    result =  $"Background ge_log_client started:{DateTime.Now} with " + System.Environment.NewLine;
-    result += $"sheet='{sheet}' table='{table}' bh_ref='{bh_ref}'" + System.Environment.NewLine;
-    result += $"probe_depth='{probe_depth}' round_ref='{round_ref}'" + System.Environment.NewLine;
-    }
-
-    private void actionStarted (string s1) {
-        result += $"{s1} started:{DateTime.Now}" + System.Environment.NewLine;
-       
-    }
-    private void actionEnded (string s1, int i) {
-        string outcome = "";
-
-        if (i == NOT_OK) outcome="Not Ok";
-        if (i == OK) outcome="Ok";
+    private async Task init_actions( Boolean SaveByAction) {
         
-        result += $"{s1} ended:{DateTime.Now} result:{outcome}" + System.Environment.NewLine;
+        saveByAction = SaveByAction;
+        
+        var resp = await ensureDataFile();
+        
+        if (options!=null) {
+        if (options.Contains("read_logger")) read_logger = true;
+        if (options.Contains("save_logger")) save_logger = true;
+        if (options.Contains("apply_overrides")) apply_overrides = true;
+        if (options.Contains("bulk_update")) bulk_update = true;
+        }
+        _started = DateTime.Now;
+        _result =  $"{_started} Background ge_log_client started with";
+        _result += $" sheet='{sheet}' table='{table}' bh_ref='{bh_ref}'";
+        _result += $" probe_depth='{probe_depth}' round_ref='{round_ref}'" + System.Environment.NewLine;
+
+        data_file.pflag = pflagCODE.PROCESSING;
+        
+        if (saveByAction==true) {
+            data_file.pflag = pflagCODE.PROCESSING;
+            data_file.phistory += _result;
+            await _dataService.UpdateData (data_file);
+        }
+
+
+    }
+    private async Task close_actions() {
+        
+        DateTime ended = DateTime.Now;
+        TimeSpan dur = ended - _started;
+
+         string s1 =  $"{ended} Background ge_log_client exited {String.Format("{0:0.000}",dur.TotalMinutes)} mins" + System.Environment.NewLine;
+         _result += s1;
+         
+        data_file.pflag = pflagCODE.NORMAL;
+         
+        if (saveByAction==true) {
+            data_file.phistory += s1;
+        } else {
+            data_file.phistory += _result;
+        }   
+        await _dataService.UpdateData (data_file);
+    }
+
+    private async Task actionStarted (string s1) {
+        _started_action = DateTime.Now;
+        string s2 = $"{_started_action} {s1} started" + System.Environment.NewLine;
+        _result += s2;
+
+        if (saveByAction==true) {
+            data_file.pflag = pflagCODE.PROCESSING;
+            data_file.phistory += s2;
+            await _dataService.UpdateData(data_file);
+        }   
+    }
+    
+    private async Task actionEnded (string s1, int i) {
+        string outcome = "";
+        DateTime ended = DateTime.Now;
+        TimeSpan dur = ended - _started_action;
+        if (i == NOT_OK) outcome="Not Ok";
+        if (i >= OK) outcome="Ok";
+
+        string s2 = $"{DateTime.Now} {s1} ended {String.Format("{0:0.000}",dur.TotalMinutes)} mins result ({i}) {outcome}" + System.Environment.NewLine;
+        _result += s2;
+        
+        if (saveByAction==true) {
+          data_file.phistory += s2;
+          await _dataService.UpdateData(data_file);
+        }  
     }
     
     private async Task<int> loadTemplateAndLines () {
@@ -211,17 +272,26 @@ public class ge_log_client {
             }
         }
         
-        return 1;
+        return lines.Count();
 
   }
     
     
-    private async Task<int> loadDataFile() {
+    private async Task<int> ensureDataFile() {
             
+
+
             if (Id == null) {
             return -1;
             }
-           
+            
+            if (data_file != null) {
+                if (data_file.Id == Id) {;
+                    return 1;
+                }
+            }
+
+
            data_file = await _dataService.GetDataById(Id);
            
             if (data_file == null) {
@@ -259,7 +329,28 @@ public class ge_log_client {
         }
 
     }
+    private async Task<int> NewFileLoggerAsync() {
 
+            log_file = await _logService.NewLogFile(  Id,
+                                                templateId.Value,
+                                                table,
+                                                sheet,
+                                                _dataService);
+            
+            
+            if (log_file == null) {
+                return -1;
+            }
+
+            if (apply_overrides==true) {
+            ge_log_helper gf = new ge_log_helper();
+            gf.log_file = log_file;
+            gf.AddOverrides (probe_depth, bh_ref);
+            }
+
+          return log_file.readings.Count();
+
+    }
       
     private int NewFileLogger() {
 
@@ -277,8 +368,8 @@ public class ge_log_client {
             gf.log_file = log_file;
             gf.AddOverrides (probe_depth, bh_ref);
             }
-
-            return 1;
+            
+            return log_file.readings.Count();
 
     }
 
@@ -296,7 +387,10 @@ public class ge_log_client {
                 gf.AddOverrides (probe_depth, bh_ref);
             }
 
-            return 1;
+            if (log_file.readings==null){
+                return 1;
+            }
+            return log_file.readings.Count();
   
     }
     private async Task<int> createMOND(){
@@ -313,7 +407,7 @@ public class ge_log_client {
             return -1;
         }
 
-        return 1;
+        return mond.Count();
     }
 
          

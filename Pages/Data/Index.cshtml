@@ -97,7 +97,10 @@ ViewData["Title"] = "All Data Index";
             }
             @if (item.pflag == pflagCODE.PROCESSING) {
                 <text> | </text>
-                <text>Processing in Progress</text>
+                <text>Processing</text>
+                <textarea rows="10" cols ="80">
+               @Html.DisplayFor(modelitem => item.phistory)
+                </textarea>
             }
             @if (item.fileext == ".xml") {
                 <text> | </text>
@@ -108,6 +111,8 @@ ViewData["Title"] = "All Data Index";
             </td>
         
         </tr>
+
+        
     }
     </tbody>
 </table>

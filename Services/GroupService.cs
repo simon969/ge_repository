@@ -19,7 +19,7 @@ namespace ge_repository.services
         }
         public async Task<ge_group> GetGroupById(Guid id) {
             return await _unitOfWork.Group
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
         public async Task<ge_group> CreateGroup(ge_group newGroup) {
             await _unitOfWork.Group.AddAsync(newGroup);

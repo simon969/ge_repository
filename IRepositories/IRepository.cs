@@ -7,9 +7,9 @@ namespace ge_repository.interfaces
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        Task<TEntity> GetByIdAsync(Guid id);
-        Task<TEntity> GetByIdAsync(string id);
-        Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> FindByIdAsync(Guid id);
+        Task<TEntity> FindByIdAsync(string id);
+        Task<TEntity> FindByIdAsync(int id);
         Task<IEnumerable<TEntity>> GetAllAsync();
         IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate);
@@ -18,5 +18,8 @@ namespace ge_repository.interfaces
         Task AddRangeAsync(IEnumerable<TEntity> entities);
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entities);
+        bool ExistsLocal(TEntity entity);
+        bool Exists(params object[] keys);
+        
     }
 }

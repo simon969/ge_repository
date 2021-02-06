@@ -14,9 +14,14 @@ namespace ge_repository.interfaces
         Task<int> CreateLogFile(ge_log_file newData);
         Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings);
         Task<int> DeleteLogFile(ge_log_file data);
-        ge_log_file NewLogFile(ge_search dic, 
-                                  string[] lines,
-                                  Guid dataId,
-                                  Guid templateId);
+        ge_log_file NewLogFile( ge_search dic, 
+                                string[] lines,
+                                Guid dataId,
+                                Guid templateId);
+        Task<ge_log_file> NewLogFile(Guid Id, 
+                                     Guid templateId, 
+                                     string table, 
+                                     string sheet, 
+                                     IDataService _dataService);                          
     }
 }

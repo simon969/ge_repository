@@ -14,5 +14,7 @@ namespace ge_repository.interfaces
         Task<ge_log_file> GetByDataIdAsync(Guid id, string table);
         Task <int> UpdateAsync (ge_log_file file, Boolean includereadings);
         Task<int> CommitAsync();
+        Task<int> CommitBulkAsync(); 
+        
     }
 }

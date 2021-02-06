@@ -11,11 +11,11 @@ namespace ge_repository.services
     {
 
         protected  readonly IGintUnitOfWork _unitOfWork;
-
+       
         public gINTBaseService(IGintUnitOfWork unitOfWork) {
             _unitOfWork = unitOfWork;
         }
-
+        
         public Task<PROJ> GetProjectById(int Id) {
             return null;
         }

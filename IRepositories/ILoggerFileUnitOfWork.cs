@@ -8,5 +8,6 @@ namespace ge_repository.interfaces
     {
        ILoggerFileRepository LoggerFile {get;}
        Task<int> CommitAsync();
+       Task<int> CommitBulkAsync();
     }
 }

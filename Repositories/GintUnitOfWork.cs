@@ -35,6 +35,12 @@ namespace ge_repository.repositories
 
             return t;
        }
+       public async Task<int> CommitBulkAsync(){
+
+            var t = await _MOND.CommitBulkAsync();
+
+            return t;
+       }
         public void Dispose()
         {
             _connection.Close();

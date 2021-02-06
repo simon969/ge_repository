@@ -36,7 +36,7 @@ namespace ge_repository.services
         public async Task<ge_user_ops> GetUserOpsById(Guid id)
         {
             return await _unitOfWork.UserOps
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
         
         public async Task<IEnumerable<ge_user_ops>> GetAllWithGroup()

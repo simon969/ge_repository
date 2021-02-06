@@ -19,6 +19,7 @@ namespace ge_repository.repositories
         }
         public async Task AddAsync(TEntity entity)
         {
+           
             await Context.Set<TEntity>().AddAsync(entity);
         }
 
@@ -37,7 +38,7 @@ namespace ge_repository.repositories
             return  await Context.Set<TEntity>().ToListAsync();
         }
 
-        public Task<TEntity> GetByIdAsync(Guid id)
+        public Task<TEntity> FindByIdAsync(Guid id)
         {
             return Context.Set<TEntity>().FindAsync(id);
         }
@@ -48,11 +49,11 @@ namespace ge_repository.repositories
                         .Where(predicate)
                         .FirstOrDefaultAsync();
         }
-        public Task<TEntity> GetByIdAsync(string id)
+        public Task<TEntity> FindByIdAsync(string id)
         {
             return Context.Set<TEntity>().FindAsync(id);
         }
-        public Task<TEntity> GetByIdAsync(int id)
+        public Task<TEntity> FindByIdAsync(int id)
         {
             return Context.Set<TEntity>().FindAsync(id);
         }
@@ -70,5 +71,15 @@ namespace ge_repository.repositories
         {
             return Context.Set<TEntity>().SingleOrDefaultAsync(predicate);
         }
+
+        public bool ExistsLocal(TEntity entity)
+        {
+        return Context.Set<TEntity>().Local.Any(e => e == entity);
+        }
+        public bool Exists(params object[] keys)
+        {
+        return (Context.Set<TEntity>().Find(keys) != null);
+        }
     }
+
 }

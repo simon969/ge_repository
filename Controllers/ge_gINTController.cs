@@ -991,8 +991,9 @@ public async Task<IActionResult> createAGS(Guid Id,
                                 }
                             };
             if (save) {
-                 _context.ge_data.Add(_data);
-                 _context.SaveChanges();
+                    _context.Database.SetCommandTimeout(1200);
+                    _context.ge_data.Add(_data);
+                    _context.SaveChanges();
             }
             //because all strings in C# are utf-16
            // byte[] ags_utf16 = Encoding.Unicode.GetBytes(s1); 

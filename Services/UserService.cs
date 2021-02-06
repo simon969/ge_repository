@@ -29,7 +29,7 @@ namespace ge_repository.services
         public async Task<ge_user> GetUserById(string id)
         {
             return await _unitOfWork.User
-                .GetByIdAsync(id);
+                .FindByIdAsync(id);
         }
       
 
