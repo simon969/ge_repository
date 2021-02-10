@@ -263,7 +263,7 @@ namespace ge_repository.Controllers
 
 				string rawSQL = getSQLCommand(constSELECTALLFROM, data_all,holes,tables,version);
 
-				ge_data_big task_xml_data_big = await _context.ge_data_big.FromSql (rawSQL).SingleOrDefaultAsync();
+				ge_data_file task_xml_data_big = await _context.ge_data_file.FromSql (rawSQL).SingleOrDefaultAsync();
 				xml_data = task_xml_data_big.getParsedXMLstring(null);
 			}
 
@@ -979,33 +979,33 @@ var userType = dbContext.Set().FromSql("dbo.SomeSproc @Id = {0}, @Name = {1}", 4
 						 SqlParameter paramHole = new SqlParameter("@hole",holes.ToDelimString(";")); 
 						 SqlParameter paramTable = new SqlParameter("@table",tables.ToDelimString(";")); 
 						// "dbo.SomeSproc @data = {0}, @hole = {1}, @table = {2}"
-						task_xml_data_big = await _context.ge_data_big.FromSql (ge_transform.storedprocedure, paramData, paramHole, paramTable).SingleOrDefaultAsync();
+						task_xml_data_big = await _context.ge_data_file.FromSql (ge_transform.storedprocedure, paramData, paramHole, paramTable).SingleOrDefaultAsync();
 				}
 				if (task_xml_data_big == null && ge_transform.storedprocedure.Contains("@data") && ge_transform.storedprocedure.Contains("@hole")) {
 						SqlParameter paramData = new SqlParameter("@data",data_all.ToDelimString(";")); 
 						SqlParameter paramHole = new SqlParameter("@hole",holes.ToDelimString(";")); 
 						// "dbo.SomeSproc @data = {0}, @hole = {1}"
-						task_xml_data_big = await _context.ge_data_big.FromSql (ge_transform.storedprocedure,paramData, paramHole).SingleOrDefaultAsync();
+						task_xml_data_big = await _context.ge_data_file.FromSql (ge_transform.storedprocedure,paramData, paramHole).SingleOrDefaultAsync();
 				}
 				if (task_xml_data_big == null && ge_transform.storedprocedure.Contains("@data") && ge_transform.storedprocedure.Contains("@table")) {
 					 	SqlParameter paramData = new SqlParameter("@data",data_all.ToDelimString(";")); 
 						SqlParameter paramTable = new SqlParameter("@table",tables.ToDelimString(";")); 
 						// "dbo.SomeSproc @data = {0}, @table = {1}"
-						task_xml_data_big = await _context.ge_data_big.FromSql (ge_transform.storedprocedure,paramData, paramTable).SingleOrDefaultAsync();
+						task_xml_data_big = await _context.ge_data_file.FromSql (ge_transform.storedprocedure,paramData, paramTable).SingleOrDefaultAsync();
 				}
 				if (task_xml_data_big == null && ge_transform.storedprocedure.Contains("@data") && ge_transform.storedprocedure.Contains("@version")) {
 					 	SqlParameter paramData = new SqlParameter("@data",data_all.ToDelimString(";")); 
 						SqlParameter paramVersion = new SqlParameter("@version",tables.ToDelimString(";")); 
 						// "select * from dbo.SomeSproc @data, @version"
-						task_xml_data_big = await _context.ge_data_big.FromSql (ge_transform.storedprocedure,paramData, paramVersion).SingleOrDefaultAsync();
+						task_xml_data_big = await _context.ge_data_file.FromSql (ge_transform.storedprocedure,paramData, paramVersion).SingleOrDefaultAsync();
 				}
 				if (task_xml_data_big == null && ge_transform.storedprocedure.Contains("@data")) {
 					    SqlParameter paramData = new SqlParameter("@data",data_all.ToDelimString(";")); 
 						// "dbo.SomeSproc @data = {0}"
-						task_xml_data_big =  await _context.ge_data_big.FromSql (ge_transform.storedprocedure,paramData).SingleAsync();
+						task_xml_data_big =  await _context.ge_data_file.FromSql (ge_transform.storedprocedure,paramData).SingleAsync();
 				}
 				if (task_xml_data_big == null) {
-						task_xml_data_big = await _context.ge_data_big.FromSql (ge_transform.storedprocedure).SingleOrDefaultAsync();
+						task_xml_data_big = await _context.ge_data_file.FromSql (ge_transform.storedprocedure).SingleOrDefaultAsync();
 				}
  */
 

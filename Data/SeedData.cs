@@ -314,7 +314,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="AGS data downloaded from BGS website",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_string = File.ReadAllText(source + @"\E7037A_Burton SWWM\E7037A_Burton SWWM_Final Factual Report AGS4.ags")
                     }
                 }
@@ -365,7 +365,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="AGS data dictionary",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_string = File.ReadAllText(source + @"\AGS Dictionary\DictionaryAgsml_0.0.14.xml")
                     }
                 }
@@ -388,7 +388,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="AGS xml data template",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_string = File.ReadAllText(source + @"\AGS Dictionary\DictionaryAgsml.xsl")
                     }
                 }
@@ -440,7 +440,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="Surfaces created from gINT Civil Tools for HEAPS",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Tideway HEAPS\heaps_boreholes_3d_03-Geological Plan.pdf")
                     }
                     }
@@ -464,7 +464,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="Tideway database exports of gINT database for HEAPS local GI data",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Tideway HEAPS\4602-FLOJV-HEAPS-180-GG-MD-900001.gpj")
                     }
                     }
@@ -512,7 +512,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="Tideway database exports of gINT database for HEAPS local GI data",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Ryhad Metro\M-BD4-1A1VDA-CSVD-EDR-100532_Updated with Orientation.dwg")
                     }
             });
@@ -534,7 +534,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description="Results from Plaxis Analysis",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Ryhad Metro\1A1P30 and 1A1P31 Plaxis Embedded Pile Results 2017-03-09.xlsx")
                     }
             }
@@ -582,7 +582,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.ThirdPartyFactual,
                     description="Silvertown AGS data recieved at tender",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Silvertown Tunnel\20110770 - 2016-03-03 1540 - Final - 2.ags")
                     }
             }
@@ -606,7 +606,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.ThirdPartyFactual,
                     description="Silvertown additional AGS data recieved at tender",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Silvertown Tunnel\TA7510F17.ags")
                     }
             }
@@ -630,7 +630,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.ThirdPartyFactual,
                     description="Silvertown additional AGS data recieved at tender",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\Silvertown Tunnel\SilvertownGI.xml")
                     }
             }
@@ -677,7 +677,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.ThirdPartyFactual,
                     description="Routewide historical borehole data compiled from BGS",
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_binary = File.ReadAllBytes(source + @"\HS2\HS2 PH2B AGS EXPORT 2018-12-18.ags")
                     }
             }
@@ -735,7 +735,7 @@ namespace ge_repository.Data
                     qstatus = QualitativeStatus.AECOMFactual,
                     description=fi.Name,
                     operations ="Read;Update;Delete",
-                    data = new ge_data_big {
+                    file = new ge_data_file {
                         data_string = File.ReadAllText(filename)
                     }
                 }

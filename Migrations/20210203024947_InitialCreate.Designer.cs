@@ -236,7 +236,7 @@ namespace ge_repository.Migrations
                     b.ToTable("ge_data");
                 });
 
-            modelBuilder.Entity("ge_repository.Models.ge_data_big", b =>
+            modelBuilder.Entity("ge_repository.Models.ge_data_file", b =>
                 {
                     b.Property<Guid>("Id");
 
@@ -689,11 +689,11 @@ namespace ge_repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ge_repository.Models.ge_data_big", b =>
+            modelBuilder.Entity("ge_repository.Models.ge_data_file", b =>
                 {
                     b.HasOne("ge_repository.Models.ge_data", "data")
                         .WithOne("data")
-                        .HasForeignKey("ge_repository.Models.ge_data_big", "Id")
+                        .HasForeignKey("ge_repository.Models.ge_data_file", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -26,7 +26,11 @@ namespace ge_repository.repositories
        
         private ge_DbContext ge_DbContext
         {
-            get { return Context as ge_DbContext; }
+            get { return _context as ge_DbContext; }
+        }
+        public async Task<ge_user> GetUserByEmailAddress(string emailAddress) {
+            return await ge_DbContext.ge_user.FirstAsync (u =>u.Email==emailAddress);
+
         }
     }
 }

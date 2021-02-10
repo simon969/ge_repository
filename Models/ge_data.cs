@@ -31,7 +31,7 @@ namespace ge_repository.Models {
 
         
        [ForeignKey("Id")]  
-        public virtual ge_data_big data { get; set; }   
+        public virtual ge_data_file file { get; set; }   
         
         public string GetContentType()
         {
@@ -98,7 +98,7 @@ namespace ge_repository.Models {
     
         
     [Table("ge_data")]
-    public partial class ge_data_big {
+    public partial class ge_data_file {
         public Guid Id {get;set;}
         public Byte[] data_binary {get;set;}
         public string data_string {get;set;}

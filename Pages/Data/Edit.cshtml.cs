@@ -144,7 +144,7 @@ namespace ge_repository.Pages.Data
                 ge_MimeTypes mtypes = new ge_MimeTypes();
                 string[] lastmodified = LastModifiedDates.Split(";");
                 var formFile = uploadFiles[0];  
-                var b = await _context.ge_data_big.FirstOrDefaultAsync(m => m.Id == data.Id);
+                var b = await _context.ge_data_file.FirstOrDefaultAsync(m => m.Id == data.Id);
                 
                 Boolean IsContentText = formFile.IsContentTypeText(true);
                
@@ -173,7 +173,7 @@ namespace ge_repository.Pages.Data
                 return Page();
                 }
            
-                data.data = b ;
+                data.file = b ;
                 data.filesize = formFile.Length; 
                 data.filename =  getFilenameNoPath(formFile.FileName);
                 data.fileext = formFile.FileExtension();

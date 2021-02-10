@@ -4,6 +4,8 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using ge_repository.Models;
 using ge_repository.interfaces;
@@ -15,7 +17,7 @@ namespace ge_repository.services
 {
     public class DataService : IDataService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        protected readonly IUnitOfWork _unitOfWork;
         public DataService(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
@@ -204,6 +206,9 @@ namespace ge_repository.services
            
            await _unitOfWork.CommitAsync();
         }
+        public Boolean DataExists (Guid Id) {
+            return _unitOfWork.Data.Exists(Id);
+        }
         public async Task UpdateData(ge_data data)
         {
             ge_data exist = null;
@@ -239,5 +244,140 @@ namespace ge_repository.services
             return data.pflag;
         
         }
+
+        public ge_data NewData (Guid projectId, string UserId) {
+            ge_data _data = new ge_data();
+            
+            _data.projectId = projectId;
+            _data.createdId = UserId;
+            _data.createdDT =  DateTime.Now;
+            
+            _unitOfWork.Data.AddAsync(_data);
+            return _data;        
+        }
+    //    public ge_data NewData() {
+
+    //                 d.projectId = project.Id;
+
+    //                 d.locEast = data.locEast;
+    //                 d.locNorth = data.locNorth;
+    //                 d.locLevel = data.locLevel;
+
+    //                 d.locLatitude = data.locLatitude;
+    //                 d.locLongitude =data.locLongitude;
+    //                 d.locHeight = data.locHeight;
+                    
+    //                 d.locMapReference = data.locMapReference;
+    //                 d.locName = data.locName;
+    //                 d.locAddress = data.locAddress;
+    //                 d.locPostcode = data.locPostcode;
+                    
+    //                 d.datumProjection = data.datumProjection ;
+
+    //                 d.description = data.description;
+    //                 d.keywords = data.keywords;
+    //                 d.operations = data.operations;
+
+
+
+    //    }
+       public async Task<ge_data> CreateData(ge_data newData, IFormFile formFile, ModelStateDictionary modelState, long MaxFileSize) {
+
+             
+        //     newData.file = _unitOfWork.Data.GetFormFileString(formFile, modelState, MaxFileSize);
+
+        //     newData.file = _unitOfWork.Data.GetFormFileBinary(formFile, modelState, MaxFileSize);
+                 
+                   
+        return await CreateData(newData);
+
+       }
+
+       public async Task<int> CreateData (List<IFormFile> uploadFiles, string[] lastmodified, ge_data template, ModelStateDictionary ModelState, int MaxFileSize) {
+
+            ge_MimeTypes mtypes = new ge_MimeTypes();
+            
+            int last_modified_offset = 0;
+
+            foreach (var formFile in uploadFiles)
+                {
+                    ge_data d = new ge_data();
+                    ge_data_file f;
+                   
+                    d.createdId = template.createdId;   
+                    d.createdDT = DateTime.UtcNow; 
+                    
+                    d.editedId = template.editedId;
+                    d.editedDT = DateTime.UtcNow;
+                   
+                    Boolean IsContentText = formFile.IsContentTypeText(true);
+
+                    if (IsContentText) { 
+                        Boolean IsContentXML = formFile.IsContentTypeXML();
+                        if (IsContentXML) { 
+                                f = await _unitOfWork.Data.GetDataFileString(formFile, ModelState, MaxFileSize,Encoding.UTF8,true);
+                                d.SetEncoding(Encoding.UTF8);
+                        } else {
+                                Encoding encoding = formFile.ReadEncoding (Encoding.UTF8);
+                                f = await _unitOfWork.Data.GetDataFileString(formFile, ModelState, MaxFileSize, encoding, false);
+                                d.SetEncoding(encoding); 
+                        }
+
+                    }  else {
+                        f = await _unitOfWork.Data.GetDataFileBinary(formFile, ModelState, MaxFileSize);
+                        d.SetEncoding(null);
+                    }
+
+                    // Perform a second check to catch ProcessFormFile method
+                    // violations.
+                    if (!ModelState.IsValid) {
+                    return -1;
+                    }
+                    
+                    d.projectId = template.Id;
+
+                    d.locEast = template.locEast;
+                    d.locNorth = template.locNorth;
+                    d.locLevel = template.locLevel;
+
+                    d.locLatitude = template.locLatitude;
+                    d.locLongitude = template.locLongitude;
+                    d.locHeight = template.locHeight;
+                    
+                    d.locMapReference = template.locMapReference;
+                    d.locName = template.locName;
+                    d.locAddress = template.locAddress;
+                    d.locPostcode = template.locPostcode;
+                    
+                    d.datumProjection = template.datumProjection ;
+
+                    d.description = template.description;
+                    d.keywords = template.keywords;
+                    d.operations = template.operations;
+                     
+                    // Add deatils of uploaded file to new _ge_data record
+                    d.file = f ;
+                    d.filesize = formFile.Length; 
+                    d.filename = formFile.FilenameNoPath();
+                    d.fileext = formFile.FileExtension();
+                   
+                   if (mtypes.ContainsKey(d.fileext)) {
+                    d.filetype = mtypes[d.fileext];
+                    } else {
+                    d.filetype = formFile.ContentType;    
+                    }
+
+                    if (lastmodified[last_modified_offset].IsDateTimeFormat())    {
+                    d.filedate = Convert.ToDateTime(lastmodified[last_modified_offset]);
+                    }
+                    
+                    await _unitOfWork.Data.AddAsync(d);
+                    
+                    last_modified_offset++;
+               }
+
+            return last_modified_offset;
+       }
+
     }
 }

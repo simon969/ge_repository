@@ -72,7 +72,7 @@ namespace ge_repository.Pages.Data
 
             data = await _context.ge_data
                                     .Include (d =>d.project)
-                                    .Include (d =>d.data)
+                                    .Include (d =>d.file)
                                     .SingleOrDefaultAsync(m => m.Id == id);
 
             if (data == null) {

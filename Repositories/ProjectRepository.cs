@@ -37,7 +37,7 @@ namespace ge_repository.repositories
 
         private ge_DbContext ge_DbContext
         {
-            get { return Context as ge_DbContext; }
+            get { return _context as ge_DbContext; }
         }
     }
 }

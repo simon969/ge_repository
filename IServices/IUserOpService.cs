@@ -14,5 +14,8 @@ namespace ge_repository.interfaces
         Task<ge_user_ops> CreateUserOps(ge_user_ops user_ops);
         Task UpdateUserOps(ge_user_ops source, ge_user_ops destination);
         Task DeleteUserOps(ge_user_ops user_ops);
+        Task<string> GetAllowedOperations (string userId, ge_data data);
+        Task<ge_user> GetUserByEmailAddress(string emailAddress);
+        
     }
 }

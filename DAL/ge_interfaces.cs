@@ -11,9 +11,9 @@ namespace ge_repository.DAL
         IEnumerable<ge_data> getOfficeData(Guid officeId);
         IEnumerable<ge_data> getProjectData(Guid projectId);
         ge_data getDataById(Guid Id);
-        ge_data_big getBigDataById(Guid Id);
+        ge_data_file getBigDataById(Guid Id);
         void insertData(ge_data data);
-        void insertBigData(ge_data_big data);
+        void insertBigData(ge_data_file data);
         void deleteData(int dataId);
         void updateData(ge_data data);
         void Save();

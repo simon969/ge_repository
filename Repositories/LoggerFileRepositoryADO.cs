@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
+using ge_repository.Extensions;
 
 namespace ge_repository.repositories
 {
@@ -18,6 +19,10 @@ namespace ge_repository.repositories
         public LoggerFileRepositoryADO(dsTable<ge_log_file> log_file, dsTable<ge_log_reading> log_reading) 
             : base(log_file, log_reading)
         { }
+        public async Task<ge_log_file> GetByIdNoReadingsAsync(Guid Id) {
+             return await GetWhereParentAsync ($"Id='{Id}'", false);
+        }
+       
         public async Task<IEnumerable<ge_log_file>> GetAllLoggerFilesAsync() {
             
             return await Task.Run (() =>
@@ -27,7 +32,7 @@ namespace ge_repository.repositories
                              );
             
         }
-        public async Task<IEnumerable<ge_log_file>> GetAllLoggerFilesWithoutReadingsAsync()
+        public async Task<IEnumerable<ge_log_file>> GetAllLoggerFilesNoReadingsAsync()
         {
            return await Task.Run (() =>
                                     {
@@ -37,21 +42,15 @@ namespace ge_repository.repositories
 
                              );
         }
-        public async Task<ge_log_file> GetByIdWithoutReadingsAsync(Guid Id) {
-        return await Task.Run (() =>
-                                    {
-                                          string where = $"Guid={Id}";
-                                          DataRow row = _parent.dataTable.Select (where).SingleOrDefault();
-                                          if (row==null) {
-                                              _parent.sqlWhere(where);
-                                              _parent.getDataTable();
-                                              row = _parent.dataTable.Rows[0];
-                                          }
-                                                        
-                                          ge_log_file file = new ge_log_file();
-                                          get_values(row, file);
-                                          return file;
-                                    });
+
+        public async Task<ge_log_file> GetByDataIdNoReadingsAsync(Guid Id, string table) {
+            return await GetWhereParentAsync ($"DataId='{Id}' and channel='{table}'", false);
+        }
+        public async Task<IEnumerable<ge_log_file>> GetAllByDataIdAsync(Guid Id) {
+            return await GetAllWhereParentAsync ($"Guid='{Id}'", true);
+        }
+        public async Task<IEnumerable<ge_log_file>> GetAllByDataIdNoReadingsAsync(Guid Id) {
+            return await GetAllWhereParentAsync ($"Guid='{Id}'", false);
         }
         public override async Task<ge_log_file> FindByIdAsync(string Id) { 
             Guid Guid = new Guid(Id);
@@ -60,7 +59,49 @@ namespace ge_repository.repositories
         public override async Task<ge_log_file> FindByIdAsync(int Id) {
            return null;
         } 
-        private async Task<ge_log_file> GetWhereParentAsync(string _where) {
+        public async Task<IEnumerable<ge_log_file>> GetAllWhereParentAsync(string _where, Boolean include_child) {
+        
+        return await Task.Run (() =>
+                                    {       
+                                        _parent.sqlWhere(_where);
+                                        _parent.getDataTable();
+                                        
+                                        if (_parent.dataTable == null) {
+                                            return null;
+                                        }       
+                                        
+                                        if (_parent.dataTable.Rows.Count==0) {
+                                            return null;
+                                        }
+
+                                        if (include_child == false) {
+                                            return _parent.TableAsList();
+                                        }
+                                        
+                                        List<ge_log_file> files = new List<ge_log_file>();
+
+                                        foreach (DataRow row in _parent.dataTable.Rows) {
+                                            
+                                            ge_log_file file = new ge_log_file();
+                                            get_values(row, file);
+                                            
+                                            _child.sqlWhere($"fileId='{file.Id}'");
+                                            _child.getDataTable();
+                                            file.readings = _child.TableAsList();
+                                                                                        
+                                            file.OrderReadings();
+                                            file.unpack_exist_file();
+                                            files.Add (file);
+
+                                        }
+
+                                        return files;
+                                    }
+                                        
+                                );
+        }
+        private async Task<ge_log_file> GetWhereParentAsync(string _where, Boolean include_child) {
+
         return await Task.Run (() =>
                                     {       
                                         _parent.sqlWhere(_where);
@@ -78,40 +119,63 @@ namespace ge_repository.repositories
                                         ge_log_file file = new ge_log_file();
                                         get_values(row, file);
                                         
-                                        string rwhere = $"fileId='{file.Id}'";
-                                            _child.sqlWhere(rwhere);
-                                            _child.getDataTable();
-                                        
-                                        if (_child.dataTable==null) {
-                                            return file;
+                                        if (include_child == false) {
+                                        return file;
                                         }
-                                        if (_child.dataTable.Rows.Count==0) {
-                                            return file;
-                                        }  
                                         
-                                        DataRow[] rows = _child.dataTable.Select();
-                                                                                    
-                                        file.readings = new List<ge_log_reading>();
+                                        _child.sqlWhere($"fileId='{file.Id}'");
+                                        _child.getDataTable();
 
-                                        foreach(DataRow rrow in rows)
-                                        {    
-                                            ge_log_reading r =  new ge_log_reading();
-                                            get_values(rrow, r);
-                                            file.readings.Add(r);
-                                        }
-
+                                        file.readings = _child.TableAsList();
+                                        
                                         file.OrderReadings();
                                         file.unpack_exist_file();
                                         return file;
                                     }
                                 );
         }
+        private async Task<IEnumerable<ge_log_reading>> GetAllWhereChildFileIdAsync(Guid fileId) { 
+                return await GetAllWhereChildAsync($"fileId='{fileId}'");
+        }
+
+        private async Task<IEnumerable<ge_log_reading>> GetAllWhereChildAsync(string _where) {
+
+        return await Task.Run (() =>
+                                    {       
+                                        _child.sqlWhere(_where);
+                                        _child.getDataTable();
+                                    
+                                        if (_child.dataTable==null) {
+                                            return null;
+                                        }
+
+                                        if (_child.dataTable.Rows.Count==0) {
+                                            return null;
+                                        } 
+
+                                        return _child.TableAsList();
+
+                                        // DataRow[] rows = _child.dataTable.Select();
+                                                                                    
+                                        // List<ge_log_reading> readings = new List<ge_log_reading>();
+
+                                        // foreach(DataRow rrow in rows)
+                                        // {    
+                                        //     ge_log_reading r =  new ge_log_reading();
+                                        //     get_values(rrow, r);
+                                        //     readings.Add(r);
+                                        // }
+
+                                        // return readings;
+                                    }
+                                );
+        }
         public override async Task<ge_log_file> FindByIdAsync(Guid Id) {
-            return await GetWhereParentAsync ($"Id='{Id}'");
+            return await GetWhereParentAsync ($"Id='{Id}'", true);
 
         }
         public async Task<ge_log_file> GetByDataIdAsync(Guid Id, string table) {
-            return await GetWhereParentAsync ($"DataId='{Id}' and channel='{table}'");
+            return await GetWhereParentAsync ($"DataId='{Id}' and channel='{table}'", true);
 
         }
          
@@ -373,7 +437,7 @@ namespace ge_repository.repositories
     
     public bool Exists(ge_log_file log_file)
         {
-        return GetByIdWithoutReadingsAsync(log_file.Id) != null;
+        return GetByIdNoReadingsAsync(log_file.Id) != null;
         }
     }
 

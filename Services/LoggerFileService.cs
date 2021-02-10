@@ -4,9 +4,12 @@ using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Globalization;
+using Newtonsoft.Json;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
 using ge_repository.Models;
+using ge_repository.Extensions;
+
 
 namespace ge_repository.services
 {
@@ -24,17 +27,25 @@ namespace ge_repository.services
         public async Task<ge_log_file> GetById(Guid Id) {
              return await _unitOfWork.LoggerFile.FindByIdAsync(Id);
         }
+        public async Task<ge_log_file> GetByIdNoReadings(Guid Id) {
+             return await _unitOfWork.LoggerFile.GetByIdNoReadingsAsync(Id);
+        }
         public async Task<ge_log_file> GetByDataId(Guid Id, string table) {
              return await _unitOfWork.LoggerFile.GetByDataIdAsync(Id, table);
         }
-        public async Task<ge_log_file> GetByIdNoReadings(Guid Id) {
-            return await _unitOfWork.LoggerFile.GetByIdWithoutReadingsAsync(Id);
+        public async Task<ge_log_file> GetByDataId(Guid Id, string table, Boolean include_readings) {
+            if (include_readings == true) return await GetByDataId (Id, table);
+            return await _unitOfWork.LoggerFile.GetByDataIdNoReadingsAsync (Id, table);
         }
-
-        public async Task<IEnumerable<ge_log_file>> GetAllByProjectIdNoReadings(Guid Id) {
-            return await _unitOfWork.LoggerFile.GetAllLoggerFilesWithoutReadingsAsync();
+        public async Task<ge_log_file> GetByDataIdNoReadings(Guid Id, string table) {
+            return await _unitOfWork.LoggerFile.GetByDataIdNoReadingsAsync(Id, table);
         }
-
+        public async Task<IEnumerable<ge_log_file>> GetAllByDataIdNoReadings(Guid Id) {
+            return await _unitOfWork.LoggerFile.GetAllByDataIdNoReadingsAsync(Id);
+        }
+        public async Task<IEnumerable<ge_log_file>> GetAllByDataId(Guid Id) {
+            return await _unitOfWork.LoggerFile.GetAllByDataIdAsync(Id);
+        }
         public async Task<int>  CreateLogFile(ge_log_file newData) {
              await _unitOfWork.LoggerFile.AddAsync (newData);
              return await _unitOfWork.CommitBulkAsync();
@@ -542,4 +553,29 @@ namespace ge_repository.services
     }
 
  }
+ public class DataLoggerFileService : DataService, IDataLoggerFileService {
+
+    public DataLoggerFileService (IUnitOfWork unitOfWork): base (unitOfWork) {}
+
+    public ge_data NewData (Guid projectId, string UserId, ge_log_file log_file, string saveAsFormat)  {
+            
+            ge_data _data = NewData(projectId, UserId);
+            
+            ge_data_file _file = new ge_data_file();
+
+            if (saveAsFormat == "text/xml") {
+              //  _file.data_xml = SerializeToXmlString<ge_log_file>();
+            }
+
+            if (saveAsFormat == "json") {
+               _file.data_string = JsonConvert.SerializeObject(log_file);
+            }
+
+            _data.file = _file;
+
+            return _data;
+           
+        }
+ } 
 }
+

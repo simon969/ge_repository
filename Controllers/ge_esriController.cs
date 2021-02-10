@@ -103,7 +103,7 @@ namespace ge_repository.Controllers
 
             Encoding encoding = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == project.esriConnectId);
+            var _data_big = await _context.ge_data_file.SingleOrDefaultAsync(m => m.Id == project.esriConnectId);
             
             if (_data_big == null)
             {

@@ -986,7 +986,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                             qstatus = QualitativeStatus.AECOMFactual,
                             description= _project.name + " AGS data (" + String.Format(FILE_NAME_DATE_FORMAT,fromDT) + " to " + String.Format(FILE_NAME_DATE_FORMAT,toDT) + ") for Holes " + SelectPoints.ToDelimString(","),
                             operations ="Read;Download;Update;Delete",
-                            data = new ge_data_big {
+                            file = new ge_data_file {
                                  data_string = s1
                                 }
                             };

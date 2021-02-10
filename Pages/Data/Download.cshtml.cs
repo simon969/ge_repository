@@ -31,7 +31,7 @@ namespace ge_repository.Pages.Data
         }
 
         [BindProperty]
-        public ge_data_big _data_big { get; set; }
+        public ge_data_file _data_big { get; set; }
         public ge_data _data { get; set; }
 
         public async Task<IActionResult> OnGetAsync(Guid? id)
@@ -60,7 +60,7 @@ namespace ge_repository.Pages.Data
             }
 
         
-            _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            _data_big = await _context.ge_data_file.SingleOrDefaultAsync(m => m.Id == id);
             
             if (_data_big == null) {
                 return NotFound();

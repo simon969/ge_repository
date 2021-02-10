@@ -11,74 +11,74 @@ namespace ge_repository.repositories
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected readonly DbContext Context;
+        protected readonly DbContext _context;
         
         public Repository(DbContext context)
         {
-            this.Context = context;
+            this._context = context;
         }
         public async Task AddAsync(TEntity entity)
         {
            
-            await Context.Set<TEntity>().AddAsync(entity);
+            await _context.Set<TEntity>().AddAsync(entity);
         }
 
         public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
-            await Context.Set<TEntity>().AddRangeAsync(entities);
+            await _context.Set<TEntity>().AddRangeAsync(entities);
         }
 
         public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate)
         {
-            return Context.Set<TEntity>().Where(predicate);
+            return _context.Set<TEntity>().Where(predicate);
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return  await Context.Set<TEntity>().ToListAsync();
+            return  await _context.Set<TEntity>().ToListAsync();
         }
 
-        public Task<TEntity> FindByIdAsync(Guid id)
+        public async Task<TEntity> FindByIdAsync(Guid id)
         {
-            return Context.Set<TEntity>().FindAsync(id);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
         public Task<TEntity> FindNoTrackingAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return Context.Set<TEntity>()
+            return _context.Set<TEntity>()
                         .AsNoTracking()
                         .Where(predicate)
                         .FirstOrDefaultAsync();
         }
-        public Task<TEntity> FindByIdAsync(string id)
+        public async Task<TEntity> FindByIdAsync(string id)
         {
-            return Context.Set<TEntity>().FindAsync(id);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
-        public Task<TEntity> FindByIdAsync(int id)
+        public async Task<TEntity> FindByIdAsync(int id)
         {
-            return Context.Set<TEntity>().FindAsync(id);
+            return await _context.Set<TEntity>().FindAsync(id);
         }
         public void Remove(TEntity entity)
         {
-            Context.Set<TEntity>().Remove(entity);
+            _context.Set<TEntity>().Remove(entity);
         }
 
         public void RemoveRange(IEnumerable<TEntity> entities)
         {
-            Context.Set<TEntity>().RemoveRange(entities);
+            _context.Set<TEntity>().RemoveRange(entities);
         }
 
-        public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return Context.Set<TEntity>().SingleOrDefaultAsync(predicate);
+            return await _context.Set<TEntity>().SingleOrDefaultAsync(predicate);
         }
 
         public bool ExistsLocal(TEntity entity)
         {
-        return Context.Set<TEntity>().Local.Any(e => e == entity);
+        return _context.Set<TEntity>().Local.Any(e => e == entity);
         }
         public bool Exists(params object[] keys)
         {
-        return (Context.Set<TEntity>().Find(keys) != null);
+            return (_context.Set<TEntity>().FindAsync(keys) != null);
         }
     }
 

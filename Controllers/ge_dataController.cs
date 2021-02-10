@@ -133,7 +133,7 @@ return await Get (Id, projectId, groupId);
                 return null;
             }
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                     .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == id);
             
@@ -155,19 +155,19 @@ return await Get (Id, projectId, groupId);
     public async Task<IActionResult> Post(string data, string data_big, string format) {
 
             ge_data data1 =  null;
-            ge_data_big data_big1 = null;
+            ge_data_file data_big1 = null;
 
             if (format == "json") {   
                 data1 = JsonConvert.DeserializeObject<ge_data>(data);
-                data_big1 = JsonConvert.DeserializeObject<ge_data_big>(data_big);
+                data_big1 = JsonConvert.DeserializeObject<ge_data_file>(data_big);
             }
             
             if (format=="xml") {
                 data1 = data.DeserializeFromXmlString<ge_data>();
-                data_big1 = data_big.DeserializeFromXmlString<ge_data_big>();
+                data_big1 = data_big.DeserializeFromXmlString<ge_data_file>();
             }
             
-            data1.data = data_big1;
+            data1.file = data_big1;
             _context.ge_data.Add(data1);
                         
             int DbCommandTimeout = Int32.Parse( _ge_config.Value.defaultEFDBTimeOut);
@@ -189,20 +189,20 @@ return await Get (Id, projectId, groupId);
    public async Task<IActionResult> Put(Guid Id, string data, string data_big, string format) {
 
             ge_data data1 =  null;
-            ge_data_big data_big1 = null;
+            ge_data_file data_big1 = null;
 
             if (format == "json") {   
                 data1 = JsonConvert.DeserializeObject<ge_data>(data);
-                data_big1 = JsonConvert.DeserializeObject<ge_data_big>(data_big);
+                data_big1 = JsonConvert.DeserializeObject<ge_data_file>(data_big);
             }
             
             if (format=="xml") {
                 data1 = data.DeserializeFromXmlString<ge_data>();
-                data_big1 = data_big.DeserializeFromXmlString<ge_data_big>();
+                data_big1 = data_big.DeserializeFromXmlString<ge_data_file>();
             }
 
             data1.Id=Id;
-            data1.data = data_big1;
+            data1.file = data_big1;
             
             _context.ge_data.Update(data1);
                         
@@ -324,7 +324,7 @@ return await Get (Id, projectId, groupId);
                     return new EmptyResult();
             }
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                         .AsNoTracking()
                                         .SingleOrDefaultAsync(m => m.Id == id);
             
@@ -399,7 +399,7 @@ return await Get (Id, projectId, groupId);
                 if (uploadFile.Length > 0) {
 
                     Boolean IsContentText = uploadFile.IsContentTypeText(true);
-                    var b = new ge_data_big();
+                    var b = new ge_data_file();
                     var d = new ge_data ();
     
                     if (IsContentText) { 
@@ -425,7 +425,7 @@ return await Get (Id, projectId, groupId);
                     d.locEast = ge_project.locEast;
                     d.locNorth = ge_project.locNorth;
                     // Add deatils of uploaded file to new _ge_data record
-                    d.data = b;
+                    d.file = b;
                     d.filesize = uploadFile.Length; 
                     d.filename = uploadFile.FileName; 
                     d.createdDT = DateTime.UtcNow;
@@ -449,7 +449,7 @@ public  async Task<string> getDataAsString (Guid Id, bool removeBOM = false) {
 
             var encode = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                     .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == Id);
             
@@ -476,7 +476,7 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
 
             var encode = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                     .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == Id);
             
@@ -500,7 +500,7 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
 
             var encode = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                     .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == Id);
             
@@ -529,7 +529,7 @@ public  async Task<string> getDataAsParsedXmlString (Guid Id) {
 
             Encoding encoding = _data.GetEncoding();
 
-            var _data_big = await _context.ge_data_big
+            var _data_big = await _context.ge_data_file
                                     .AsNoTracking()
                                     .SingleOrDefaultAsync(m => m.Id == Id);
             

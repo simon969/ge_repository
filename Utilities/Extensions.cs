@@ -172,10 +172,34 @@ namespace  ge_repository.Extensions {
             }
        }
 
+        public static Boolean IsDateTimeFormat(this string s1) {
+        try {
+            DateTime dt = Convert.ToDateTime(s1);
+            return true;
+
+        } catch (FormatException fe){
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+      
+    }   
         public static string FileExtension(this IFormFile formFile) {
                string ext = System.IO.Path.GetExtension(formFile.FileName);
                return ext.ToLower();
        }
+       public static string FilenameNoPath(this IFormFile formFile)
+        {
+            string filename = "";
+            
+            if (formFile.FileName.Contains("\\")) {
+                filename = formFile.FileName.Substring(formFile.FileName.LastIndexOf("\\") + 1);
+            } else {
+                filename = formFile.FileName;
+            }
+
+        return filename;
+        }
        public static Encoding PeekEncoding(this IFormFile formFile, Encoding defaultEncodingIfNoBom) {
          
        using (var reader = new StreamReader(formFile.OpenReadStream(), defaultEncodingIfNoBom, true))
@@ -366,7 +390,7 @@ namespace  ge_repository.Extensions {
                            int read;
                         while ((read = reader.Read(buffer, 0, buffer.Length)) > 0)
                             {
-                            ms.Write(buffer, 0, read);
+                            await ms.WriteAsync(buffer, 0, read);
                         }
                         
                         Byte[] fileContents = ms.ToArray();
@@ -1471,8 +1495,8 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
     public static string AGSVersion (this ge_data data) {
         
         if (data.fileext==AGS.FileExtension.XML) {
-            if (data.data != null) {
-                string xml_data = data.data.data_xml;
+            if (data.file != null) {
+                string xml_data = data.file.data_xml;
                 return AGS.ge_AGS.getVersion(xml_data);
             }
         }

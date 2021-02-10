@@ -153,7 +153,7 @@ namespace ge_repository.Pages.Data
                 {
                     Boolean IsContentText = formFile.IsContentTypeText(true);
      
-                    ge_data_big b = new ge_data_big();
+                    ge_data_file b = new ge_data_file();
                     ge_data d = new ge_data();
 
                     d.createdId = GetUserIdAsync().Result;    
@@ -201,7 +201,7 @@ namespace ge_repository.Pages.Data
                     d.operations = data.operations;
                      
                     // Add deatils of uploaded file to new _ge_data record
-                    d.data = b ;
+                    d.file = b ;
                     d.filesize = formFile.Length; 
                     d.filename = getFilenameNoPath(formFile.FileName);
                     d.fileext = formFile.FileExtension();
@@ -225,6 +225,8 @@ namespace ge_repository.Pages.Data
                     }
                   
                   _context.ge_data.Add(d);
+                  
+                  i++;
                }
             
            

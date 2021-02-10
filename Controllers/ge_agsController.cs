@@ -110,13 +110,13 @@ namespace ge_repository.Controllers
             if (dictionary_file!=null) {
             _agsConfig.Value.dictionary_file = dictionary_file;
             }
-            var b = _context.ge_data_big.FirstOrDefault(m => m.Id == Id);
+            var b = _context.ge_data_file.FirstOrDefault(m => m.Id == Id);
 
             if (b == null) {
                 return NotFound();
             }
 
-            data.data = b;
+            data.file = b;
 
 
             ge_AGS_Client.enumStatus resp = await runAGSClientAsync();

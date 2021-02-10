@@ -98,7 +98,7 @@ public class ge_AGS_Client : AGS_Client_Base {
     }
     public override void readAGS(){
         if (data_ags!=null) {
-        ags_data = data_ags.data.getString();
+        ags_data = data_ags.file.getString();
             if (ags_data.Length >0 ) {
                 status=enumStatus.AGSReceived;
                 //set process flag to prevent process running again
@@ -110,7 +110,7 @@ public class ge_AGS_Client : AGS_Client_Base {
 
     public override void saveXML(){
             
-            ge_data_big b = new ge_data_big();
+            ge_data_file b = new ge_data_file();
             data_xml = new ge_data();
             
             b.data_xml = xml_data;
@@ -130,7 +130,7 @@ public class ge_AGS_Client : AGS_Client_Base {
             data_xml.fileext = FileExtension.XML;
             data_xml.encoding = "ascii";
             data_xml.operations = "Read;Download;Update;Delete";
-            data_xml.data = b;
+            data_xml.file = b;
             _context.ge_data.Add(data_xml);
             _context.SaveChanges();
             status=enumStatus.XMLSaved;

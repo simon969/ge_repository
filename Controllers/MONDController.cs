@@ -103,7 +103,7 @@ private void addLoggerKeys_v101(IDictionary<string, measurement> dic) {
                     }
             }
             
-            var _data_big = await _context.ge_data_big.SingleOrDefaultAsync(m => m.Id == id);
+            var _data_big = await _context.ge_data_file.SingleOrDefaultAsync(m => m.Id == id);
             
             if (_data_big == null)
             {
@@ -260,7 +260,7 @@ public async Task<IActionResult> CreateAGS(Guid id, DateTime fromDate, DateTime 
                             qstatus = QualitativeStatus.AECOMFactual,
                             description= _project.name + " AGS MOND table data (" + fromDate.ToString(FILE_NAME_DATE_FORMAT) + " to " + toDate.ToString(FILE_NAME_DATE_FORMAT) + ")",
                             operations ="Read;Download;Update;Delete",
-                            data = new ge_data_big {
+                            file = new ge_data_file {
                                  data_string = s1
                                 }
                             };

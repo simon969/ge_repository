@@ -9,5 +9,6 @@ namespace ge_repository.interfaces
     {
         Task<IEnumerable<ge_user>> GetAllUserAsync();
         Task<ge_user> GetById(string Id);
+        Task<ge_user> GetUserByEmailAddress(string emailAddress);
     }
 }

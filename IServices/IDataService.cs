@@ -26,5 +26,11 @@ namespace ge_repository.interfaces
         Task UpdateData(ge_data dataToBeUpdated, ge_data data);
         Task UpdateData(ge_data data);
         Task DeleteData(ge_data data);
+        Boolean DataExists (Guid Id);
+        ge_data NewData (Guid projectId, string UserId);
+      
+
+        
     }
+
 }

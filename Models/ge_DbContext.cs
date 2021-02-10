@@ -20,14 +20,14 @@ namespace ge_repository.Models
         public DbSet<ge_project> ge_project { get; set; }
         public DbSet<ge_user> ge_user { get; set; }
         public DbSet<ge_data> ge_data{ get;set;}
-        public DbSet<ge_data_big> ge_data_big{ get;set;}
+        public DbSet<ge_data_file> ge_data_file{ get;set;}
         public DbSet<ge_transform> ge_transform { get; set; }
         public DbSet<ge_event> ge_event { get; set; }
         public ge_user user { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)  
         {  
-        modelBuilder.Entity<ge_data>().HasOne(p => p.data).WithOne(p => p.data).HasForeignKey<ge_data>(p => p.Id);  
-        modelBuilder.Entity<ge_data_big>().HasOne(p => p.data).WithOne(p => p.data).HasForeignKey<ge_data_big>(p => p.Id);  
+        modelBuilder.Entity<ge_data>().HasOne(p => p.file).WithOne(p => p.data).HasForeignKey<ge_data>(p => p.Id);  
+        modelBuilder.Entity<ge_data_file>().HasOne(p => p.data).WithOne(p => p.file).HasForeignKey<ge_data_file>(p => p.Id);  
         modelBuilder.Entity<ge_data>().ToTable("ge_data");  
         
 

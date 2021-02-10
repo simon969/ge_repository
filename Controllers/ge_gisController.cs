@@ -176,7 +176,7 @@ namespace ge_repository.Controllers
         }
         private void saveGISFile(Guid projectId, string filename, string userId, string data_string, string ext){
             
-            ge_data_big b = new ge_data_big();
+            ge_data_file b = new ge_data_file();
             ge_data d = new ge_data();
             
             b.data_string = data_string;
@@ -195,7 +195,7 @@ namespace ge_repository.Controllers
             d.fileext = ext;
             d.encoding ="ascii";
             d.operations = "Read;Download;Update;Delete";
-            d.data = b;
+            d.file = b;
             _context.ge_data.Add(d);
             _context.SaveChanges();
         //    status = enumStatus.XMLSaved;

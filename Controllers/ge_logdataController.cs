@@ -47,7 +47,7 @@ namespace ge_repository.Controllers
         
         ge_log_file f =  null;
         ge_data d =  null;
-        ge_data_big b = new ge_data_big();
+        ge_data_file b = new ge_data_file();
 
        if (format == "json") {     
             d = JsonConvert.DeserializeObject<ge_data>(origin_data);
@@ -79,7 +79,7 @@ namespace ge_repository.Controllers
         d.createdId =  user.Id;
 
         string s1 = d.SerializeToXmlString<ge_data>();
-        string s2 = b.SerializeToXmlString<ge_data_big>();
+        string s2 = b.SerializeToXmlString<ge_data_file>();
 
         var resp_post = await  new ge_dataController( _context,
                                                 _authorizationService,
@@ -108,7 +108,7 @@ namespace ge_repository.Controllers
 
         ge_log_file f =  null;
         ge_data d =  null;
-        ge_data_big b = new ge_data_big();
+        ge_data_file b = new ge_data_file();
 
        if (format == "json") {     
             d = JsonConvert.DeserializeObject<ge_data>(origin_data);
@@ -140,7 +140,7 @@ namespace ge_repository.Controllers
         d.createdId =  user.Id;
 
         string s1 = d.SerializeToXmlString<ge_data>();
-        string s2 = b.SerializeToXmlString<ge_data_big>();
+        string s2 = b.SerializeToXmlString<ge_data_file>();
         
         var resp_put = await  new ge_dataController( _context,
                                                 _authorizationService,

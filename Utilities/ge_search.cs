@@ -154,7 +154,7 @@
         int line_start = find_row("data_start",NotFoundVal);
         
         if (line_start==NotFoundVal) {
-            line_start = find_row(st.header.search_item,NotFoundVal); 
+            line_start = find_row(st.header.search_item_name,NotFoundVal); 
             line_start = line_start + 1;   
         }
         
@@ -277,21 +277,22 @@
         
         }
 
-        public class value_header {
+        public class value_header : search_item {
             
-            public string name {get;set;}
+          //  public string name {get;set;}
             public string db_name {get;set;}
             public string id {get;set;}
-            public string source {get;set;} 
-            public string search_text {get;set;}
-            public int col_offset {get;set;} = 0;
-            public string units {get;set;}
-            public string comments {get;set;} 
-            public int found {get;set;} = -1;
+          //  public string source {get;set;} 
+          //  public string search_text {get;set;}
+          //  public int col_offset {get;set;} = 0;
+          //  public string units {get;set;}
+          //  public string comments {get;set;} 
+          //  public int found {get;set;} = -1;
             public string format {get;set;} 
             public string required {get;set;} = "true";
-            public search_range start_offset {get;set;}
+            public search_range search_offset {get;set;}
             public Boolean IsRequired() {return required=="true";}
+         //   public string match_exact {get;set;} = "false";
             
         }
 
@@ -309,7 +310,7 @@
         }
 
         public class search_range {
-            public string search_item {get;set;}
+            public string search_item_name {get;set;}
             public int row {get;set;}
             public int col {get;set;}
         }
@@ -409,8 +410,8 @@
                     search_item si2 = null;
                     colNotFound = false;
                     
-                    if (!String.IsNullOrEmpty(sh.search_item)) {
-                        si2 =  gs_ws.search_items.Find(e=>e.name==sh.search_item);
+                    if (!String.IsNullOrEmpty(sh.search_item_name)) {
+                        si2 =  gs_ws.search_items.Find(e=>e.name==sh.search_item_name);
                         
                         if (si2 ==null) {
                          //header not found
@@ -428,14 +429,14 @@
                                
                                 int col_start = 0;
                                 
-                                if (vh.start_offset!=null) {
-                                    search_item si3 =  gs_ws.search_items.Find(e=>e.name==vh.start_offset.search_item);
+                                if (vh.search_offset!=null) {
+                                    search_item si3 =  gs_ws.search_items.Find(e=>e.name==vh.search_offset.search_item_name);
                                     if (si3 != null) {
                                         col_start = si3.col + si3.getcoloffset();
                                     } 
                                 }
                                 
-                                int i = wb.matchReturnColumn(vh.search_text,header_row, header_offset, col_start);
+                                int i = wb.matchReturnColumn(vh.search_text,header_row, header_offset, col_start,vh.MatchExact());
                                 
                                 if (i == NOT_FOUND && vh.IsRequired() == true) {
                                     gs_ws.status = $"column search text [{vh.search_text}] of table [{table}] not found";
@@ -508,14 +509,14 @@
             search_item si = null;
             colNotFound = false;
             if (sh.row>0) {header = lines[sh.row];}
-            if (!String.IsNullOrEmpty(sh.search_item)) {
-                si =  new_dic.search_items.Find(e=>e.name==sh.search_item);
+            if (!String.IsNullOrEmpty(sh.search_item_name)) {
+                si =  new_dic.search_items.Find(e=>e.name==sh.search_item_name);
                 if (si==null) { continue;}
-                header = new_dic.search_items.Find(e=>e.name==sh.search_item).row_text;
+                header = new_dic.search_items.Find(e=>e.name==sh.search_item_name).row_text;
             }
             
             if (header=="") {
-                new_dic.status=$"table {st.name} header {st.header.search_item} not found";
+                new_dic.status=$"table {st.name} header {st.header.search_item_name} not found";
                 continue;
             }    
             
