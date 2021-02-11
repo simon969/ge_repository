@@ -783,9 +783,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                     DateTime? toDT,
                                                     string round_ref,
                                                     string format = "view", 
-                                                    Boolean save = false ) 
- {
-
+                                                    Boolean save = false ) {
             if (Id == null)
             {
                 return NotFound();
@@ -834,9 +832,36 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
 
             var okResult = resp_get as OkObjectResult;    
 
-            if (okResult.StatusCode==200) {
-                log_file  = okResult.Value as ge_log_file;
+            if (okResult == null) {
+ 
+                return NotFound();
+               
             }
+
+            ge_log_file log_file  = okResult.Value as ge_log_file;
+
+            return await createMOND (   log_file,
+                                        table, 
+                                        fromDT,
+                                        toDT,
+                                        round_ref,
+                                        format, 
+                                        save,
+                                        _data.projectId);
+
+}
+
+ private async Task<IActionResult> createMOND(   ge_log_file log_file,
+                                                    string table, 
+                                                    DateTime? fromDT,
+                                                    DateTime? toDT,
+                                                    string round_ref,
+                                                    string format, 
+                                                    Boolean save,
+                                                    Guid? projectId) 
+ {
+
+           
 
             string ge_source = "";
 
@@ -872,14 +897,14 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                     ge_source,
                                                     true);
 
-                    okResult = resp as OkObjectResult;   
+                    var okResult = resp as OkObjectResult;   
                         
                     if (okResult == null) {
                             return resp;
                         //    return Json ($"There is an issue converting {ge_source} data file {_data.filename} to MOND records");
                     }
                     
-                    if (save == true) { 
+                    if (save == true && projectId !=null) { 
 
                         // string[] selectOtherId= MOND.Select (m=>m.ge_otherId).Distinct().ToArray();
                         // string where2 = $"ge_source='{ge_source}' and ge_otherid in ({selectOtherId.ToDelimString(",","'")})";
@@ -891,7 +916,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                                                             _userManager,
                                                             _env ,
                                                             _ge_config
-                                                                ).Upload (_data.projectId, MOND , where2 );
+                                                                ).Upload (projectId.Value, MOND , where2 );
                     }
             
             ordered.AddRange(this.MOND.OrderBy(e=>e.DateTime).ToList());
@@ -1026,8 +1051,6 @@ private async Task<IActionResult> createMOND (ge_log_file log_file,
             gl = Convert.ToSingle(pt.LOCA_GL.Value);
         }
 
-        int round_no = Convert.ToInt16(round_ref);
-        
         string mond_rem_suffix = "";
         string mond_ref = "";
 
@@ -1046,7 +1069,7 @@ private async Task<IActionResult> createMOND (ge_log_file log_file,
                 foreach (value_header vh in log_file.field_headers) {
                     
                     if (ge_source =="ge_flow")  {
-                        mond_ref = String.Format("Round {0:00} Seconds {1:00}",round_no,reading.Duration);
+                        mond_ref = String.Format("Round {0} Seconds {1:00}",round_ref,reading.Duration);
                     }
 
                     if (vh.id == "WDEPTH" && vh.units=="m") {
@@ -1579,14 +1602,17 @@ public async Task<IActionResult> ProcessFile(   Guid Id,
         save_logger = false;    
     }
 
-     var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", save_logger);
-     var okResult = calc_resp as OkObjectResult;   
-     if (okResult == null) { 
-            return Json(calc_resp);
-     }
+    var calc_resp = await ReadFileWith (Id,templateId,table, sheet, bh_ref, probe_depth, "", save_logger);
+    var okResult = calc_resp as OkObjectResult;   
+    
+    if (okResult == null) { 
+        return Json(calc_resp);
+    }
 
-     if (options.Contains("view_logger")) {
-         ge_log_file log_file  = okResult.Value as ge_log_file;
+    ge_log_file log_file  = okResult.Value as ge_log_file;
+    
+    if (options.Contains("view_logger")) {
+         
          if (format == "view") {
             return View ("ReadData", log_file);
          }
@@ -1594,8 +1620,12 @@ public async Task<IActionResult> ProcessFile(   Guid Id,
              return Json(log_file);
          }
          return Ok (log_file);
-     } 
-        
+    } 
+    
+    if (save_logger == false) {
+        return await createMOND(log_file,table,null,null,round_ref,format,false, null);    
+    }
+
     return await createMOND (Id,table, null, null, round_ref, format, save);
     
 }
@@ -2980,10 +3010,12 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     int intValueCheckForDry,
                     string dateformat) {
     
-    
+    if (line_start == NOT_FOUND || intReadTime == NOT_FOUND) {
+        return -1;
+    }
+
     string[] dateformats = SplitDateFormats(dateformat);
-
-
+    
     for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
                 if (line.Length>0) {
@@ -2992,16 +3024,15 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     if (values[0].Contains("\"")) {
                         values = line.QuoteSplit();
                     }
-                    if (values[intReadTime] == "") {
-                        break;
+                   
+                    if (values[intReadTime] == "" || ContainsError(values[intReadTime])) {
+                        continue;
                     }
                    
                     ge_log_reading r= new ge_log_reading();
                     
-                    if (intReadTime != NOT_FOUND) {
-                        if (ContainsError(values[intReadTime])) {continue;}
-                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
-                    }
+                    r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
+                  
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
                     if (intValue2 != NOT_FOUND) {r.Value2 = getFloat(values[intValue2],null);}
@@ -3499,7 +3530,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
         int intReadTime = NOT_FOUND;
         if (DateTimeReading != null) {
             intReadTime = DateTimeReading.found;
-        }
+        } 
 
         value_header Duration = dic.getHeader(ge_log_constants.DURATION);
         int intDuration = NOT_FOUND;
@@ -3631,6 +3662,10 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
         int line_start = dic.data_start_row(NOT_FOUND);
         
         int line_end = dic.data_end_row(lines.Count());
+        
+        if (line_start==NOT_FOUND || intReadTime == NOT_FOUND) {
+            return null;
+        }
 
         int readlines = addReadingsAny(file.readings, 
                                     lines, 
