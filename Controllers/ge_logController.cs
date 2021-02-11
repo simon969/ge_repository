@@ -218,7 +218,6 @@ namespace ge_repository.Controllers
             ac.table = table;
             ac.sheet = sheet;
             ac.bh_ref = bh_ref;
-            ac.ge_source = get_ge_source(table);
             ac.probe_depth = probe_depth;
             ac.round_ref = round_ref;
             ac.read_logger = read_logger;
@@ -229,26 +228,7 @@ namespace ge_repository.Controllers
             return ge_log_client.enumStatus.Start; 
 
         }
-        private string get_ge_source(string table) {
-
-            if (table.Contains("waterquality") || 
-                table.Contains("wq") ) {
-                return "ge_flow";
-            }
- 
-            if (table.Contains("depth") || 
-                table.Contains("head") || 
-                table.Contains("pressure") || 
-                table.Contains("channel") || 
-                table.Contains("r0") ||
-                table.Contains("r1")
-                ) {
-                return "ge_logger";
-            }
-
-            return "";
-
-        }
+       
 private async Task<IActionResult> ReadFile(Guid Id,
                                           Guid templateId,
                                           string table = "",

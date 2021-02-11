@@ -220,7 +220,6 @@ namespace ge_repository.Controllers
             ac.table = table;
             ac.sheet = sheet;
             ac.bh_ref = bh_ref;
-            ac.ge_source = get_ge_source(table);
             ac.probe_depth = probe_depth;
             ac.round_ref = round_ref;
             ac.read_logger = read_logger;
@@ -706,27 +705,9 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             
             log_file  = await _logService.GetByDataId(Id, table,true);
 
-           
-            
-            string ge_source = "";
-
-            if (table.Contains("waterquality") || 
-                table.Contains("wq") ) {
-                ge_source = "ge_flow";
-            }
-
-            if (table.Contains("depth") || 
-                table.Contains("head") || 
-                table.Contains("pressure") || 
-                table.Contains("channel") || 
-                table.Contains("r0") ||
-                table.Contains("r1")
-                ) {
-                ge_source = "ge_logger";
-            }
-
+ 
             List<MOND> mond = await _mondService.CreateMOND (log_file,
-                                                            ge_source,
+                                                            table,
                                                             round_ref,
                                                             fromDT,
                                                             toDT,
@@ -743,7 +724,34 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             return Ok(mond);
  }
 
+private async Task<IActionResult> createMOND(   ge_log_file log_file,
+                                                    string table, 
+                                                    DateTime? fromDT,
+                                                    DateTime? toDT,
+                                                    string round_ref,
+                                                    string format = "view", 
+                                                    Boolean save = false 
+                                                    ) 
+ {
+            
+            
+            List<MOND> mond = await _mondService.CreateMOND (log_file,
+                                                            table,
+                                                            round_ref,
+                                                            fromDT,
+                                                            toDT,
+                                                            save);
 
+             if (format == "view") {
+                return View("ViewMOND", mond);
+            } 
+
+            if (format == "json") {
+                return Json(mond);
+            }
+
+            return Ok(mond);
+ }
 
 private MOND NewMOND (MONG mg, ge_log_reading read,
                         string instrument_name, 
@@ -891,17 +899,23 @@ public async Task<IActionResult> ProcessFile(   Guid Id,
             return Json(calc_resp);
      }
 
-     if (options.Contains("view_logger")) {
-         ge_log_file log_file  = okResult.Value as ge_log_file;
-         if (format == "view") {
+    ge_log_file log_file  = okResult.Value as ge_log_file;
+     
+    if (options.Contains("view_logger")) {
+         
+        if (format == "view") {
             return View ("ReadData", log_file);
-         }
-         if (format=="json") {
+        }
+        if (format=="json") {
              return Json(log_file);
-         }
-         return Ok (log_file);
-     } 
-        
+        }
+        return Ok (log_file);
+    } 
+    
+    if (save_logger == false) {
+        return await createMOND(log_file,table,null,null,round_ref,format,false);    
+    }  
+    
     return await createMOND (Id,table, null, null, round_ref, format, save);
     
 }

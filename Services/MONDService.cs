@@ -61,7 +61,7 @@ namespace ge_repository.services
            
         }
         public async Task<List<MOND>> CreateMOND(ge_log_file log_file, 
-                                        string ge_source,
+                                        string table,
                                         string round_ref,
                                         DateTime? fromDT,
                                         DateTime? toDT,
@@ -69,7 +69,23 @@ namespace ge_repository.services
                                         ) 
         {
             
+            string ge_source = "";
 
+            if (table.Contains("waterquality") || 
+                table.Contains("wq") ) {
+                ge_source = "ge_flow";
+            }
+
+            if (table.Contains("depth") || 
+                table.Contains("head") || 
+                table.Contains("pressure") || 
+                table.Contains("channel") || 
+                table.Contains("r0") ||
+                table.Contains("r1")
+                ) {
+                ge_source = "ge_logger";
+            }
+            
             int page_size = 1000;
             int row_count = log_file.getIncludeReadings(fromDT, toDT).Count() ;
             int total_pages = Convert.ToInt32(row_count / page_size) + 1;

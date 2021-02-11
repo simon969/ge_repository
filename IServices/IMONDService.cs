@@ -12,7 +12,7 @@ namespace ge_repository.interfaces
       
       Task <MONG> getMONG(string PointId, string MONG_DIS);
       Task <List<MOND>> CreateMOND (ge_log_file log_file, 
-                                        string ge_source,
+                                        string table,
                                         string round_ref,
                                         DateTime? fromDT,
                                         DateTime? toDT,

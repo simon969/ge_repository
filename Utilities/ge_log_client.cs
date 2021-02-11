@@ -28,7 +28,7 @@ public class ge_log_client {
     public IMONDService _mondService {get;set;}
     private ge_DbContext _context {get;}
     public string table {get;set;}
-    public string ge_source {get;set;}
+    // public string ge_source {get;set;}
     public string sheet {get;set;}
     public string bh_ref  {get;set;}
     public float? probe_depth  {get;set;}
@@ -397,7 +397,7 @@ public class ge_log_client {
 
 
         var mond = await _mondService.CreateMOND(  log_file, 
-                                                        ge_source,
+                                                        table,
                                                         round_ref,
                                                         fromDT,
                                                         toDT,

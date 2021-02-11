@@ -400,6 +400,10 @@ namespace ge_repository.services
                     int intValueCheckForDry,
                     string dateformat = "") {
 
+    if (intReadTime == NOT_FOUND || line_start ==NOT_FOUND) {
+        return -1;
+    }
+
     string[] dateformats = SplitDateFormats(dateformat);
 
     for (int i = line_start; i<line_end; i++) {
@@ -410,16 +414,14 @@ namespace ge_repository.services
                     if (values[0].Contains("\"")) {
                             values = QuoteSplit(line);
                     }
-                    if (values[intReadTime] == "") {
-                        break;
+                    if (values[intReadTime] == "" || ContainsError(values[intReadTime])) {
+                        continue;
                     }
                    
                     ge_log_reading r= new ge_log_reading();
                     
-                    if (intReadTime != NOT_FOUND) {
-                        if (ContainsError(values[intReadTime])) {continue;}
-                        r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
-                    }
+                    r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
+                    
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
                     if (intValue2 != NOT_FOUND) {r.Value2 = getFloat(values[intValue2],null);}
