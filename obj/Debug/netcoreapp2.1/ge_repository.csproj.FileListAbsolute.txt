@@ -621,3 +621,4 @@ C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcorea
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\ge_repository.genruntimeconfig.cache
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\Shared\PostReadFeatureByGroup.cshtml.g.cs
 C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\bin\Debug\netcoreapp2.1\web.config
+C:\Users\thomsonsj\Documents\Visual Studio Code\ge_repository\obj\Debug\netcoreapp2.1\Razor\Views\Shared\OperationRequest.cshtml.g.cs

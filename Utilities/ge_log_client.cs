@@ -25,7 +25,7 @@ public class ge_log_client {
     public enumStatus status {get;set;}
     public IDataService _dataService {get;set;}
     public ILoggerFileService _logService {get;set;}
-    public IMONDService _mondService {get;set;}
+    public IMONDLogService _mondService {get;set;}
     private ge_DbContext _context {get;}
     public string table {get;set;}
     // public string ge_source {get;set;}
@@ -54,7 +54,7 @@ public class ge_log_client {
 
     public Boolean save_MOND {get;set;}= false;
 
-    public ge_log_client (IDataService dataService, ILoggerFileService logService, IMONDService mondservice) {
+    public ge_log_client (IDataService dataService, ILoggerFileService logService, IMONDLogService mondservice) {
         _dataService = dataService;
         _logService = logService;
         _mondService = mondservice;
@@ -69,7 +69,7 @@ public class ge_log_client {
             _dataService = new DataService(_unit);
            
             IGintUnitOfWork _gunit = new GintUnitOfWork(connectGint);
-            _mondService = new MONDService (_gunit);
+            _mondService = new MONDLogService (_gunit);
             
             ILoggerFileUnitOfWork _lunit = new LogUnitOfWork(connectLogger);
             _logService = new LoggerFileService (_lunit);

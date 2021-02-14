@@ -1,8 +1,4 @@
-using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Options;
 using ge_repository.OtherDatabase;
 
 namespace ge_repository.AGS  {

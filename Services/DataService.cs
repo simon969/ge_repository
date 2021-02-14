@@ -41,11 +41,21 @@ namespace ge_repository.services
             return await _unitOfWork.Data
                 .GetAllWithProjectAsync();
         }
-
+        public async Task<ge_data> GetDataByIdWithAll(Guid id)
+        {
+            return await _unitOfWork.Data
+                .GetWithAllAsync(id);
+        }
         public async Task<ge_data> GetDataById(Guid id)
         {
             return await _unitOfWork.Data
                 .FindByIdAsync(id);
+        }  
+        public async Task<ge_data> GetDataByIdWithFile(Guid Id) {
+            ge_data d =await _unitOfWork.Data
+                            .FindByIdAsync(Id);
+                    d.file = await _unitOfWork.Data.GetFileAsync(Id);
+            return d;
         }
 
         public async Task<MemoryStream> GetFileAsMemoryStream(Guid Id) {
@@ -177,21 +187,7 @@ namespace ge_repository.services
 
         }
 
-        public async Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups) {
-
-            string[] _lines = await GetFileAsLines(Id);
-
-            if (_lines == null) {
-                return null;
-            }
-            
-            AGSReader reader = new AGSReader(_lines);
-            AGS404GroupTables ags_tables = reader.CreateAGS404GroupTables(groups);
-            
-            return ags_tables;
-        }
-
-
+       
     public async Task<IEnumerable<ge_data>> GetDataByProjectId(Guid projectId)
         {
             return await _unitOfWork.Data

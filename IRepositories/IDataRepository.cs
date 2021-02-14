@@ -13,6 +13,7 @@ namespace ge_repository.interfaces
         Task<IEnumerable<ge_data>> GetAllDataAsync();  
         Task<IEnumerable<ge_data>> GetAllWithProjectAsync();
         Task<ge_data> GetWithProjectAsync(Guid id);
+        Task<ge_data> GetWithAllAsync(Guid Id);
         Task<IEnumerable<ge_data>> GetAllByProjectIdAsync(Guid Id);
         Task<IEnumerable<ge_data>> GetAllByGroupIdAsync(Guid Id);
         Task<ge_data_file> GetFileAsync(Guid id);

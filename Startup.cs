@@ -21,8 +21,9 @@ using Microsoft.AspNetCore.Authorization;
 using ge_repository.Models;
 using ge_repository.Authorization;
 using ge_repository.AGS;
-using ge_repository.Services;
-
+using ge_repository.services;
+using ge_repository.interfaces;
+using ge_repository.repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -142,6 +143,28 @@ namespace ge_repository
             //                         options.Cookie.HttpOnly = true;
             //                     });
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IDataService, DataService>();
+            services.AddTransient<IProjectService, ProjectService>();
+            services.AddTransient<IGroupService, GroupService>();
+            services.AddTransient<ITransformService, TransformService>();
+            services.AddTransient<IUserOpsService, UserOpsService>();
+
+            services.AddTransient<IDataLoggerFileService, DataLoggerFileService>();
+            
+            // groundwater db connections
+            services.AddTransient<ILoggerFileService, LoggerFileService>();
+            
+            // gINT Database connections
+            services.AddTransient<IMONDLogService, MONDLogService>();
+
+            // services.AddSwaggerGen(c =>
+            // {
+            //     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ge_repository.api", Version = "v1" });
+            // });
+			
+			// services.AddAutoMapper(typeof(Startup));
+            
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()

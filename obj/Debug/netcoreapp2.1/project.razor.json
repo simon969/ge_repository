@@ -1908,6 +1908,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Views\\Shared\\OperationRequest.cshtml",
+      "TargetPath": "Views\\Shared\\OperationRequest.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "c:\\Users\\thomsonsj\\Documents\\Visual Studio Code\\ge_repository\\Pages\\UserOperations\\Delete.cshtml",
       "TargetPath": "Pages\\UserOperations\\Delete.cshtml",
       "FileKind": "mvc"

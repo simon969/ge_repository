@@ -68,11 +68,22 @@ namespace ge_repository.repositories
                 .ToListAsync();
 
         }
+         public async Task<ge_user_ops> GetByUserIdProjectId(string id, Guid projectId)
+        {
+            return await ge_DbContext.ge_user_ops
+                    .SingleOrDefaultAsync(a => a.userId == id && a.projectId == projectId);
+        }
         public async Task<ge_user_ops> GetByUserIdProjectIdIncludeProject(string id, Guid projectId)
         {
             return await ge_DbContext.ge_user_ops
                 .Include(a => a.project)
                 .SingleOrDefaultAsync(a => a.userId == id && a.projectId == projectId);
+        }
+
+         public async Task<ge_user_ops> GetByUserIdGroupId(string id, Guid groupId)
+        {
+            return await ge_DbContext.ge_user_ops
+                    .SingleOrDefaultAsync(a => a.userId == id && a.groupId == groupId);
         }
           public async Task<ge_user_ops> GetByUserIdGroupIdIncludeGroup(string id, Guid groupId)
         {
@@ -104,7 +115,7 @@ namespace ge_repository.repositories
 
             return user_ops.operations.Contains(operation);
         }
-        public async Task<string> GetOperations(string Userd, ge_data data) {
+        public async Task<string> GetOperations(string UserId, ge_data data) {
             return null;
         }
       

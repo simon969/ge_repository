@@ -7,10 +7,10 @@ using ge_repository.interfaces;
 
 namespace ge_repository.services
 {
-    public class MONDService : gINTBaseService, IMONDService
+    public class MONDLogService : gINTBaseService, IMONDLogService
     {
        
-        public MONDService(IGintUnitOfWork unitOfWork) : base (unitOfWork)
+        public MONDLogService(IGintUnitOfWork unitOfWork) : base (unitOfWork)
         { }
 
         public async Task<MONG> GetParentById(int Id) {

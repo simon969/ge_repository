@@ -1,0 +1,168 @@
+@model ge_repository.Models.operation_request
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ 
+<!-- Trigger the modal with a button -->
+<!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+<asp:Button ID="ServerButton" runat="server" Text="Launch Modal Popup (Server)" 
+ OnClick="ServerButton_Click" /> -->
+<!-- Modal -->
+
+<div id="myModal" class="modal fade" role="dialog" data-toggle="modal">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Operational Request Details</h4>
+            </div>
+            <div class="modal-body">
+             <h1 class="text-danger"></h1>
+             <div>
+                 <table class="table">
+                    <tr> 
+                        <td>
+                           User Name
+                        </td>  
+                        <td>
+                            @Model._user.FullName() 
+                        </td>
+                    </tr>
+                @if (Model._group != null) {
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(model => model._group.name)
+                        </td>
+                        <td> 
+                            @Model._group.name
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                          @Html.DisplayNameFor(model => model._group.project_operations)
+                        </td> 
+                        <td> 
+                            @Model._group.project_operations
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                             @Html.DisplayNameFor(model => model._group_user.user_operations)
+                        </td>
+                        <td>
+                            @Model._group_user.user_operations
+                        </td> 
+                    </tr>
+                }
+                @if(Model._project != null) {
+                    <tr>
+                        <td>
+                             @Html.DisplayNameFor(model => model._project.name)
+                        </td>
+                        <td> 
+                            @Model._project.name
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                             @Html.DisplayNameFor(model => model._project.data_operations)
+                        </td>
+                        <td> 
+                            @Model._project.data_operations
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                             @Html.DisplayNameFor(model => model._project_user.user_operations)
+                        </td>
+                        <td> 
+                            @Model._project_user.user_operations 
+                        </td>
+                    </tr>
+                }
+                @if(@Model._data != null) {
+                    <tr> 
+                        <td>
+                             @Html.DisplayNameFor(model => model._data.filename) 
+                        </td>
+                        <td>
+                            @Model._data.filename
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(model => model._data.operations)
+                        </td>
+                        <td> 
+                            @Model._data.operations 
+                        </td>
+                    </tr>
+                }                    
+                @if(@Model._requested_object =="group") {
+                    <tr>    
+                        <td>
+                             @Html.DisplayNameFor(model => model._effectiveGroup_ops)
+                        </td>
+                        <td>
+                            @Model._effectiveGroup_ops
+                        </td>
+                    </tr>
+                }
+                @if(@Model._requested_object =="project") {
+                    <tr>    
+                        <td>
+                           @Html.DisplayNameFor(model => model._effectiveProject_ops)
+                        </td>
+                        <td>
+                            @Model._effectiveProject_ops
+                        </td>
+                    </tr>
+                }
+                @if (@Model._requested_object =="data") {
+                    <tr>    
+                        <td>
+                             @Html.DisplayNameFor(model => model._effectiveData_ops)
+                        </td>
+                        <td>
+                            @Model._effectiveData_ops
+                        </td>
+                    </tr>
+                }
+                    <tr>
+                        <td>
+                            Requested Operations 
+                        </td>
+                        <td>  
+                            @Model._requested_ops
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Request Result
+                        </td>
+                        <td>  
+                            @Model._requested_result
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+        $(function () {
+            $("#myModal").modal();
+        });
+        $('#myModal').on('hide.bs.modal', function(){
+        history.go(-1)
+        //do your stuff
+})
+    </script>

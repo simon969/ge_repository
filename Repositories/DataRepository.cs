@@ -42,7 +42,13 @@ namespace ge_repository.repositories
                 .Include(a => a.project)
                 .ToListAsync();
         }
-       
+        public async Task<ge_data> GetWithAllAsync(Guid Id)
+        {
+            return await ge_DbContext.ge_data
+                .Include(a => a.project)
+                .Include(a => a.project.group)
+                .SingleOrDefaultAsync(a => a.Id == Id);
+        }
         public async Task<ge_data> GetWithProjectAsync(Guid Id)
         {
             return await ge_DbContext.ge_data

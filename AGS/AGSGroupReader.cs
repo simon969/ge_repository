@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using ge_repository.OtherDatabase;
+
 namespace ge_repository.AGS {
 
 public class AGSGroupReader <T> where T: IAGSGroup {

@@ -3,8 +3,8 @@ using System.IO;
 using ge_repository.Models;
 using Microsoft.EntityFrameworkCore;
 using ge_repository.Authorization;
-using System.Xml;
 using System.Xml.Linq;
+using ge_repository.interfaces;
 namespace ge_repository.AGS
 
 {
@@ -85,27 +85,41 @@ public static string getVersion(XDocument xml_data) {
 }
 
 public class ge_AGS_Client : AGS_Client_Base {
-
-    public ge_data data_ags {get;set;}
-    public ge_data data_xml {get;set;}
-    public ge_DbContext _context {get;set;}
-    public string userId {get;set;}
-    public ge_AGS_Client (string host, int port, 
-                            ge_DbContext Context, string UserId):base(host, port) {
-        _context = Context;
+    
+    protected Guid _Id {get;}
+    protected ge_data data_ags {get;set;}
+    protected ge_data data_xml {get;set;}
+    protected IDataService _dataService {get;}
+    protected string userId {get;}
+    public ge_AGS_Client (string host, int port, string dictionary_file, string data_structure,
+                            Guid Id, IDataService DataService, string UserId):base(host, port) {
+        _Id = Id;
+        _dataService = DataService;
+        dictionaryfile = dictionary_file;
+        datastructure = data_structure;
         userId = UserId;
 
     }
-    public override void readAGS(){
-        if (data_ags!=null) {
-        ags_data = data_ags.file.getString();
-            if (ags_data.Length >0 ) {
+    public ge_AGS_Client (ags_config config,
+                           Guid Id, 
+                           IDataService DataService, 
+                           string UserId):base(config.host, config.port) {
+        _dataService = DataService;
+        userId = UserId;
+        _Id = Id;
+        dictionaryfile = config.dictionary_file;
+        datastructure = config.data_structure;
+    }
+    public async override void readAGS(){
+
+        ags_data = await _dataService.GetFileAsString(_Id,false);
+
+        if (ags_data.Length >0 ) {
                 status=enumStatus.AGSReceived;
                 //set process flag to prevent process running again
                 setProcessFlag(pflagCODE.PROCESSING);
-            }
         }
-        
+                
     }
 
     public override void saveXML(){
@@ -131,8 +145,7 @@ public class ge_AGS_Client : AGS_Client_Base {
             data_xml.encoding = "ascii";
             data_xml.operations = "Read;Download;Update;Delete";
             data_xml.file = b;
-            _context.ge_data.Add(data_xml);
-            _context.SaveChanges();
+            _dataService.CreateData(data_xml);
             status=enumStatus.XMLSaved;
                       
     }
@@ -142,10 +155,8 @@ public class ge_AGS_Client : AGS_Client_Base {
     }
    public  void setProcessFlag(int value) {
             // set process flag = 1 so that the user cannot rerun another ags conversion before this one has completed
-                data_ags.pflag = value;
-                _context.Attach(data_ags).State = EntityState.Modified;
-                _context.SaveChanges();
-        }
+                _dataService.SetProcessFlag(_Id, value);
+    }
 }
 
 }

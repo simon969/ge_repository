@@ -48,3 +48,14 @@ dotnet add package MailKit --version 2.1.2
 
 # https://docs.microsoft.com/en-us/aspnet/core/client-side/bundling-and-minification?view=aspnetcore-2.2&tabs=netcore-cli
 dotnet add package BuildBundlerMinifier
+
+
+dotnet add package Swashbuckle.AspNetCore
+
+
+# https://stackoverflow.com/questions/54617417/how-to-use-automapper-with-asp-net-core-2-2-api
+dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection -Scope CurrentUser
+<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="5.0.0" />

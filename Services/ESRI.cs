@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using ge_repository.Extensions;
-namespace ge_repository.Services
+
+namespace ge_repository.services
 {
 // Courtesy of 
 //https://gist.github.com/glenhallworthreadify/c9c377720de165103a73b06afa0a151b

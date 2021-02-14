@@ -7,7 +7,7 @@ using MimeKit;
 using MailKit.Security;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace ge_repository.Services
+namespace ge_repository.services
 {
     // This class is used by the application to send Email and SMS
     // when you turn on two-factor authentication in ASP.NET Identity.

@@ -15,7 +15,7 @@ public class ge_group : _ge_location {
         public virtual ge_user manager {get;set;}
         public virtual List<ge_project> projects {get;set;}
         public virtual List<ge_user_ops> users { get; set; }
-        [Display(Name = "Project Operations")] [StringLength(255)] public string project_operations {get;set;}
+        [Display(Name = "Project Operations Allowed")] [StringLength(255)] public string project_operations {get;set;}
        
 
 }

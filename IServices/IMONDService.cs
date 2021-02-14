@@ -7,7 +7,7 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.interfaces
 {
-    public interface IMONDService : IGintTableService2<MONG,MOND>
+    public interface IMONDLogService : IGintTableService2<MONG,MOND>
     {
       
       Task <MONG> getMONG(string PointId, string MONG_DIS);

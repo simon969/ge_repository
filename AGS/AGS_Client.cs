@@ -361,6 +361,16 @@ public class AGS_ClientDb : AGS_ClientFile {
           db_connect = connect;
     }   
 }
+    interface IAGS_Client { 
+
+        void readAGS();
+        void saveAGS() ;
+        void saveXML() ;
+
+    }
+
+
+
 
 
 }

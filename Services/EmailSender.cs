@@ -5,7 +5,7 @@ using MailKit.Net.Smtp;
 using MimeKit;
 using MailKit.Security;
 
-namespace ge_repository.Services
+namespace ge_repository.services
 {
     public class EmailSender : IEmailSender
     {

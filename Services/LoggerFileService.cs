@@ -8,8 +8,6 @@ using Newtonsoft.Json;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
 using ge_repository.Models;
-using ge_repository.Extensions;
-
 
 namespace ge_repository.services
 {

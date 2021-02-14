@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ge_repository.Services
+namespace ge_repository.services
 {
     public interface xISmsSender
     {

@@ -16,7 +16,9 @@ namespace ge_repository.interfaces
         Task<IEnumerable<ge_user_ops>> GetAllByUserIdAsync(string Id);
         Task<IEnumerable<ge_user_ops>> GetAllByProjectIdAsync(Guid Id);
         Task<IEnumerable<ge_user_ops>> GetAllByGroupIdAsync(Guid Id);
+        Task<ge_user_ops> GetByUserIdProjectId(string id, Guid projectId);
         Task<ge_user_ops> GetByUserIdProjectIdIncludeProject(string UserId, Guid ProjectId);
+        Task<ge_user_ops> GetByUserIdGroupId(string id, Guid groupId);
         Task<ge_user_ops> GetByUserIdGroupIdIncludeGroup(string UserId, Guid GroupId);
         Boolean IsOperationAllowed(string operation, _ge_base ge_base); 
         Task<Boolean> DoesUserHaveOperation (string operation, ge_group group, ge_user user);

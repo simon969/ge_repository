@@ -66,56 +66,91 @@ namespace ge_repository.services
             
             await _unitOfWork.CommitAsync();
         }
-        private string ParentWithMatchedChildItems(string parent, string child) {
-            // get all child items that exist in the parent
-           string[] child_split = child.Split(",");
-           string resp = "";
+       
+        public async Task<Boolean> AreDataOperationsAllowed (string userId, ge_data data, string request_ops) {
 
-           foreach (string c in child_split) {
-               if (parent.Contains(c)) {
-                   if (resp.Length>0) resp += ",";
-                   resp += "c";
-               }
-           }
-
-           return resp;
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,data.project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,data.projectId);
+            
+            operation_request req =  new operation_request(data, group_user, project_user);
+            
+            return req.AreDataOperationsAllowed(request_ops);
         }
-        
-        public async Task<string> GetAllowedOperations (string userId, ge_data data) {
-            
-            string UserGroupOps = "";
-            string GroupOps = "";
-            string GroupUserOps = "";
-            string UserProjectOps = "";
-            string ProjectOps = "";
-            string ProjectUserOps = "";
-            string GroupProjectUserOps = "";
+        public async Task<Boolean> AreProjectOperationsAllowed(string userId, ge_project project, string request_ops) {
 
-            ge_user_ops group_ops = await _unitOfWork.UserOps.GetByUserIdGroupIdIncludeGroup(userId, data.project.group.Id);
-          
-            if (group_ops != null ) {
-                GroupOps =  group_ops.group.operations;
-                UserGroupOps = group_ops.operations;
-                GroupUserOps = ParentWithMatchedChildItems(GroupOps, UserGroupOps);
-            } else {
-                GroupUserOps =  data.project.group.operations;
-            }
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,project.Id);
             
-            ge_user_ops project_ops = await _unitOfWork.UserOps.GetByUserIdProjectIdIncludeProject(userId, data.project.Id);
+            operation_request req =  new operation_request(project, group_user, project_user);
             
-            if (project_ops != null ) { 
-                ProjectOps = project_ops.project.operations;
-                UserProjectOps = project_ops.operations;
-                ProjectUserOps = ParentWithMatchedChildItems(ProjectOps, UserProjectOps);
-            } else {
-                ProjectUserOps =  data.project.operations;
-            }
+            return req.AreProjectOperationsAllowed(request_ops);
+        }
+        public async Task<Boolean> AreGroupOperationsAllowed (string userId, ge_group group, string request_ops) {
 
-            GroupProjectUserOps = ParentWithMatchedChildItems(GroupUserOps,ProjectUserOps);
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,group.Id);
+                       
+            operation_request req =  new operation_request(group, group_user);
+            
+            return req.AreGroupOperationsAllowed(request_ops);
+        }
+         public async Task<string> GetAllowedOperations (string userId, ge_data data) {
 
-            return GroupProjectUserOps;
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,data.project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,data.projectId);
+            
+            operation_request req =  new operation_request(data, group_user, project_user);
+           
+            return req._effectiveData_ops;
 
         }
+        public async Task<string> GetAllowedOperations (string userId, ge_project project) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId, project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,project.Id);
+
+            operation_request req = new operation_request(project, group_user, project_user);
+
+            return req._effectiveProject_ops;
+        }
+
+        public async Task<string> GetAllowedOperations (string userId, ge_group group) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId, group.Id);
+            
+            operation_request req = new operation_request(group, group_user);
+
+            return req._effectiveGroup_ops;
+        }
+        public async Task<operation_request> GetOperationRequest (string userId, ge_data data) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,data.project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,data.projectId);
+            
+            operation_request req =  new operation_request(data, group_user, project_user);
+
+            return req;
+
+        }
+        public async Task<Boolean> IsUserGroupAdmin(string userId, ge_group group) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId, group.Id);
+            
+            return (group_user.user_operations.Contains("Admin"));
+        }
+        public async Task<Boolean> IsUserProjectAdmin(string userId, ge_project project) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId, project.groupId);
+            
+            if (group_user.user_operations.Contains("Admin")) {
+                return true;
+            };
+            
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId, project.Id);
+            
+            return (project_user.user_operations.Contains("Admin"));
+
+        }
+       
         public async Task<ge_user> GetUserByEmailAddress(string emailAddress) {
 
             return await _unitOfWork.User.GetUserByEmailAddress(emailAddress);

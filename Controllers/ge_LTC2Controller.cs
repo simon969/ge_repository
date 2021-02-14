@@ -13,7 +13,7 @@ using ge_repository.Models;
 using ge_repository.Authorization;
 using ge_repository.OtherDatabase;
 using ge_repository.LowerThamesCrossing;
-using ge_repository.Services;
+using ge_repository.services;
 using Newtonsoft.Json;
 using ge_repository.DAL;
 using ge_repository.Extensions;
@@ -127,7 +127,7 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
 
             var _project = await _context.ge_project
                                         .Include(p=>p.group)
-                                    .SingleOrDefaultAsync(m => m.Id == projectId);
+                                        .SingleOrDefaultAsync(m => m.Id == projectId);
             
             if (_project == null)
             {

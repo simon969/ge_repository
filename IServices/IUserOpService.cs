@@ -15,6 +15,11 @@ namespace ge_repository.interfaces
         Task UpdateUserOps(ge_user_ops source, ge_user_ops destination);
         Task DeleteUserOps(ge_user_ops user_ops);
         Task<string> GetAllowedOperations (string userId, ge_data data);
+        Task<string> GetAllowedOperations (string userId, ge_project project);
+        Task<string> GetAllowedOperations (string userId, ge_group group);
+        Task<operation_request> GetOperationRequest (string userId, ge_data data);
+        Task<Boolean> IsUserGroupAdmin(string userId, ge_group _data);
+        Task<Boolean> IsUserProjectAdmin(string userId, ge_project _data);
         Task<ge_user> GetUserByEmailAddress(string emailAddress);
         
     }
