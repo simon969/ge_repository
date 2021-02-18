@@ -17,7 +17,7 @@ using ge_repository.services;
 using Newtonsoft.Json;
 using ge_repository.DAL;
 using ge_repository.Extensions;
-using ge_repository.repositories;
+using ge_repository.ESRI;
 
 namespace ge_repository.Controllers
 {

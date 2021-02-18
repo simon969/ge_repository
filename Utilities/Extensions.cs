@@ -1619,6 +1619,7 @@ public static object XmlDeserializeFromString(this string objectData, Type type)
 
     return result;
 }
+
 }
 
 

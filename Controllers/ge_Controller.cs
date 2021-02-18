@@ -84,7 +84,7 @@ namespace ge_repository.Controllers
             }  
             return data;  
         }  
-        private static T GetItem<T>(DataRow dr)  
+        public static T GetItem<T>(DataRow dr)  
         {  
             try {
             Type temp = typeof(T);  

@@ -1511,7 +1511,7 @@ private async Task<IActionResult> Put (Guid projectId,
 if ( table == "MOND") {
     MOND =  JsonConvert.DeserializeObject<List<MOND>>(items);
     var resp = await UpdateExisting (projectId, MOND, 
-                        "IgnoreNullValueFields");
+                        "IgnoreNullValueFields,TrackUpdates");
     return Ok(resp); 
 }
 
@@ -1573,10 +1573,11 @@ return NotFound();
 
 private async Task<int> UpdateExisting(Guid projectId, 
                                  List<MOND> items,
-                                 string options="IgnoreNullValueFields") 
+                                 string options="IgnoreNullValueFields,TrackUpdates") 
                                  {   
     
-    bool IgnoreNullValueFields = true;
+    bool IgnoreNullValueFields = false;
+    bool TrackUpdates = false;
 
     int NOT_OK = -1;
     int ret = 0;
@@ -1584,8 +1585,13 @@ private async Task<int> UpdateExisting(Guid projectId,
     if (options.Contains("IgnoreNullValueFields")) {
         IgnoreNullValueFields = true;
     }
+    if (options.Contains("TrackUpdates")) {
+        TrackUpdates  = true;
+    }
     
-    int[] gINTRecIDs = MOND.Select (m=>m.GintRecID).Distinct().ToArray();
+    var user = await GetUserAsync();
+
+    int[] gINTRecIDs = items.Select (m=>m.GintRecID).Distinct().ToArray();
 
     dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
@@ -1615,7 +1621,14 @@ private async Task<int> UpdateExisting(Guid projectId,
                 foreach (DataRow row in dtMOND.Rows) {
                         int gINTRecID = (int) row["gINTRecID"]; 
                         MOND item = items.FindLast(m=>m.GintRecID == gINTRecID);
+                        
+                        
+
                         if (item != null && IgnoreNullValueFields == true) {
+                            if (TrackUpdates==true) {
+                            MOND exist_item = GetItem<MOND>(row);
+                            item.ge_updates = getUpdatedTracker (exist_item, user.Id, DateTime.Now);
+                            }
                             setValuesIgnoreNulls(item,row);
                         }
                 } 
@@ -1659,7 +1672,7 @@ private async Task<row_states> uploadSingle(Guid projectId,
                                  List<MOND> save_items) 
                                  {   
 
-    
+    Boolean OverrideUpdates =  false;
 
     dbConnectDetails cd = await GetDbConnectDetails(projectId, gINTTables.DB_DATA_TYPE);
 
@@ -1707,7 +1720,7 @@ private async Task<row_states> uploadSingle(Guid projectId,
                             row = dt.Rows[0];
                         } 
                         
-                        setValues(item,row);
+                        setValues(item,row,OverrideUpdates);
 
                         rs.Add (row);
 
@@ -1868,9 +1881,31 @@ private void setValuesIgnoreNulls(MOND item, DataRow row) {
                         if (item.ge_source != null) row["ge_source"] = item.ge_source;
                         if (item.ge_otherId != null) row["ge_otherId"] = item.ge_otherId;
                         if (item.RND_REF != null) row["RND_REF"] = item.RND_REF;
+                        if (item.ge_updates != null) row["ge_updates"] = item.ge_updates;
 }
+private string getUpdatedTracker(MOND mond, string UserId, DateTime dt) {
 
-private void setValues(MOND item, DataRow row) {
+        ge_update_tracker<MOND> gu = null;
+
+        if (String.IsNullOrEmpty(mond.ge_updates)) {
+            gu = new ge_update_tracker<MOND>();
+        } else {
+            gu =JsonConvert.DeserializeObject<ge_update_tracker<MOND>>(mond.ge_updates);
+        }
+
+        ge_update<MOND> newUpdate = new ge_update<MOND>(UserId,dt, mond);
+
+        gu.updates.Add (newUpdate);
+
+        // string json = JsonConvert.SerializeObject(gu, Formatting.Indented);
+        string json = JsonConvert.SerializeObject(gu);
+        return json;
+}
+private void setValues(MOND item, DataRow row, Boolean OverrideUpdates = false) {
+
+                        if (OverrideUpdates == false && row["ge_updates"] != null) {
+                            return ;
+                        } 
                         
                         row["gINTProjectID"] = item.gINTProjectID;
                         row["PointID"] = item.PointID;
@@ -1895,6 +1930,7 @@ private void setValues(MOND item, DataRow row) {
                         row["ge_source"] = item.ge_source;
                         row["ge_otherId"] = item.ge_otherId;
                         row["RND_REF"] = item.RND_REF;
+                        row["ge_updates"] = item.ge_updates;
 }
 private void setValues(MONG item, DataRow row) {
                         
@@ -2307,6 +2343,8 @@ private async Task<row_states> uploadBulk(Guid projectId,
                                  List<MOND> save_items, 
                                  string where = null )
                                  {   
+    
+    Boolean OverrideUpdates = false;
 
     string wherePointID = "";
     double? whereMONG_DIS = null;
@@ -2412,7 +2450,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
                             ds.addRow (row);
                         }
 
-                        setValues(item, row);                        
+                        setValues(item, row, OverrideUpdates);                        
                 } 
                     row_states ret = ds.get_row_states();
                     ret.updated = ds.BulkUpdate();

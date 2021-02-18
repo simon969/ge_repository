@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using ge_repository.Extensions;
-
-namespace ge_repository.services
+using ge_repository.OtherDatabase;
+namespace ge_repository.ESRI
 {
 // Courtesy of 
 //https://gist.github.com/glenhallworthreadify/c9c377720de165103a73b06afa0a151b
@@ -70,6 +70,7 @@ namespace ge_repository.services
             }
  
         }
+        
 
     }
 
@@ -491,10 +492,10 @@ public class items<T> {
 public class EsriFeatureTable {
     public string Name {get;set;}
     public string BaseEndPoint {get;set;}
-    public List<EsriService> services {get;set;}
+    public List<EsriActionService> services {get;set;}
 }
 
-public class EsriService {
+public class EsriActionService {
     public string Url {get;set;}
     public string geServiceAction {get;set;}
     public string EsriServiceAction {get;set;}
@@ -514,6 +515,37 @@ public class EsriConnectionSettings {
     public List<EsriFeatureTable> features {get;set;}
     public List<EsriDataSet> datasets {get;set;}
 }
+ 
+ public interface IEsriGeometryWithAttributes {
+    
+       double x {get;set;}
+        
+       double y {get;set;}
+        
+       double East {get;set;}
+       double North {get;set;}
+
+ }
+
+ public interface IEsriParent {
+    int objectid {get;set;}	 // objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
+    Guid globalid {get;set;}
+    double? surv_g_level {get;set;}
+    string QA_status {get;set;}	// QA_status, esriFieldTypeString, QA_status, sqlTypeOther, 1000
+    string QA_check_by {get;set;}	// QA_check_by, esriFieldTypeString, QA_check_by, sqlTypeOther, 1000
+    // int AddDip(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND);
+    // int AddGas(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) ;
+    // int AddPurge(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND);
+    // int AddTopo(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND);
+    // int AddVisit(POINT pt, LTM_Survey_Data2 survey, List<MONV> MONV);
+ }
+ public interface IEsriChild {
+
+    int objectid {get;set;}	// objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
+    Guid globalid {get;set;}
+    Guid parentglobalid {get;set;}	// parentglobalid, esriFieldTypeGUID, ParentGlobalID, sqlTypeGUID, 38
+  //  int AddGas(MONG mg, LTM_Survey_Data2 survey, LTM_Survey_Data_Repeat2 survey2, List<MOND> MOND);
+ }
  
 }
 

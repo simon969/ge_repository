@@ -153,23 +153,23 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
 
     return null;
  }
-private async Task<int> ReadAttributes<T> (List<items<T>> read, List<T> store) {
+// private async Task<int> ReadAttributes<T> (List<items<T>> read, List<T> store) {
         
-            if (store == null) store = new List<T>();
+//             if (store == null) store = new List<T>();
             
-            foreach (items<T> items in read) {
+//             foreach (items<T> items in read) {
                 
-                T item = items.attributes;
+//                 T item = items.attributes;
                 
-                if (item == null) {
-                    continue; 
-                }
+//                 if (item == null) {
+//                     continue; 
+//                 }
 
-                store.Add (item);
-            }
+//                 store.Add (item);
+//             }
 
-        return store.Count();
-}
+//         return store.Count();
+// }
 
 protected string XmlSerializeToString<T>(List<T> list)
     

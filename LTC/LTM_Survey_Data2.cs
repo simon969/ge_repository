@@ -1,9 +1,12 @@
 using System;
-using ge_repository.services;
+using System.Collections.Generic;
+using ge_repository.ESRI;
+using ge_repository.OtherDatabase;
+using static ge_repository.LowerThamesCrossing.LTC;
 
 namespace ge_repository.LowerThamesCrossing {
 
-public class LTM_Survey_Data2 {
+public class LTM_Survey_Data2 : IEsriParent {
 public int objectid {get;set;}	// objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
 public Guid globalid {get;set;}	// globalid, esriFieldTypeGlobalID, GlobalID, sqlTypeGUID, 38
 public string survey_version {get;set;}	// survey_version, esriFieldTypeString, survey_version, sqlTypeOther, 255
@@ -236,36 +239,466 @@ public double? meas_ToC {get;set;} // double	meas_ToC	MeasuredTop of Cover - A(m
 public double? meas_ToI {get;set;}// double	meas_ToI	Measured Top of Installed pipe - B (m)	Tape measured height difference (distance) between ground level and Top of Installed pipe
 public string surv_com {get;set;} // string (1000 characters)	surv_com	Notes and comments	General comments on survey work
 
+
+public MOND NewMOND (MONG mg, LTM_Survey_Data2 survey ) {
+        
+        int round = convertToInt16(survey.mon_rd_nb,"R",-999);
+
+        MOND md = new MOND {
+                        ge_source ="esri_survey2",
+                        ge_otherId = Convert.ToString(survey.globalid),
+                        gINTProjectID = mg.gINTProjectID,
+                        PointID = mg.PointID,
+                        ItemKey = mg.ItemKey,
+                        MONG_DIS = mg.MONG_DIS,
+                        RND_REF = survey.mon_rd_nb,
+                        MOND_REF = String.Format("Round {0:00}", round),
+                        DateTime =  gINTDateTime(survey.date1_getDT())
+                        };
+        return md;    
+
+ }
+public MONV NewMONV (POINT pt, LTM_Survey_Data2 survey) {
+      
+        int round = convertToInt16(survey.mon_rd_nb,"R", -999);
+        
+        MONV mv = new MONV {
+                        ge_source ="esri_survey2",
+                        ge_otherId = Convert.ToString(survey.globalid),
+                        gINTProjectID = pt.gINTProjectID,
+                        PointID = pt.PointID,
+                        DateTime = gINTDateTime(survey.date1_getDT()),
+                        RND_REF = survey.mon_rd_nb,
+                        MONV_REF = String.Format("Round {0:00}", round)
+                        };
+        return mv;    
+ }
+
+public int AddVisit(POINT pt, LTM_Survey_Data2 survey, List<MONV> MONV){
+            
+          
+                MONV mv = NewMONV(pt,survey);
+               
+                mv.MONV_STAR = gINTDateTime(survey.date1_getDT()).Value;
+                mv.MONV_ENDD = gINTDateTime(survey.time2_getDT()).Value;
+                
+                mv.MONV_DIPR = survey.dip_req;
+                mv.MONV_GASR = survey.gas_mon;
+                mv.MONV_LOGR = survey.logger_downld_req ;
+                mv.MONV_TOPR = survey.surv_req;
+                
+                mv.MONV_REMG = survey.gas_fail + " " + survey.gas_com;
+                mv.MONV_REMD = survey.dip_fail + " " + survey.dip_com;
+                mv.MONV_REML = survey.logger_fail + " " + survey.logger_com;
+                mv.MONV_REMS = survey.samp_fail + " " + survey.samp_com;
+                mv.MONV_REMT = survey.surv_fail + " " + survey.surv_com;
+                
+                mv.PUMP_TYPE = survey.purg_pump + " " + survey.purg_pump_oth;
+
+                mv.MONV_WEAT = survey.weath;
+                mv.MONV_TEMP = survey.temp;
+                mv.MONV_WIND = survey.wind;
+                
+                mv.DIP_SRLN = IfOther(survey.dip_instr,survey.dip_instr_other);
+                mv.DIP_CLBD = null;
+                
+                mv.FLO_SRLN = IfOther(survey.purg_meter, survey.purg_meter_other);
+                mv.FLO_CLBD = gINTDateTime(survey.purg_meter_cali_d_getDT());
+                
+                mv.GAS_SRLN = IfOther(survey.gas_instr, survey.gas_instr_other);
+                mv.GAS_CLBD = gINTDateTime(survey.gas_cali_d_getDT());
+                
+                mv.PID_SRLN = IfOther(survey.PID_instr, survey.PID_instr_other);
+                mv.PID_CLBD = gINTDateTime(survey.PID_cali_d_getDT());
+                
+                mv.RND_REF = survey.mon_rd_nb;
+                mv.MONV_DATM = survey.dip_datum;
+
+                mv.AIR_PRESS = survey.atmo_pressure;
+                mv.AIR_TEMP = survey.atmo_temp;
+                
+                mv.PIPE_DIA = survey.pipe_diam;
+
+                if(survey.dip_datum_offset != null) {
+                   // mv.MONV_DIS = ((float) survey.dip_datum_offset.Value) / 100f;
+                    mv.MONV_DIS = ((float) survey.dip_datum_offset.Value);
+                }
+
+                mv.MONV_MENG = survey.Creator;
+                MONV.Add(mv);
+
+    return 0;
+
 }
 
 
+public int AddPurge(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) {
+            
+            // PH
+            if (survey.ph != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "PH";
+                md.MOND_RDNG = Convert.ToString(survey.ph);
+                md.MOND_UNIT = "PH";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
 
-public class LTM_Survey_Data_Repeat2 {
-public int? objectid {get;set;}	// objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
-public Guid globalid {get;set;}	// globalid, esriFieldTypeGlobalID, GlobalID, sqlTypeGUID, 38
-public string gas_bh_ref {get;set;}	// gas_bh_ref, esriFieldTypeString, gas_bh_ref, sqlTypeOther, 255
-public string gas_date_ref {get;set;}	// gas_date_ref, esriFieldTypeDate, gas_date_ref, sqlTypeOther, 255
-public int? elapse_t {get;set;}	// elapse_t, esriFieldTypeInteger, Elapsed time (seconds), sqlTypeOther, 
-public double? CH4_lel_t {get;set;}	// CH4_lel_t, esriFieldTypeDouble, CH4 LEL (%), sqlTypeOther, 
-public double? CH4_t {get;set;}	// CH4_t, esriFieldTypeDouble, CH4 (% v/v), sqlTypeOther, 
-public double? CO2_t {get;set;}	// CO2_t, esriFieldTypeDouble, CO2 (% v/v), sqlTypeOther, 
-public double? O2_t {get;set;}	// O2_t, esriFieldTypeDouble, O2 (% v/v), sqlTypeOther, 
-public double? H2S_t {get;set;}	// H2S_t, esriFieldTypeDouble, H2S (ppm), sqlTypeOther, 
-public double? CO_t {get;set;}	// CO_t, esriFieldTypeDouble, CO (ppm), sqlTypeOther, 
-public double? voc_t {get;set;}	// voc_t, esriFieldTypeDouble, VOC (ppm), sqlTypeOther, 
-public Guid parentglobalid {get;set;}	// parentglobalid, esriFieldTypeGUID, ParentGlobalID, sqlTypeGUID, 38
-public long? CreationDate {get;set;}	// CreationDate, esriFieldTypeDate, CreationDate, sqlTypeOther, 8
-public DateTime? CreationDate_getDT() {if (CreationDate==null) {return null;} return Esri.getDate(CreationDate.Value);}
-public void CreationDate_setDT(DateTime? value) { if (value==null){CreationDate=null; return;} CreationDate = Esri.getEpoch(value.Value);} 
-public string Creator {get;set;}	// Creator, esriFieldTypeString, Creator, sqlTypeOther, 128
-public long? EditDate {get;set;}	// EditDate, esriFieldTypeDate, EditDate, sqlTypeOther, 8
-public DateTime? EditDate_getDT() {if (EditDate==null) {return null;} return Esri.getDate(EditDate.Value);}
-public void EditDate_setDT(DateTime? value) { if (value==null){EditDate=null; return;} EditDate = Esri.getEpoch(value.Value);}  
+            //Redox Potential
+            if (survey.redox_potential != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "RDX";
+                md.MOND_RDNG = Convert.ToString(survey.redox_potential);
+                md.MOND_UNIT = "mV";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
 
-public string Editor {get;set;}	// Editor, esriFieldTypeString, Editor, sqlTypeOther, 128
-  
+            // Electrical Conductivity
+            if (survey.conductivity != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "EC";
+                md.MOND_RDNG = Convert.ToString(survey.conductivity);
+                md.MOND_NAME = "Electrical Conductivity";
+                md.MOND_UNIT = "uS/cm";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
 
-        }
+            //Temperature (°C)
+            if (survey.temperature != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DOWNTEMP";
+                md.MOND_RDNG = Convert.ToString(survey.temperature);
+                md.MOND_NAME = "Downhole temperature";
+                md.MOND_UNIT = "Deg C";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            //Dissolved oxygen (mg/l)
+            if (survey.dissolved_oxy != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DO";
+                md.MOND_RDNG = Convert.ToString(survey.dissolved_oxy);
+                md.MOND_NAME = "Dissolved Oxygen";
+                md.MOND_UNIT = "mg/l";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+         
+              //Turbidity
+            if (survey.turbitity != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "TURB";
+                md.MOND_RDNG = Convert.ToString(survey.turbitity);
+                md.MOND_NAME = "Turbidity";
+                md.MOND_UNIT = "NTU";
+                md.MOND_INST = IfOther(survey.purg_meter, survey.purg_meter_other);
+                if (survey.purg_time_strt!=null) {
+                md.DateTime  = gINTDateTime(survey.purg_time_strtgetDT()).Value;
+                }
+                MOND.Add(md);
+            }
+return 0;
+
+}
+public int AddTopo(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) {
+            
+            // surv_g_level	Surveyed Ground Level (mAOD)	Surveyed level of ground
+            // surv_ToC	Surveyed Top of Cover (mAOD)	surveyed level of Top of Cover
+
+
+            if (survey.surv_g_level != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "LEV";
+                md.MOND_RDNG = Convert.ToString(survey.surv_g_level);
+                md.MOND_NAME = "Ground Level";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = "GNSS Instrument";
+                md.MOND_REM = survey.surv_com;
+                if (survey.surv_time!=null) {
+                md.DateTime  = gINTDateTime(survey.surv_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // meas_ToC	Measured Top of Cover - A(m)	Tape measured height difference (distance) between ground level and Top of Cover
+            // meas_ToI	Measured Top of Installed pipe - B (m)	Tape measured height difference (distance) between ground level and Top of Installed pipe
+
+            if (survey.meas_ToC != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DSTL";
+                md.MOND_RDNG = Convert.ToString(survey.meas_ToC);
+                md.MOND_NAME = "Distance from GL to Top of Cover";
+                md.MOND_UNIT = "m";
+                md.MOND_REM = survey.surv_com;
+                if (survey.surv_time!=null) {
+                md.DateTime  = gINTDateTime(survey.surv_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+        return 0;
+}
+
+public int AddDip(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) {
+
+            // Water depth below gl (m)
+            
+            if (survey.depth_gwl_bgl != null) {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "WDEP";
+                md.MOND_RDNG = Convert.ToString(survey.depth_gwl_bgl);
+                md.MOND_UNIT = "m";
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
+                md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // Water depth below gl (m)
+            if (survey.dip_check == "dry") {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "WDEP";
+                md.MOND_RDNG = "Dry";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
+                md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // Water depth below gl (m)
+            if (survey.depth_gwl_bgl == null && survey.dip_req == "yes" && survey.dip_datum_offset!=null && survey.dip_or_pressure != "PressureGauge") {
+                MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "WDEP";
+                md.MOND_RDNG = "Dry";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
+                md.MOND_REM = survey.dip_com;
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }    
+
+            // Depth to base of instalation (m)
+            if (survey.depth_install_bgl != null && survey.dip_datum_offset !=null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "DBSE";
+                md.MOND_RDNG = Convert.ToString(survey.depth_install_bgl);
+                md.MOND_NAME = "Depth to base of installation";
+                md.MOND_UNIT = "m";
+                md.MOND_INST = IfOther(survey.dip_instr, survey.dip_instr_other);
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // Sub aquifer Water pressure (bar)
+            if (survey.water_pressure != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "PRES";
+                md.MOND_RDNG = Convert.ToString(survey.water_pressure);
+                md.MOND_NAME = "Water pressure";
+                md.MOND_UNIT = "bar";
+                md.MOND_INST = "Pressure gauge on borehole";
+                if (survey.dip_time!=null) {
+                md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            return 0;
+}
+public int AddGas(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) {
+
+         //   DateTime survey_startDT = gINTDateTime(survey.date1_getDT()).Value;
+            
+         //   DateTime survey_endDT = gINTDateTime(survey.time2_getDT()).Value;
+          
+                        // Peak Gas flow
+            if (survey.gas_flow_peak != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GFLOP";
+                md.MOND_RDNG = Convert.ToString(survey.gas_flow_peak);
+                md.MOND_NAME = "Peak gas flow rate";
+                md.MOND_UNIT = "l/h";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+               MOND.Add(md);
+            }
+
+            // Steady Gas flow
+            if (survey.gas_flow_steady != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GFLOS";
+                md.MOND_RDNG = Convert.ToString(survey.gas_flow_steady);
+                md.MOND_NAME = "Steady gas flow rate";
+                md.MOND_UNIT = "l/h";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            // Peak diff barometric pressure (mbar?)
+            if (survey.BH_pressure_peak != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GPRP";
+                md.MOND_RDNG = Convert.ToString(survey.BH_pressure_peak);
+                md.MOND_NAME = "Peak diff barometric pressure";
+                md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            // Steady diff barometric pressure (mbar?) 
+            if (survey.BH_pressure_steady != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GPRS";
+                md.MOND_RDNG = Convert.ToString(survey.BH_pressure_steady);
+                md.MOND_NAME = "Steady diff barometric pressure";
+                md.MOND_UNIT = Convert.ToString(survey.BH_pressure_units);;
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // Ambient Methane concentration 
+            if (survey.ambi1_CH4 != null) {
+             MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "TGMA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CH4);
+                md.MOND_NAME = "Ambient methane concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+          
+            // Ambient Methane concentration 
+            if (survey.ambi1_CH4_lel != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GMA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CH4_lel);
+                md.MOND_NAME = "Ambient methane concentration";
+                md.MOND_UNIT = "%LEL";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+           
+            // Ambient Oxygen concentration 
+            if (survey.ambi1_O2 != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GOXA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_O2);
+                md.MOND_NAME = "Ambient oxygen concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+           
+            // Ambient Carbon Dioxide concentration 
+            if (survey.ambi1_CO2 != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "GCDA";
+                md.MOND_RDNG = Convert.ToString(survey.ambi1_CO2);
+                md.MOND_NAME = "Ambient carbon dioxide concentration";
+                md.MOND_UNIT = "%vol";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+               if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+            // Ambient Carbon Dioxide concentration 
+            if (survey.PID_t != null) {
+            MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "VOC";
+                md.MOND_RDNG = Convert.ToString(survey.PID_t);
+                md.MOND_NAME = "Volatile organic compounds";
+                md.MOND_UNIT = "ppm";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            // Atmosperic Temperature (°C)
+            if (survey.atmo_temp != null ) {
+               MOND md = NewMOND(mg, survey);  
+                md.MOND_TYPE = "TEMP";
+                md.MOND_RDNG = Convert.ToString(survey.atmo_temp);
+                md.MOND_NAME = "Atmospheric temperature";
+                md.MOND_UNIT = "Deg C";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+
+            // Atmospheric pressure (mbar)
+            if (survey.atmo_pressure != null) {
+               MOND md = NewMOND(mg, survey); 
+                md.MOND_TYPE = "BAR";
+                md.MOND_RDNG = Convert.ToString(survey.atmo_pressure);
+                md.MOND_NAME = "Atmospheric pressure";
+                md.MOND_UNIT = "mbar";
+                md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                if (survey.gas_repeat_tstart!=null) {
+                md.DateTime  = gINTDateTime(survey.gas_repeat_tstart_getDT()).Value;
+                }
+                MOND.Add(md);
+            }
+            
+           
+
+            return 0;
+}
+
+
+}
 
 public class LTM_Geometry: EsriGeometryWithAttributes {
 

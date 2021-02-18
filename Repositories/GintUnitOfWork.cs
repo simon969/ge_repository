@@ -12,10 +12,10 @@ namespace ge_repository.repositories
         
         private readonly SqlConnection _connection;
         
-        private PROJRepository _PROJ;
-        private POINTRepository _POINT; 
-        private MONGRepository _MONG; 
-        private MONDRepository _MOND; 
+        private PROJRepository _proj;
+        private POINTRepository _point; 
+        private MONGRepository _mong; 
+        private MONDRepository _mond; 
 
        // public MONVRepository MONV {get; }
        // public ERESRepository ERES {get; }
@@ -25,19 +25,19 @@ namespace ge_repository.repositories
             _connect = connect;
             _connection = new SqlConnection(connect.AsConnectionString());
         }
-        public IGintRepository<MOND> MOND => _MOND = _MOND ?? new MONDRepository(_connection, _connect.ProjectId);
-        public IGintRepository<MONG> MONG => _MONG = _MONG ?? new MONGRepository(_connection, _connect.ProjectId);
-        public IGintRepository<POINT> POINT => _POINT = _POINT ?? new POINTRepository(_connection, _connect.ProjectId);
-        public IGintRepository<PROJ> PROJ => _PROJ = _PROJ ?? new PROJRepository(_connection, _connect.ProjectId);
+        public IGintRepository<MOND> MOND => _mond = _mond ?? new MONDRepository(_connection, _connect.ProjectId);
+        public IGintRepository<MONG> MONG => _mong = _mong ?? new MONGRepository(_connection, _connect.ProjectId);
+        public IGintRepository<POINT> POINT => _point = _point ?? new POINTRepository(_connection, _connect.ProjectId);
+        public IGintRepository<PROJ> PROJ => _proj = _proj ?? new PROJRepository(_connection, _connect.ProjectId);
        public async Task<int> CommitAsync(){
 
-            var t = await _MOND.CommitAsync();
+            var t = await _mond.CommitAsync();
 
             return t;
        }
        public async Task<int> CommitBulkAsync(){
 
-            var t = await _MOND.CommitBulkAsync();
+            var t = await _mond.CommitBulkAsync();
 
             return t;
        }

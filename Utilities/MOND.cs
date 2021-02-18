@@ -55,8 +55,11 @@ namespace ge_repository.OtherDatabase  {
     [Display(Name = "Addition field for ESRI feature update (NON AGS)")] 
     public string ge_otherId {get;set;}
  
-    [Display (Name = "Survey Round Ref")] 
+    [Display (Name = "Additional field Survey Round Ref (NON AGS)")] 
     	public string RND_REF {get;set;}
+	  // RND_REF [nvarchar](255) NULL,
+    [Display (Name = "Additional field for update tracking (NON AGS)")] 
+    	public string ge_updates {get;set;}
 	  // RND_REF [nvarchar](255) NULL,
     public MOND() : base ("MOND") {}
 
