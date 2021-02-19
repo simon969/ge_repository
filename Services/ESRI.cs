@@ -328,6 +328,10 @@ namespace ge_repository.ESRI
                     return null;
                 }
                 
+                if (globalids.objectIds.Count() == 0) {
+                    return null;
+                }
+
                 int[] array = globalids.objectIds;
                 if (pages != null) {
                     if (pages.Length == 0) {
@@ -492,10 +496,10 @@ public class items<T> {
 public class EsriFeatureTable {
     public string Name {get;set;}
     public string BaseEndPoint {get;set;}
-    public List<EsriActionService> services {get;set;}
+    public List<EsriService> services {get;set;}
 }
 
-public class EsriActionService {
+public class EsriService {
     public string Url {get;set;}
     public string geServiceAction {get;set;}
     public string EsriServiceAction {get;set;}

@@ -32,7 +32,7 @@ namespace ge_repository.repositories
             
             var token2 = _appClient.GetToken(client);
 
-            EsriActionService es = _featureTable.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
+            EsriService es = _featureTable.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
             
             EsriFeatureQueryRequest  eFeature = new EsriFeatureQueryRequest(client, token2.Result.AccessToken,es.Url);
 

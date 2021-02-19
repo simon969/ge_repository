@@ -301,8 +301,8 @@ private async Task<IActionResult> UpdateMOND(List<MOND> list) {
                                                     Boolean save = false ) {
           // https://webmasters.stackexchange.com/questions/109117/usage-of-comma-in-url-encoded-or-not-encoded
             int[] pages2 = null;
-
-            if (pages.Length>0) {
+            
+            if (!String.IsNullOrEmpty(pages)) {
                 pages2 = Array.ConvertAll<string, int>(pages.Split(','), Convert.ToInt32);
             } 
             

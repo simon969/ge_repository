@@ -147,7 +147,7 @@ namespace ge_repository.Controllers
         return Json ($"Esri feature table {name} not found in connection file");
         }
 
-        EsriActionService es = eft.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
+        EsriService es = eft.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
         
         if (es==null) {
         return Json ($"Esri feature table {name} does not have query service in connection file");
@@ -248,7 +248,7 @@ namespace ge_repository.Controllers
         return Json ($"Esri feature table {name} not found in connection file");
         }
 
-        EsriActionService es = eft.services.FirstOrDefault(s=>s.geServiceAction=="updateFeatures");
+        EsriService es = eft.services.FirstOrDefault(s=>s.geServiceAction=="updateFeatures");
         
         if (es==null) {
         return Json ($"Esri feature table {name} does not have update service in connection file");

@@ -126,7 +126,8 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
     }
     return null;
 }
- protected List<MOND> getMONDForDeletion(List<MOND> existingMOND, List<MOND> newMOND ) {
+ protected List<MOND> getMONDForDeletion2(List<MOND> existingMOND, List<MOND> newMOND ) {
+     
      List<MOND> deleteMOND = new List<MOND>();
      
      foreach (MOND existM in existingMOND) {
@@ -144,9 +145,44 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
         if (newM==null) {
             deleteMOND.Add (existM);
         }
-
+       
      }
-    
+
+    if (deleteMOND.Count()>0) {
+        return deleteMOND;
+    }
+
+    return null;
+
+ }
+
+    protected List<MOND> getMONDForDeletion(List<MOND> existMOND, List<MOND> newMOND ) {
+     
+     List<MOND> deleteMOND = new List<MOND>();
+     
+     foreach (MOND newM in newMOND) {
+        
+        var existM = existMOND.Where(m=>m.PointID == newM.PointID &&
+                                m.MONG_DIS == newM.MONG_DIS &&
+                                m.DateTime == newM.DateTime &&
+                                m.MOND_TYPE == newM.MOND_TYPE &&
+                                m.ge_source == newM.ge_source &&
+                                m.ge_otherId == newM.ge_otherId)
+                                .OrderBy(m=>m.GintRecID)
+                                .ToList<MOND>();
+        if (existM==null){
+            continue;
+        }    
+
+        if (existM.Count > 1) {
+            // remove all elements except the last  gINTRecID item
+            for (int i = 0;  i < existM.Count-1; i++) {
+            MOND delM = existM.ElementAt(i);
+            deleteMOND.Add (delM);
+            }
+        }
+       
+     }
     if (deleteMOND.Count()>0) {
         return deleteMOND;
     }
