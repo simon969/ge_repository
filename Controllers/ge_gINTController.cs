@@ -510,6 +510,7 @@ private async Task<IActionResult> getMOND(Guid projectId,
             return Ok(MOND);
 
  }
+ 
  public async Task<List<MONV>> getMONV(Guid projectId,
                                         string[] points ) {
             
@@ -1510,9 +1511,21 @@ private async Task<IActionResult> Put (Guid projectId,
 
 if ( table == "MOND") {
     MOND =  JsonConvert.DeserializeObject<List<MOND>>(items);
-    var resp = await UpdateExisting (projectId, MOND, 
+    var resp_update = await UpdateExisting (projectId, MOND, 
                         "IgnoreNullValueFields,TrackUpdates");
-    return Ok(resp); 
+    if (resp_update > 0 ) {
+        int[] gINTRecIDs = MOND.Select (m=>m.GintRecID).Distinct().ToArray();
+        string where = $"GintRecId in ({gINTRecIDs.ToDelimString(",")})";
+        return await getMOND(projectId, null, 
+                                        null,
+                                        null,
+                                        null,
+                                        where,
+                                        "view");
+
+    }    
+    
+    return Ok(resp_update); 
 }
 
 
