@@ -1919,7 +1919,7 @@ private string getUpdatedTracker(MOND mond, string UserId, DateTime dt) {
 }
 private void setValues(MOND item, DataRow row, Boolean OverrideUpdates = false) {
 
-                        if (OverrideUpdates == false && row["ge_updates"] != null) {
+                        if (OverrideUpdates == false && row["ge_updates"] != DBNull.Value) {
                             return ;
                         } 
                         
@@ -2449,7 +2449,7 @@ private async Task<row_states> uploadBulk(Guid projectId,
                           //      }
                           //  }
                             
-                            if (item.DateTime == DateTime.Parse("21 Oct 2019 12:45PM")) {
+                            if (item.DateTime == DateTime.Parse("2021-01-22 08:48:00.000")) {
                                Console.Write (item); 
                             }
 
