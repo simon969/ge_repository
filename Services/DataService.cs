@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using ge_repository.Models;
 using ge_repository.interfaces;
 using ge_repository.OtherDatabase;
-using ge_repository.AGS;
+using ge_repository.ESRI;
 using ge_repository.Extensions;
 
 namespace ge_repository.services
@@ -173,9 +173,9 @@ namespace ge_repository.services
                 return default(T);
             }
     }
-        public async Task<OtherDbConnections> GetOtherDbConnectionsByDataId(Guid dataId) {
+        public async Task<OtherDbConnections> GetOtherDbConnectionsByDataId(Guid Id) {
 
-            ge_data data = await _unitOfWork.Data.GetWithProjectAsync(dataId);
+            ge_data data = await _unitOfWork.Data.GetWithProjectAsync(Id);
             
             if (data.project.otherDbConnectId == null) {
                 return null;
@@ -186,7 +186,19 @@ namespace ge_repository.services
             return odb;
 
         }
+        public async Task<EsriConnectionSettings> GetEsriConnectionSettingsByProjectId(Guid Id) {
+            
+            ge_project project = await _unitOfWork.Project.FindByIdAsync(Id);
+            
+            if (project.esriConnectId == null) {
+                return null;
+            }
 
+            EsriConnectionSettings ecs = await GetFileAsClass<EsriConnectionSettings>(project.esriConnectId.Value);
+
+            return ecs;
+
+        }
        
     public async Task<IEnumerable<ge_data>> GetDataByProjectId(Guid projectId)
         {

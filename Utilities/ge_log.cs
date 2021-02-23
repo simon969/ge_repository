@@ -91,7 +91,7 @@ namespace ge_repository.OtherDatabase  {
 
         [Display(Name = "Log File Id")] public Guid fileId {get;set;}
         virtual public ge_log_file file {set;get;}
-        [Display(Name = "Reading DateTime")] public DateTime ReadingDatetime {get;set;} 
+        [Display(Name = "Reading DateTime")] public DateTime ReadingDateTime {get;set;} 
         [Display(Name = "Reading Duration")] public long? Duration {get;set;} 
         [Display(Name = "Value1")] public float? Value1 {get;set;} 
         [Display(Name = "Value2")] public float? Value2 {get;set;} 
@@ -260,18 +260,18 @@ namespace ge_repository.OtherDatabase  {
         public List<ge_log_reading> getReadings(DateTime? FromDT, DateTime? ToDT) {
 
         if (FromDT != null && ToDT != null) {
-            return readings.Where(e=>e.ReadingDatetime >= FromDT &&
-                                     e.ReadingDatetime <= ToDT 
+            return readings.Where(e=>e.ReadingDateTime >= FromDT &&
+                                     e.ReadingDateTime <= ToDT 
                                      ).ToList();
         }
 
         if (FromDT != null) {
-            return readings.Where(e=>e.ReadingDatetime >= FromDT 
+            return readings.Where(e=>e.ReadingDateTime >= FromDT 
                                  ).ToList();
         }
     
         if (ToDT != null) {
-            return readings.Where(e=>e.ReadingDatetime <= ToDT
+            return readings.Where(e=>e.ReadingDateTime <= ToDT
                                     ).ToList();
         }
         
@@ -300,7 +300,7 @@ namespace ge_repository.OtherDatabase  {
         }
 
         public int OrderReadings() {
-            List<ge_log_reading> ordered = readings.OrderBy (e=>e.ReadingDatetime).ToList();
+            List<ge_log_reading> ordered = readings.OrderBy (e=>e.ReadingDateTime).ToList();
             readings = ordered;
             return 0;
         }
@@ -726,10 +726,10 @@ namespace ge_repository.OtherDatabase  {
             fh.comments = $"DateTime offset {sp.ToString()} has been applied";
 
             foreach (ge_log_reading r in readings) {
-                DateTime? dt = r.ReadingDatetime;
+                DateTime? dt = r.ReadingDateTime;
                 if (dt!=null) {
                     DateTime new_dt = dt.Value  + sp;
-                    r.ReadingDatetime = new_dt;
+                    r.ReadingDateTime = new_dt;
                 }
             }
         }
@@ -882,7 +882,7 @@ namespace ge_repository.OtherDatabase  {
         }
         public void addDuration () {
 
-            List<ge_log_reading> ordered = readings.OrderBy(e=>e.ReadingDatetime).ToList();
+            List<ge_log_reading> ordered = readings.OrderBy(e=>e.ReadingDateTime).ToList();
             
             ge_log_reading reading_start = ordered[0];
             
@@ -890,7 +890,7 @@ namespace ge_repository.OtherDatabase  {
 
             for (int i=1;i<ordered.Count;i++) {
                 ge_log_reading reading = ordered[i];
-                reading.Duration = (long) (reading.ReadingDatetime - reading_start.ReadingDatetime).TotalSeconds;
+                reading.Duration = (long) (reading.ReadingDateTime - reading_start.ReadingDateTime).TotalSeconds;
             } 
         }
 
@@ -1042,7 +1042,7 @@ namespace ge_repository.OtherDatabase  {
             return 0;
         }
         public ge_log_reading get_reading(DateTime from, DateTime to) {
-            ge_log_reading reading = readings.Find(r=>r.ReadingDatetime > from && r.ReadingDatetime< to);
+            ge_log_reading reading = readings.Find(r=>r.ReadingDateTime > from && r.ReadingDateTime< to);
             
             return reading;
         }
@@ -1063,8 +1063,8 @@ namespace ge_repository.OtherDatabase  {
                 return early;
             }
 
-            TimeSpan earlyTS = now-early.ReadingDatetime; 
-            TimeSpan laterTS = later.ReadingDatetime-now; 
+            TimeSpan earlyTS = now-early.ReadingDateTime; 
+            TimeSpan laterTS = later.ReadingDateTime-now; 
             
             if (earlyTS<=laterTS) {
                 return early;
@@ -1073,8 +1073,8 @@ namespace ge_repository.OtherDatabase  {
             return later;
         }
         public IEnumerable<ge_log_reading> get_closest_reading(DateTime from, DateTime to) {
-            return readings.Where(r=>r.ReadingDatetime >= from && r.ReadingDatetime <= to)
-                                                        .OrderBy(r=>r.ReadingDatetime);
+            return readings.Where(r=>r.ReadingDateTime >= from && r.ReadingDateTime <= to)
+                                                        .OrderBy(r=>r.ReadingDateTime);
         }
         public string getArrayString(string name, int offset) {
             array_item ai1 = file_array.Find(a=>a.name == name);
@@ -1544,10 +1544,10 @@ protected int AddBaroHead(ge_log_file baro_file) {
                 for(int i=0;i<log_file.readings.Count;i++) {
                     
                     ge_log_reading r = log_file.readings[i];
-                    DateTime d1 = r.ReadingDatetime - time;
-                    DateTime d2 = r.ReadingDatetime + time;
+                    DateTime d1 = r.ReadingDateTime - time;
+                    DateTime d2 = r.ReadingDateTime + time;
 
-                    ge_log_reading r_baro = baro_file.get_closest_reading(d1,r.ReadingDatetime, d2);
+                    ge_log_reading r_baro = baro_file.get_closest_reading(d1,r.ReadingDateTime, d2);
                    
 
                     if (r_baro != null) {
@@ -1648,7 +1648,7 @@ protected int AddBaroHead(ge_log_file baro_file) {
         }
         
         // Order list so that differential will work 
-        List<ge_log_reading> ordered  = log_file.readings.OrderBy(e=>e.ReadingDatetime).ToList();
+        List<ge_log_reading> ordered  = log_file.readings.OrderBy(e=>e.ReadingDateTime).ToList();
 
         log_file.readings = ordered;
         log_file.subtractDifferential(log_wheadM.db_name, log_baroheadM.db_name, log_netheadM.db_name);

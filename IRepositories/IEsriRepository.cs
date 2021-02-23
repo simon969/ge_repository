@@ -8,12 +8,13 @@ using ge_repository.ESRI;
 
 namespace ge_repository.interfaces {
 public interface IEsriRepository <TEntity> where TEntity: class{
- List<TEntity> list {get;set;}
+List<TEntity> list {get;set;}
 Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
-   
+void SetConnections (EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable);
+
 }
 
-public interface IEsriParentRepository <TParent> where TParent : IEsriParent {
+public interface IEsriParentRepository <TParent> : IEsriRepository<TParent> where TParent : class, IEsriParent  {
     List<TParent> list {get;set;}
 
     Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
@@ -21,19 +22,15 @@ public interface IEsriParentRepository <TParent> where TParent : IEsriParent {
 }
 
 
-public interface IEsriChildRepository <TChild> where TChild: IEsriChild {
+public interface IEsriChildRepository <TChild> : IEsriRepository<TChild>  where TChild: class, IEsriChild {
     List<TChild> list {get;set;}
     Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
 
 }
 
-public interface IEsriGeomRepository <TGeom> where TGeom: IEsriGeometryWithAttributes {
+public interface IEsriGeomRepository <TGeom>  : IEsriRepository<TGeom> where TGeom: class, IEsriGeometryWithAttributes {
     List<TGeom> list {get;set;}
     Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
-
-}
-public interface IEsriRepository<TParent, TChild> where TParent : class where TChild : class {
-Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
 
 }
 

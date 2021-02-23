@@ -700,11 +700,5 @@ public int AddGas(MONG mg, LTM_Survey_Data2 survey, List<MOND> MOND) {
 
 }
 
-public class LTM_Geometry: EsriGeometryWithAttributes {
 
-        public string hole_id {get;set;} 
-
-
-
-}
 }

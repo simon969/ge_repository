@@ -15,20 +15,60 @@ using ge_repository.ESRI;
 
 namespace ge_repository.services {
 
-    public class ESRIService<TParent, TChild, TGeom> : IEsriService where TParent: IEsriParent where TChild:IEsriChild where TGeom: IEsriGeometryWithAttributes {
+    public class ESRIService<TParent, TChild, TGeom> : IEsriService<TParent, TChild, TGeom> where TParent: class, IEsriParent 
+                                                                    where TChild:class, IEsriChild 
+                                                                    where TGeom: class, IEsriGeometryWithAttributes {
 
     protected  readonly IEsriUnitOfWork<TParent,TChild,TGeom> _unitOfWork;
     
     public ESRIService(IEsriUnitOfWork<TParent,TChild,TGeom>  unitOfWork) {
             _unitOfWork = unitOfWork;
     }
-    
-    public async Task<List<MOND>> ReadFeature (     string where = "",
-                                                    int page_size = 250,
-                                                    int[] pages = null,
-                                                    int orderby = Esri.OrderBy.None,
-                                                    string format = "view", 
-                                                    Boolean save = false) {
+    public async Task<List<TParent>> ReadParentFeature (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                var t1 = await _unitOfWork.ParentFeatureData.getFeatures(  where,
+                                                                        page_size,
+                                                                        pages,
+                                                                        orderby
+                                                                    );
+                foreach (string s1 in (string[]) t1) {
+                if (s1 == null) { 
+                    continue;
+                }
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<TParent>>(s1);
+                var survey_resp = LoadFeature(survey_data.features);
+                }
+
+                return _unitOfWork.ParentFeatureData.list;
+    }
+    public async Task<List<TChild>> ReadChildFeature (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                var t1 = await _unitOfWork.ChildFeatureData.getFeatures(  where,
+                                                                        page_size,
+                                                                        pages,
+                                                                        orderby
+                                                                    );
+                foreach (string s1 in (string[]) t1) {
+                if (s1 == null) { 
+                    continue;
+                }
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<TChild>>(s1);
+                var survey_resp = LoadFeature(survey_data.features);
+                }
+
+                return _unitOfWork.ChildFeatureData.list;
+    }
+    public async Task<List<MOND>> ReadFeaturesToMOND (  string where = "",
+                                                        int page_size = 250,
+                                                        int[] pages = null,
+                                                        int orderby = Esri.OrderBy.None,
+                                                        Boolean save = false) {
 
             var t1 = await _unitOfWork.ParentFeatureData.getFeatures(  where,
                                                                         page_size,
@@ -40,26 +80,18 @@ namespace ge_repository.services {
                 return  null;
             }
             
-            List<MOND> MOND_All = new List<MOND>();
-            List<MONV> MONV_All =  new List<MONV>();
+            List<MOND> MOND = new List<MOND>();
+            List<MONV> MONV = new List<MONV>();
 
             foreach (string s1 in (string[]) t1) {
                 if (s1 == null) { 
                     continue;
                 }
-                
-                List<TParent> Survey_Data = new List<TParent>();
-                List<TGeom> Survey_Geom = new List<TGeom>();
-                List<TChild> Survey_Repeat_Data = new List<TChild>();
-                
                 var survey_data  = JsonConvert.DeserializeObject<esriFeature<TParent>>(s1);
-
                 var survey_resp = LoadFeature(survey_data.features);
             
                 Guid[] globalid = survey_data.features.Select (m=>m.attributes.globalid).Distinct().ToArray();
-                // if (globalid.Count()>100 ) {
-                //     return Json($"The parent record count({globalid.Count()}) will result in exceeding table limit of 1000 in the child table");
-                // }
+               
                 string repeat_where = $"parentglobalid in ({globalid.ToDelimString(",","'")})";
                 
                 var t2 = await _unitOfWork.ChildFeatureData.getFeatures(   where,

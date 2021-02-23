@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using ge_repository.ESRI;
 using ge_repository.OtherDatabase;
+using ge_repository.services;
 using static ge_repository.LowerThamesCrossing.LTC;
 
 namespace ge_repository.LowerThamesCrossing {
 
-public class LTM_Survey_Data_Repeat2 {
+public class LTM_Survey_Data_Repeat2 : IEsriChild {
 
-    public int? objectid {get;set;}	// objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
+    public int objectid {get;set;}	// objectid, esriFieldTypeOID, ObjectID, sqlTypeOther, 
     public Guid globalid {get;set;}	// globalid, esriFieldTypeGlobalID, GlobalID, sqlTypeGUID, 38
     public string gas_bh_ref {get;set;}	// gas_bh_ref, esriFieldTypeString, gas_bh_ref, sqlTypeOther, 255
     public string gas_date_ref {get;set;}	// gas_date_ref, esriFieldTypeDate, gas_date_ref, sqlTypeOther, 255

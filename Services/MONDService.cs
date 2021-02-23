@@ -348,7 +348,7 @@ namespace ge_repository.services
                     MONG_DIS = mg.MONG_DIS,
                     MOND_TYPE = mond_type,
                     MOND_REF = mond_ref,
-                    DateTime = read.ReadingDatetime,
+                    DateTime = read.ReadingDateTime,
                     MOND_UNIT = units,
                     MOND_RDNG = value,
                     MOND_INST = instrument_name,

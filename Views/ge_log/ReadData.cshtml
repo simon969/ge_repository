@@ -157,7 +157,7 @@
     <thead>
         <tr>
            <th scope="col">
-                @Html.DisplayNameFor(model => model.readings[0].ReadingDatetime)
+                @Html.DisplayNameFor(model => model.readings[0].ReadingDateTime)
             </th>
            <th scope="col">
                 @Html.DisplayNameFor(model => model.readings[0].Duration)
@@ -212,7 +212,7 @@
     @foreach (var reading in Model.readings) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => reading.ReadingDatetime)
+                @Html.DisplayFor(modelItem => reading.ReadingDateTime)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => reading.Duration)

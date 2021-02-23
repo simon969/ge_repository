@@ -131,6 +131,25 @@ namespace ge_repository.services
             return req;
 
         }
+         public async Task<operation_request> GetOperationRequest (string userId, ge_project project) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,project.groupId);
+            ge_user_ops project_user = await _unitOfWork.UserOps.GetByUserIdProjectId(userId,project.Id);
+            
+            operation_request req =  new operation_request(project, group_user, project_user);
+
+            return req;
+
+        }
+        public async Task<operation_request> GetOperationRequest (string userId, ge_group group) {
+            
+            ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId,group.Id);
+                       
+            operation_request req =  new operation_request(group, group_user);
+
+            return req;
+
+        }
         public async Task<Boolean> IsUserGroupAdmin(string userId, ge_group group) {
             
             ge_user_ops group_user = await _unitOfWork.UserOps.GetByUserIdGroupId(userId, group.Id);

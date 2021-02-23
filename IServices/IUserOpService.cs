@@ -18,6 +18,8 @@ namespace ge_repository.interfaces
         Task<string> GetAllowedOperations (string userId, ge_project project);
         Task<string> GetAllowedOperations (string userId, ge_group group);
         Task<operation_request> GetOperationRequest (string userId, ge_data data);
+        Task<operation_request> GetOperationRequest (string userId, ge_project project);
+        Task<operation_request> GetOperationRequest (string userId, ge_group group);
         Task<Boolean> IsUserGroupAdmin(string userId, ge_group _data);
         Task<Boolean> IsUserProjectAdmin(string userId, ge_project _data);
         Task<ge_user> GetUserByEmailAddress(string emailAddress);

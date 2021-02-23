@@ -424,7 +424,7 @@ using ge_repository.Authorization;
             WriteLiteral("\r\n        </dd>\r\n    </dl>\r\n</div>\r\n<div>\r\n    ");
             EndContext();
             BeginContext(3583, 62, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ff20b51e24e44afbbd77a54aba8377f6", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "497ef4b2f4ac403ca8dd77de6f6ca8f7", async() => {
                 BeginContext(3637, 4, true);
                 WriteLiteral("Edit");
                 EndContext();
@@ -459,7 +459,7 @@ using ge_repository.Authorization;
             WriteLiteral(" |\r\n    ");
             EndContext();
             BeginContext(3653, 38, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "f375d884a9c9464c9662fbb8c4cde3e9", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "4560fcdd418b401f906c4108a061d1fe", async() => {
                 BeginContext(3675, 12, true);
                 WriteLiteral("Back to List");
                 EndContext();

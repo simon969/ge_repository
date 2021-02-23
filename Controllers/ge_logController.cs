@@ -27,26 +27,21 @@ namespace ge_repository.Controllers
    
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly IDataLoggerFileService _dataService;
-        protected readonly ILoggerFileService _logService;
         protected readonly IUserOpsService _userService;
-        protected readonly IMONDLogService _mondService;
         protected readonly IOptions<ge_config> _ge_config;
 		protected readonly IHostingEnvironment _env;
-     
+        protected ILoggerFileService _logService;
+        protected IMONDLogService _mondService;
         public ge_logController(
             IServiceScopeFactory ServiceScopeFactory,
             IDataLoggerFileService DataService,
-            ILoggerFileService LogService,
-            IMONDLogService MONDService,
             IUserOpsService UserOpsService,
             IHostingEnvironment HostEnvironment,
             IOptions<ge_config> ge_config)
             : base()
         {
            _serviceScopeFactory = ServiceScopeFactory;
-           _logService = LogService;
            _dataService = DataService;
-           _mondService = MONDService;
            _userService = UserOpsService;
            _env = HostEnvironment;
            _ge_config = ge_config;
@@ -244,7 +239,8 @@ public async Task<IActionResult> ReadFile(Guid Id,
                 return NotFound();
             }
             
-          
+            _logService = await getLoggerFileServiceFromDataId(Id);
+
             ge_log_file log_file = await _logService.NewLogFile(Id,templateId,table,sheet,_dataService);
 
             if (log_file==null){
@@ -304,7 +300,28 @@ public async Task<IActionResult> ReadFile(Guid Id,
                                             )  {
      return await ReadFileWith(Id,templateId, table, null, bh_ref,probe_depth,format,save);
  }
+ private async Task<ILoggerFileService> getLoggerFileServiceFromDataId(Guid Id) {
 
+    OtherDbConnections _dbConnections = await _dataService.GetOtherDbConnectionsByDataId(Id);
+    dbConnectDetails _connectLogger = _dbConnections.getConnectType("logger");
+    ILoggerFileUnitOfWork _unitOfWork = new LogUnitOfWork(_connectLogger);
+    _logService = new LoggerFileService(_unitOfWork);
+    
+    return _logService;
+
+
+ } 
+ private async Task<IMONDLogService> getMONDLogServiceFromDataId(Guid Id) {
+
+    OtherDbConnections _dbConnections = await _dataService.GetOtherDbConnectionsByDataId(Id);
+    dbConnectDetails _connectLogger = _dbConnections.getConnectType("gINT");
+    IGintUnitOfWork _unitOfWork = new GintUnitOfWork(_connectLogger);
+    _mondService = new MONDLogService(_unitOfWork);
+    
+    return _mondService;
+
+
+ } 
  private async Task<IActionResult> ReadFileWith(Guid Id,
                                           Guid? templateId,
                                           string table,
@@ -314,14 +331,16 @@ public async Task<IActionResult> ReadFile(Guid Id,
                                           string format = "view", 
                                           Boolean save = false
                                             ) {
+            
             ge_log_file log_file = null;
             
+            await getLoggerFileServiceFromDataId (Id);
+            
+            ge_log_file exist_log_file = await  _logService.GetByDataId(Id,table);
+
             if (templateId!=null) {
                 log_file = await _logService.NewLogFile (Id,templateId.Value,table,sheet,_dataService);
             }
-
-            ge_log_file exist_log_file = await  _logService.GetByDataId(Id,table);
-
 
             if (log_file==null && exist_log_file==null) {
                 return BadRequest($"The logger file {Id} for table {table} has not been read and there is no existing processed logger saved");
@@ -401,7 +420,8 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             {
                 return NotFound();
             }
-            
+
+            await getLoggerFileServiceFromDataId (Id);
            
             ge_log_file log_file = null;
             ge_log_file exist_log_file = await _logService.GetByDataId(Id,table,true);
@@ -502,7 +522,10 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
                 return NotFound();
             }
 
-          
+            await getLoggerFileServiceFromDataId (Id);
+            
+            await getMONDLogServiceFromDataId (Id);
+
             ge_log_file log_file  = await _logService.GetByDataId(Id, table,true);
 
  
@@ -596,7 +619,7 @@ private MOND NewMOND (MONG mg, ge_log_reading read,
                     MONG_DIS = mg.MONG_DIS,
                     MOND_TYPE = mond_type,
                     MOND_REF = mond_ref,
-                    DateTime = read.ReadingDatetime,
+                    DateTime = read.ReadingDateTime,
                     MOND_UNIT = units,
                     MOND_RDNG = value,
                     MOND_INST = instrument_name,
@@ -790,7 +813,9 @@ public async Task<IActionResult> Calculate2(Guid Id,
             {
                 return NotFound();
             }
-
+            
+            await getLoggerFileServiceFromDataId (Id);
+            
             ge_log_file log_file = null;
             ge_log_file exist_log_file = await _logService.GetByDataId(Id,table,true);
             
@@ -940,6 +965,9 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             // if (!CanUserCreate) {
             // return RedirectToPageMessage (msgCODE.DATA_CREATE_USER_PROHIBITED);
             // }
+
+            await getLoggerFileServiceFromDataId (Id);
+
             ge_log_file log_file = null;
             ge_log_file exist_log_file = await _logService.GetByDataId (Id, table, true);
            
@@ -1019,7 +1047,9 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             {
                 return NotFound();
             }
-
+            
+            await getLoggerFileServiceFromDataId (Id);
+            
             ge_log_file log_file = null;      
             ge_log_file exist_log_file = await _logService.GetByDataId(Id, table,true);
 
@@ -1121,7 +1151,9 @@ public async Task<IActionResult> View (Guid Id,
             string userId = null;
 
             string UserAllowed =  await _userService.GetAllowedOperations(userId, _data);
-
+            
+            await getLoggerFileServiceFromDataId (Id);
+            
             ge_log_file log_file = await _logService.GetByDataId(Id, table);
 
            if (log_file==null) {
@@ -1186,7 +1218,9 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
     ge_data data = await _dataService.GetDataById(Id);
 
     var user  = await GetUserAsync();
-
+    
+    await getLoggerFileServiceFromDataId (Id);
+    
     var files = await _logService.GetAllByDataId(Id);
 
        

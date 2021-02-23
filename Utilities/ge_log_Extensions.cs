@@ -14,8 +14,8 @@ public static string calcReadingAggregates(this ge_log_file file) {
 
     aggregate_reading ar = new aggregate_reading();
     ar.count = file.readings.Count();
-    ar.maxReadingDate = file.readings.Max(r=>r.ReadingDatetime);
-    ar.minReadingDate = file.readings.Min(r=>r.ReadingDatetime);
+    ar.maxReadingDate = file.readings.Max(r=>r.ReadingDateTime);
+    ar.minReadingDate = file.readings.Min(r=>r.ReadingDateTime);
     
     if (file.getHeader1()!=null) {
         try {

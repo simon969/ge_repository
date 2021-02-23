@@ -285,7 +285,7 @@ namespace ge_repository.repositories
                                 }
 
                                 if (row==null) {
-                                row =  dt_readings.Select ($"ReadingDateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss.ffff}",reading.ReadingDatetime)}'").SingleOrDefault();
+                                row =  dt_readings.Select ($"ReadingDateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss.ffff}",reading.ReadingDateTime)}'").SingleOrDefault();
                                 }
                             }
 
@@ -326,7 +326,7 @@ namespace ge_repository.repositories
 
                 reading.Id = (Guid) row ["Id"];
                 reading.fileId = (Guid) row["fileId"];     
-                reading.ReadingDatetime = (DateTime) row["ReadingDateTime"];
+                reading.ReadingDateTime = (DateTime) row["ReadingDateTime"];
                 if (row["Duration"] != DBNull.Value) reading.Duration= Convert.ToInt64(row["Duration"].ToString());
                 if (row["Value1"] != DBNull.Value) reading.Value1 =Convert.ToSingle( row["Value1"].ToString());
                 if (row["Value2"] != DBNull.Value) reading.Value2= Convert.ToSingle(row["Value2"].ToString());
@@ -356,7 +356,7 @@ namespace ge_repository.repositories
 
                 row["Id"] = reading.Id;
                 row["fileId"] = reading.fileId;
-                row["ReadingDateTime"] = reading.ReadingDatetime;
+                row["ReadingDateTime"] = reading.ReadingDateTime;
                 if (reading.Duration==null) { row["Duration"] = DBNull.Value;} else {row["Duration"] = reading.Duration;} 
                 if (reading.Value1==null) { row["Value1"] = DBNull.Value;} else {row["Value1"] = reading.Value1;} 
                 if (reading.Value2==null) { row["Value2"] = DBNull.Value;} else {row["Value2"] = reading.Value2;} 

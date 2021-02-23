@@ -133,7 +133,7 @@ namespace ge_repository.OtherDatabase  {
         }
         
         // Order list so that differential will work 
-        List<ge_log_reading> ordered  = log_file.readings.OrderBy(e=>e.ReadingDatetime).ToList();
+        List<ge_log_reading> ordered  = log_file.readings.OrderBy(e=>e.ReadingDateTime).ToList();
 
         log_file.readings = ordered;
         log_file.addDifferential(log_wdepth1M.db_name, log_baroM.db_name, log_netdepthM.db_name);

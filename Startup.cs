@@ -24,6 +24,8 @@ using ge_repository.AGS;
 using ge_repository.services;
 using ge_repository.interfaces;
 using ge_repository.repositories;
+using ge_repository.LowerThamesCrossing;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
@@ -157,6 +159,9 @@ namespace ge_repository
             
             // gINT Database connections
             services.AddTransient<IMONDLogService, MONDLogService>();
+            
+            // Esri Feature Server connections
+            services.AddTransient<ILTCEsriService, LTCEsriService>();
 
             // services.AddSwaggerGen(c =>
             // {

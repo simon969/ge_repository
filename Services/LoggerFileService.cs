@@ -418,7 +418,7 @@ namespace ge_repository.services
                    
                     ge_log_reading r= new ge_log_reading();
                     
-                    r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
+                    r.ReadingDateTime = getDateTime(values[intReadTime],dateformats);
                     
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}

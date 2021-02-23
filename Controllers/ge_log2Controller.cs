@@ -1485,7 +1485,7 @@ private MOND NewMOND (MONG mg, ge_log_reading read,
                     MONG_DIS = mg.MONG_DIS,
                     MOND_TYPE = mond_type,
                     MOND_REF = mond_ref,
-                    DateTime = read.ReadingDatetime,
+                    DateTime = read.ReadingDateTime,
                     MOND_UNIT = units,
                     MOND_RDNG = value,
                     MOND_INST = instrument_name,
@@ -2814,7 +2814,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 //                             }
 
 //                             if (row==null) {
-//                             row =  dt_readings.Select ($"ReadingDateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss.ffff}",reading.ReadingDatetime)}'").SingleOrDefault();
+//                             row =  dt_readings.Select ($"ReadingDateTime='{String.Format("{0:yyyy-MM-dd HH:mm:ss.ffff}",reading.ReadingDateTime)}'").SingleOrDefault();
 //                             }
 //                         }
 
@@ -2856,7 +2856,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 
 //                 reading.Id = (Guid) row ["Id"];
 //                 reading.fileId = (Guid) row["fileId"];     
-//                 reading.ReadingDatetime = (DateTime) row["ReadingDateTime"];
+//                 reading.ReadingDateTime = (DateTime) row["ReadingDateTime"];
 //                 if (row["Duration"] != DBNull.Value) reading.Duration= Convert.ToInt64(row["Duration"].ToString());
 //                 if (row["Value1"] != DBNull.Value) reading.Value1 =Convert.ToSingle( row["Value1"].ToString());
 //                 if (row["Value2"] != DBNull.Value) reading.Value2= Convert.ToSingle(row["Value2"].ToString());
@@ -2886,7 +2886,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
 
 //                 row["Id"] = reading.Id;
 //                 row["fileId"] = reading.fileId;
-//                 row["ReadingDateTime"] = reading.ReadingDatetime;
+//                 row["ReadingDateTime"] = reading.ReadingDateTime;
 //                 if (reading.Duration==null) { row["Duration"] = DBNull.Value;} else {row["Duration"] = reading.Duration;} 
 //                 if (reading.Value1==null) { row["Value1"] = DBNull.Value;} else {row["Value1"] = reading.Value1;} 
 //                 if (reading.Value2==null) { row["Value2"] = DBNull.Value;} else {row["Value2"] = reading.Value2;} 
@@ -3011,7 +3011,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                    
                     ge_log_reading r= new ge_log_reading();
                     
-                    r.ReadingDatetime = getDateTime(values[intReadTime],dateformats);
+                    r.ReadingDateTime = getDateTime(values[intReadTime],dateformats);
                   
                     if (intDuration!= NOT_FOUND) {r.Duration = getDuration(values[intDuration], null);}
                     if (intValue1 != NOT_FOUND) {r.Value1 = getFloat(values[intValue1],null);}
@@ -3117,7 +3117,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     break;
                 }
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = getDuration(values[intDuration],null);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3148,7 +3148,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3170,7 +3170,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3190,7 +3190,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3210,7 +3210,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3227,7 +3227,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-               r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+               r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 r.Value2 = Convert.ToSingle(values[intValue2]);
@@ -3243,7 +3243,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
             if (line.Length>0) {
                 string[] values = line.Split(",");
                 ge_log_reading r= new ge_log_reading();
-                r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                 r.Duration = (Int32) Convert.ToSingle(values[intDuration]);
                 r.Value1 = Convert.ToSingle(values[intValue1]);
                 list.Add (r);
@@ -3260,7 +3260,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                 if (line.Length>0) {
                     string[] values = line.Split(",");
                     ge_log_reading r= new ge_log_reading();
-                    r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                    r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                     if(!values[intValue1].IsFloat() ||
                         !values[intValue2].IsFloat() || 
                         !values[intValue3].IsFloat() || 
@@ -3288,7 +3288,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                 if (line.Length>0) {
                     string[] values = line.Split(",");
                     ge_log_reading r= new ge_log_reading();
-                    r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                    r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                     if(!values[intValue1].IsFloat() ||
                         !values[intValue2].IsFloat() || 
                         !values[intValue3].IsFloat() || 
@@ -3315,7 +3315,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                 if (line.Length>0) {
                     string[] values = line.Split(",");
                     ge_log_reading r= new ge_log_reading();
-                    r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                    r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                      if(!values[intValue1].IsFloat() ||
                         !values[intValue2].IsFloat() || 
                         !values[intValue3].IsFloat() || 
@@ -3339,7 +3339,7 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                 if (line.Length>0) {
                     string[] values = line.Split(",");
                     ge_log_reading r= new ge_log_reading();
-                    r.ReadingDatetime = DateTime.Parse(values[intReadTime]); 
+                    r.ReadingDateTime = DateTime.Parse(values[intReadTime]); 
                     if (!values[intValue1].IsFloat() ||
                         !values[intValue2].IsFloat() || 
                         !values[intValue3].IsFloat()){
@@ -3372,9 +3372,9 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                    
                     ge_log_reading r = new ge_log_reading();
                     if (dateformat=="") { 
-                        r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                        r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                     } else {
-                        r.ReadingDatetime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
+                        r.ReadingDateTime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
                     }
                     if (!values[intValue1].IsFloat() || 
                         !values[intValue2].IsFloat()) {
@@ -3405,9 +3405,9 @@ public async Task<IActionResult> Copy(Guid Id, string filename = "", Boolean Ove
                     
                     ge_log_reading r= new ge_log_reading();
                     if (dateformat=="") { 
-                        r.ReadingDatetime = DateTime.Parse(values[intReadTime]);
+                        r.ReadingDateTime = DateTime.Parse(values[intReadTime]);
                     } else {
-                        r.ReadingDatetime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
+                        r.ReadingDateTime = DateTime.ParseExact(values[intReadTime], dateformat, CultureInfo.CurrentCulture,DateTimeStyles.AllowInnerWhite);
                     }
                      if (!values[intValue1].IsFloat()){
                         continue;

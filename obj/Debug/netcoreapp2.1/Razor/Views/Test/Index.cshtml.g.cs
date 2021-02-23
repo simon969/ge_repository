@@ -72,12 +72,12 @@ using ge_repository.Extensions;
             WriteLiteral("<!DOCTYPE html>\r\n<html lang=\"en\">\r\n");
             EndContext();
             BeginContext(136, 74, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "86df03f5624747fdbe0c73885904a110", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "61362ffbd9514403822642a0634ac34e", async() => {
                 BeginContext(142, 5, true);
                 WriteLiteral("\r\n   ");
                 EndContext();
                 BeginContext(147, 54, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("link", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "58a00018d9a8448c8aa6ada0f521e96f", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("link", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "a32e2737ef26476a99f73534192616a7", async() => {
                 }
                 );
                 __Microsoft_AspNetCore_Mvc_Razor_TagHelpers_UrlResolutionTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.Razor.TagHelpers.UrlResolutionTagHelper>();
@@ -111,12 +111,12 @@ using ge_repository.Extensions;
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(212, 1412, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "cf595db8fa374b5fbc4c24a7daa37b0b", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "a792957331d344278deb0f531d72fea7", async() => {
                 BeginContext(218, 67, true);
                 WriteLiteral("\r\n<h1>Upload Files</h1>\r\n<div class=\"row\">\r\n    <section>\r\n        ");
                 EndContext();
                 BeginContext(285, 1043, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "3c30f697760e47bd8c3cca780e4cb862", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "347ef2a5fd2d4bc6b665d0c7e5ec5180", async() => {
                     BeginContext(393, 928, true);
                     WriteLiteral(@"
              <div class=""form-group"">
@@ -165,7 +165,7 @@ using ge_repository.Extensions;
                 WriteLiteral("\r\n    </section>\r\n</div>\r\n<hr />\r\n<h3>Other Samples</h3>\r\n<ul>\r\n    <li>");
                 EndContext();
                 BeginContext(1400, 65, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "eea65b571e274bc6be685b25bebc6319", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "df9b780b63d442cba08c416c450284a8", async() => {
                     BeginContext(1447, 14, true);
                     WriteLiteral("Profile Sample");
                     EndContext();
@@ -189,7 +189,7 @@ using ge_repository.Extensions;
                 WriteLiteral("</li>\r\n    <li>");
                 EndContext();
                 BeginContext(1480, 76, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "760579caa6154d419e591f4ab495557e", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "ba5520687a3b4e50a55b7d00d4626271", async() => {
                     BeginContext(1529, 23, true);
                     WriteLiteral("Streaming Upload Sample");
                     EndContext();
@@ -213,7 +213,7 @@ using ge_repository.Extensions;
                 WriteLiteral("</li>\r\n</ul>\r\n  ");
                 EndContext();
                 BeginContext(1572, 43, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("script", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "f60e28e536b94f2d807ba06aba51ae70", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("script", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "72358c0dfde04f44990c2fc35a1ecf9f", async() => {
                 }
                 );
                 __Microsoft_AspNetCore_Mvc_Razor_TagHelpers_UrlResolutionTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.Razor.TagHelpers.UrlResolutionTagHelper>();
