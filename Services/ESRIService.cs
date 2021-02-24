@@ -3,6 +3,8 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Newtonsoft.Json;
 
@@ -24,7 +26,7 @@ namespace ge_repository.services {
     public ESRIService(IEsriUnitOfWork<TParent,TChild,TGeom>  unitOfWork) {
             _unitOfWork = unitOfWork;
     }
-    public async Task<List<TParent>> ReadParentFeature (    string where = "",
+    public async Task<List<TParent>> ReadParentFeatureToList (    string where = "",
                                                             int page_size = 250,
                                                             int[] pages = null,
                                                             int orderby = Esri.OrderBy.None
@@ -44,7 +46,99 @@ namespace ge_repository.services {
 
                 return _unitOfWork.ParentFeatureData.list;
     }
-    public async Task<List<TChild>> ReadChildFeature (    string where = "",
+    public async Task<List<TGeom>> ReadGeomFeatureToList (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                var t1 = await _unitOfWork.GeomFeatureData.getFeatures(  where,
+                                                                        page_size,
+                                                                        pages,
+                                                                        orderby
+                                                                    );
+                foreach (string s1 in (string[]) t1) {
+                if (s1 == null) { 
+                    continue;
+                }
+                var survey_data  = JsonConvert.DeserializeObject<esriFeature<TParent>>(s1);
+                var survey_resp = LoadFeature(survey_data.features);
+                }
+
+                return _unitOfWork.GeomFeatureData.list;
+    }
+    public async Task<string> ReadGeomFeatureToJson (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+
+                List<TGeom> list = await ReadGeomFeatureToList (where, page_size,pages, orderby);
+
+                var json_string  = JsonConvert.SerializeObject(list);
+
+                return json_string;                                            
+               
+    }
+
+    public async Task<string> ReadParentFeatureToJson (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                List<TParent> list = await ReadParentFeatureToList (where, page_size,pages, orderby);
+
+                var json_string  = JsonConvert.SerializeObject(list);
+
+                return json_string;
+    } 
+    public async Task<string> ReadChildFeatureToJson (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                List<TChild> list = await ReadChildFeatureToList (where, page_size,pages, orderby);
+
+                var json_string  = JsonConvert.SerializeObject(list);
+
+                return json_string;
+    }
+
+    public async Task<string> ReadChildFeatureToXml (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                List<TChild> list = await ReadChildFeatureToList (where, page_size,pages, orderby);
+
+                string xml = XmlSerializeToString<TChild>(list, "root");
+
+                return xml;
+    }
+    public async Task<string> ReadGeomFeatureToXml (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                List<TGeom> list = await ReadGeomFeatureToList (where, page_size,pages, orderby);
+
+                string xml = XmlSerializeToString<TGeom>(list, "root");
+
+                return xml;
+    }
+
+    public async Task<string> ReadParentFeatureToXml (    string where = "",
+                                                            int page_size = 250,
+                                                            int[] pages = null,
+                                                            int orderby = Esri.OrderBy.None
+                                                        ) {
+                List<TParent> list = await ReadParentFeatureToList (where, page_size,pages, orderby);
+
+                string xml = XmlSerializeToString<TParent>(list, "root");
+
+                return xml;
+    }
+    
+    public async Task<List<TChild>> ReadChildFeatureToList (    string where = "",
                                                             int page_size = 250,
                                                             int[] pages = null,
                                                             int orderby = Esri.OrderBy.None
@@ -64,7 +158,37 @@ namespace ge_repository.services {
 
                 return _unitOfWork.ChildFeatureData.list;
     }
-    public async Task<List<MOND>> ReadFeaturesToMOND (  string where = "",
+
+    protected string XmlSerializeToString<T>(List<T> list, string root = "")
+    
+    {
+        if (list.Count == 0) {
+            return "";
+        }
+
+        var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+        var serializer = new XmlSerializer(list[0].GetType());
+        var settings = new XmlWriterSettings();
+        settings.Indent = true;
+        settings.OmitXmlDeclaration = true;
+        settings.ConformanceLevel = ConformanceLevel.Fragment;
+        using (var stream = new StringWriter())
+        using (var writer = XmlWriter.Create(stream, settings))
+        {
+            writer.WriteWhitespace("");
+            foreach (T value in list)  {
+            serializer.Serialize(writer, value, emptyNamespaces);
+            }
+            
+            if (root == "") {
+                return stream.ToString();
+            } else {
+                return $"<{root}>{stream.ToString()}</{root}";
+            }
+        }
+    }
+
+    public async Task<List<MOND>> ReadFeaturesToMONDList (  string where = "",
                                                         int page_size = 250,
                                                         int[] pages = null,
                                                         int orderby = Esri.OrderBy.None,

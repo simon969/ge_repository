@@ -1,9 +1,8 @@
-using System.Threading.Tasks;
-using ge_repository.ESRI;
-using ge_repository.interfaces;
-using ge_repository.LowerThamesCrossing;
 
-namespace ge_repository.repositories
+using ge_repository.ESRI;
+using ge_repository.repositories;
+
+namespace ge_repository.LowerThamesCrossing
 
 {
 public class LTCUnitOfWork: EsriUnitOfWork<LTM_Survey_Data2, LTM_Survey_Data_Repeat2, LTM_Geometry>

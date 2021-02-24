@@ -181,8 +181,9 @@ public async Task<IActionResult> ViewFeature(Guid projectId,
             
             ILTCEsriService _esriService = new LTCEsriService(uw);
 
-            var t2 = _esriService.ReadFeaturesToMOND(where);
-
+            var t2 = await _esriService.ReadFeaturesToMONDList(where);
+            
+            var t3 = await _esriService.ReadParentFeatureToJson(where);
 
             var t1 = await new ge_esriController(  _context,
                                                     _authorizationService,

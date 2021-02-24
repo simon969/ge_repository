@@ -262,20 +262,27 @@ namespace ge_repository.services
                         if (md!=null)  MOND.Add (md);
                     }
                     
-                    if ((vh.id == "AEC" && vh.units == "μS/cm") || 
-                        (vh.id == "AEC" && vh.units == "mS/cm")) {
+                    // if ((vh.id == "AEC" && vh.units == "μS/cm") |
+                    //     (vh.id == "AEC" & vh.units == "mS/cm")) {
+                    //     // Add MOND Electrical Conductivity 
+                    //     MOND md = NewMOND (mg, reading, device_name, round_ref, "AEC", mg.MONG_TYPE + mond_rem_suffix, mond_ref, vh.db_name, "Actual Electrical Conductivity", vh.units, vh.format, null, ge_source);
+                    //     if (md!=null) MOND.Add (md);
+                    // }
+
+                    //if (vh.id == "AEC" && (vh.units == "μS/cm" || vh.units == "mS/cm")) {
+                    if (vh.id == "AEC") {    
                         // Add MOND Electrical Conductivity 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "AEC", mg.MONG_TYPE + mond_rem_suffix, mond_ref, vh.db_name, "Actual Electrical Conductivity", vh.units, vh.format, null, ge_source);
                         if (md!=null) MOND.Add (md);
                     }
-                    
-                    if ((vh.id == "EC" && vh.units == "μS/cm") || 
-                        (vh.id == "EC" && vh.units == "mS/cm")) {
+
+                   //  if ((vh.id == "EC" && vh.units == "μS/cm")) {
+                    if ((vh.id == "EC")) {   
                         // Add MOND Electrical Conductivity 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "EC", mg.MONG_TYPE + mond_rem_suffix, mond_ref, vh.db_name, "Electrical Conductivity", vh.units, vh.format, null, ge_source);
                         if (md!=null) MOND.Add (md);
                     }
-                    
+                                          
                     if (vh.id == "SAL" && vh.units == "g/cm3") {
                         // Add MOND Salinity record 
                         MOND md = NewMOND (mg, reading, device_name, round_ref, "SAL", mg.MONG_TYPE + mond_rem_suffix,mond_ref,  vh.db_name, "Salinity", vh.units, vh.format, null, ge_source);

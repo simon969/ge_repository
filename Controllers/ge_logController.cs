@@ -369,7 +369,9 @@ public async Task<IActionResult> ReadFile(Guid Id,
             if (save==true) {
                         if (exist_log_file !=null) {
                            log_file.Id  = exist_log_file.Id;
-                           int updated = await _logService.UpdateLogFile(log_file,true);
+                           Boolean include_readings = true;
+                           if (templateId==null) { include_readings = false;}
+                           int updated = await _logService.UpdateLogFile(log_file,include_readings);
                            ViewData["fileStatus"] = $"File records updated ({updated})";
                         } else {
                         int add = await _logService.CreateLogFile(log_file);
