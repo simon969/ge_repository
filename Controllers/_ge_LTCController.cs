@@ -125,8 +125,28 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
     return TimeZoneInfo.ConvertTime(gintDateTime.Value, gINTzone, ESRIzone);
     }
     return null;
-}
- protected List<MOND> getMONDForDeletion2(List<MOND> existingMOND, List<MOND> newMOND ) {
+    
+    }    
+    
+    protected List<MOND> getMONDForDeletion (List<MOND> existMOND, List<MOND> newMOND) {
+                    
+            var duplicates_deleteMOND =  getMONDDuplicatesForDeletion(existMOND, MOND);
+            var existing_deleteMOND =  getMONDExistingForDeletion(existMOND, MOND);
+            
+            List<MOND> deleteMOND = new List<MOND>();
+            
+            if (duplicates_deleteMOND != null) deleteMOND.AddRange(duplicates_deleteMOND);
+            if (existing_deleteMOND != null) deleteMOND.AddRange(existing_deleteMOND);
+
+            if (deleteMOND.Count()>0) {
+                return deleteMOND;
+            }
+
+            return null;
+
+
+    }
+    private List<MOND> getMONDExistingForDeletion(List<MOND> existingMOND, List<MOND> newMOND ) {
      
      List<MOND> deleteMOND = new List<MOND>();
      
@@ -156,7 +176,7 @@ protected DateTime? EsriTDateTime (DateTime? gintDateTime) {
 
  }
 
-    protected List<MOND> getMONDForDeletion(List<MOND> existMOND, List<MOND> newMOND ) {
+    private List<MOND> getMONDDuplicatesForDeletion(List<MOND> existMOND, List<MOND> newMOND ) {
      
      List<MOND> deleteMOND = new List<MOND>();
      

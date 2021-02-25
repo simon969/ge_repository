@@ -265,7 +265,7 @@ private async Task<IActionResult> UpdateMOND(List<MOND> list) {
                 if (okResult.StatusCode==200) {
                     existingMOND = okResult.Value as List<MOND>;
                     if (existingMOND!=null) {
-                    var deleteMOND =  getMONDForDeletion(existingMOND, MOND);
+                        var deleteMOND = getMONDForDeletion(existingMOND, MOND);
                     if (deleteMOND!=null) {
                         int[] s = deleteMOND.Select (m=>m.GintRecID).ToArray();
                             var delMOND_resp = await new ge_gINTController (_context,
