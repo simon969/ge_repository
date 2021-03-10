@@ -80,7 +80,10 @@ namespace ge_repository.repositories
                                                 if (_table.dataTable == null){
                                                     return null;
                                                 }
+                                                
+                                                if (_table.dataTable.Rows.Count>0) {
                                                 row = _table.dataTable.Rows[0];
+                                                }
                                             }
 
                                             if (row!=null) {

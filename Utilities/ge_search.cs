@@ -383,7 +383,7 @@
                         int found = wb.matchReturnRow(si.search_text, si.MatchExact());
                         if (found != NOT_FOUND) {
                             
-                            if (si.length>1) {
+                            if (si.split>0) {
                                 si.value = wb.matchReturnValueCSV(si.search_text, si.start_offset, si.row_offset,si.length, si.MatchExact());
                             } else {
                                 si.value = wb.matchReturnValue(si.search_text, si.start_offset, si.row_offset,si.MatchExact());
