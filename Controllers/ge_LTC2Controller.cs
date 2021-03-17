@@ -443,12 +443,14 @@ public async Task<IActionResult> ReadFeature( Guid projectId,
                                                                     null,
                                                                     2
                                                                     );
-                foreach (string s2 in (string[]) t2.Value) {
-                    if (s2 == null) { 
-                        continue;
+                if (t2.Value!=null) {
+                    foreach (string s2 in (string[]) t2.Value) {
+                        if (s2 == null) { 
+                            continue;
+                        }
+                        var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s2);
+                        var repeat_resp = LoadFeature(survey_repeat.features);
                     }
-                    var survey_repeat  = JsonConvert.DeserializeObject<esriFeature<LTM_Survey_Data_Repeat2>>(s2);
-                    var repeat_resp = LoadFeature(survey_repeat.features);
                 }
 
                 var mond_resp = await AddSurveyData(_project);

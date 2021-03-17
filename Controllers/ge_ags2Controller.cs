@@ -129,7 +129,7 @@ namespace ge_repository.Controllers
                 
                 return RedirectToPageMessage (msgCODE.XML_NOTRECEIVED);
             }
-             if (resp == ge_AGS_Client.enumStatus.AGSSendFailed) {
+             if (resp == ge_AGS_Client.enumStatus.AGSSentFailed) {
                 
                 return RedirectToPageMessage (msgCODE.AGS_SENDFAILED);
             }
@@ -143,9 +143,11 @@ namespace ge_repository.Controllers
         }
         
         public ge_AGS_Client.enumStatus runAGSClient() {
+            
             if (_agsConfig == null) {
                 return ge_AGS_Client.enumStatus.AGSStartFailed;
             }
+
             string host = _agsConfig.Value.host;
             int port = _agsConfig.Value.port;
             string dic = _agsConfig.Value.dictionary_file;
@@ -157,7 +159,10 @@ namespace ge_repository.Controllers
             ge_AGS_Client ac = new ge_AGS_Client(host, port, dic, ds, data.Id,_agsDataService, userId);
             ac.datastructure = ds;
             ac.dictionaryfile = dic;
-            return ac.start();
+            ac.start();
+            
+            return ge_AGS_Client.enumStatus.AGSStarted;
+
         }
 
         public ActionResult Index()

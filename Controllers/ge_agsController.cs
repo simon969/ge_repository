@@ -31,6 +31,7 @@ namespace ge_repository.Controllers
         public ge_agsController(
             IServiceScopeFactory ServiceScopeFactory,
             IDataAGSService DataService,
+            IUserOpsService UserOpsService,
             IOptions<ags_config> agsConfig,
             IHostingEnvironment env,
 		 	IOptions<ge_config> ge_config)
@@ -38,12 +39,13 @@ namespace ge_repository.Controllers
         {
              _serviceScopeFactory = ServiceScopeFactory;
              _dataService = DataService;
+             _userService = UserOpsService;
              _env = env;
              _ge_config = ge_config;
              _agsConfig = agsConfig;
             
         }
-      
+            
          public async Task<IActionResult> CreateXML(Guid Id, string dictionary_file, string data_structure)
         {
             
@@ -51,7 +53,7 @@ namespace ge_repository.Controllers
                 return NotFound(); 
             }
 
-            ge_data data = await _dataService.GetDataById(Id);
+            ge_data data = await _dataService.GetDataByIdWithAll(Id);
 
          
             if (data==null) {
@@ -89,33 +91,34 @@ namespace ge_repository.Controllers
             }
             
             
-            ge_AGS_Client.enumStatus resp = await runAGSClientAsync(config,
+            var resp = await runAGSClientAsync(config,
                                                                     _serviceScopeFactory,
                                                                     Id,
                                                                     user.Id);
             
-            if (resp == ge_AGS_Client.enumStatus.NotConnected) {
+            //if (resp == ge_AGS_Client.enumStatus.NotConnected) {
+            //        return RedirectToPageMessage (msgCODE.AGS_NOTCONNECTED);
+            //}
+
+            // if (resp == ge_AGS_Client.enumStatus.XMLReceiveFailed) {
                 
-                return RedirectToPageMessage (msgCODE.AGS_NOTCONNECTED);
-            }
-            if (resp == ge_AGS_Client.enumStatus.XMLReceiveFailed) {
+            //     return RedirectToPageMessage (msgCODE.XML_NOTRECEIVED);
+            // }
+            //  if (resp == ge_AGS_Client.enumStatus.AGSSendFailed) {
                 
-                return RedirectToPageMessage (msgCODE.XML_NOTRECEIVED);
-            }
-             if (resp == ge_AGS_Client.enumStatus.AGSSendFailed) {
-                
-                return RedirectToPageMessage (msgCODE.AGS_SENDFAILED);
-            }
+            //     return RedirectToPageMessage (msgCODE.AGS_SENDFAILED);
+            // }
             
-            return RedirectToPage("/Data/Index",new {projectId=data.projectId});
+           // return RedirectToPage("/Data/Index",new {projectId=data.projectId});
+          return Ok($"AGS Processing File {data.filename} ({data.filesize} bytes), the pflag status will remain as 'Processing' until this workflow is complete");
+       
         }
 
         public async Task<ge_AGS_Client.enumStatus> runAGSClientAsync(  ags_config Config, 
                                                                         IServiceScopeFactory ServiceScopeFactory,
                                                                         Guid Id,
                                                                         String UserId) {
-
-            return await Task.Run(()=> runAGSClient (Config,
+            return  await Task.Run(()=> runAGSClient (Config,
                                                     ServiceScopeFactory,
                                                     Id,
                                                     UserId));
@@ -131,11 +134,17 @@ namespace ge_repository.Controllers
             IUnitOfWork _unit = new UnitOfWork(_context); 
             IDataService _agsDataService = new DataService(_unit);
           
-           ge_AGS_Client ac = new ge_AGS_Client(Config, 
+            ge_AGS_Client ac = new ge_AGS_Client(Config, 
                                                 Id,
                                                 _agsDataService, 
                                                 UserId);
-            return ac.start();
+            if (!ac.IsConnected ()) {
+                return AGS_Client_Base.enumStatus.NotConnected;
+            }
+
+            ac.start();
+            
+            return AGS_Client_Base.enumStatus.Connected;
         }
 
         public ActionResult Index()

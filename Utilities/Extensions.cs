@@ -1187,6 +1187,11 @@ public static SelectList getUsers(this ge_DbContext context, string search) {
    return new Microsoft.AspNetCore.Mvc.Rendering.SelectList(list,"Value","Text", null);
 
 }
+public static string IsNull(string s1, string returnIsNull) {
+    if (s1==null) {
+        return returnIsNull;
+    } else return s1;
+}
 public static SelectList getGroupTransforms(this ge_DbContext context, Guid? groupId) {
     
     IQueryable<ge_transform> gt = null;
@@ -1209,8 +1214,11 @@ public static SelectList getGroupTransforms(this ge_DbContext context, Guid? gro
     List<SelectListItem> list= new List<SelectListItem>();
 
     foreach (var t in gt) {
-            SelectListItem item =  new SelectListItem(t.style.filename  + "," +  t.name + "," + t.description + "(" + t.project.name + ")" ,t.Id.ToString());
-            list.Add (item);
+        string style_sheet = "No stylesheet";
+        if (t.style!=null) style_sheet = t.style.filename;
+            
+        SelectListItem item =  new SelectListItem(style_sheet  + "," +  IsNull(t.name,"No Name") + "," + IsNull(t.description,"No description") + "(" + IsNull(t.project.name,"No project name") + ")" ,t.Id.ToString());
+        list.Add (item);
     }
    
    return new Microsoft.AspNetCore.Mvc.Rendering.SelectList(list,"Value","Text", null);

@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.IO;
-
-using System.Net;
 using System.Text;
-using System.Data.SqlClient;
 
 namespace ge_repository.AGS
 {
@@ -16,29 +11,36 @@ namespace ge_repository.AGS
         public String xml_data = "";
         public String dictionaryfile;
         public String datastructure;
-    
+        protected static int NOT_OK = -1;
+        protected static int OK = 1;
         public enumStatus status = enumStatus.AGSEmpty;
         TcpClient socket = null;
 
         // const String AGS_START= "[ags_start]";
         // const String AGS_END = "[ags_end]";
         const int MAX_BUFFER_SIZE = 4096;
+        const int MAX_WAIT_MINS = 30;
 
         // const String XML_START= "[xml_start]";
         // const String XML_END = "[xml_end]";
  
         public enum enumStatus
         {  
+            AGSStarted,
             AGSStartFailed,
+            Connected,
             NotConnected,
             AGSEmpty,
             AGSReceived,
+            AGSReceiveFailed,
             AGSSaved,
+            AGSSaveFailed,
             AGSSent,
-            AGSSendFailed,
+            AGSSentFailed,
             XMLReceived,
             XMLReceiveFailed,
             XMLSaved,
+            XMLSaveFailed
           
         }
 
@@ -73,10 +75,10 @@ namespace ge_repository.AGS
         /// <summary>
         /// 
         /// </summary>
-        private void sendAGS() {
-            sendAGSByStream();
+        protected async Task<int> sendAGS() {
+            return sendAGSByStream();
         }
-        private void sendAGSByLine() {
+        private int sendAGSByLine() {
            try {
 
                  AGS_Package ap = new AGS_Package(ags_data,
@@ -98,15 +100,16 @@ namespace ge_repository.AGS
 
                 s_out.Flush();
 
-                status = enumStatus.AGSSent;
+                // status = enumStatus.AGSSent;
+                return 1;
 
             } catch (Exception e)  {
                 Console.WriteLine (e.Message);
-                status = enumStatus.AGSSendFailed;
-
+                // status = enumStatus.AGSSendFailed;
+                return -1;
             }
         }
-        private void sendAGSByStream() {
+        private int sendAGSByStream() {
             try {
                 
                 AGS_Package ap = new AGS_Package(ags_data,
@@ -131,124 +134,179 @@ namespace ge_repository.AGS
                 }
                 
                 s_out.Flush();
-                String msg = "AGS data sent (" + total + ")";
-                //System.out.println(msg);
-                status = enumStatus.AGSSent;
+                // String msg = "AGS data sent (" + total + ")";
+                // System.out.println(msg);
+                // status = enumStatus.AGSSent;
+                return 1;
             
             } catch (Exception e) {
                 Console.WriteLine (e.Message);
-                status = enumStatus.AGSSendFailed;
+                // status = enumStatus.AGSSendFailed;
+                return -1;
             }
 
         }
 
-        public  virtual void saveAGS() {
-             status = enumStatus.AGSSaved;
+        protected  async virtual Task<int> saveAGS() {
+            // status = enumStatus.AGSSaved;
+            return -1;
         }
 
-        public virtual void readAGS() {
+        protected async virtual Task<int> readAGS() {
+            
             if (ags_data.Length>=0) {
                 status = AGS_Client_Base.enumStatus.AGSReceived;
+                return 1;
             }
-           
+
+            return -1;
         }
-        public virtual void readXML() {
+        protected async virtual Task<int> readXML() {
             // recieve xml data from ags_server 
             // https://stackoverflow.com/questions/5867227/convert-streamreader-to-byte
+            
+            DateTime dtStart  = DateTime.Now;
+            
+            while (IsConnected()) {
 
-            try {
-                
-                Stream networkStream = socket.GetStream();
-                StreamReader s_in = new StreamReader(networkStream);
-                Boolean IsXMLData = false;
-                int read;
-                byte[] buffer = new byte[MAX_BUFFER_SIZE];
+                    try {
+                        
+                        Stream networkStream = socket.GetStream();
+                        StreamReader s_in = new StreamReader(networkStream);
+                        Boolean IsXMLData = false;
+                        int read;
+                        byte[] buffer = new byte[MAX_BUFFER_SIZE];
 
-                // MemoryStream ms = new MemoryStream();
-                StringBuilder sb =  null; 
-                while ((read = s_in.BaseStream.Read(buffer, 0, MAX_BUFFER_SIZE)) > 0) {
-                        // ms.Write(buffer, 0, read);
-                        string s = System.Text.Encoding.UTF8.GetString(buffer, 0, read);
-                        if (IsXMLData==true) { 
-                            sb.Append(s);  
-                            if (s.IndexOf(AGS_Package.FILE_END)>0) {
-                                break; 
-                            } 
-                        }
-                        if (IsXMLData==false) {
-                            if (s.IndexOf(AGS_Package.FILE_START)==0) {
-                                IsXMLData=true;
-                                sb =  new StringBuilder();
-                                sb.Append(s);
+                        // MemoryStream ms = new MemoryStream();
+                        StringBuilder sb =  null; 
+                        while ((read = s_in.BaseStream.Read(buffer, 0, MAX_BUFFER_SIZE)) > 0) {
+                                // ms.Write(buffer, 0, read);
+                                string s = System.Text.Encoding.UTF8.GetString(buffer, 0, read);
+                                if (IsXMLData==true) { 
+                                    sb.Append(s);  
+                                    if (s.IndexOf(AGS_Package.FILE_END)>0) {
+                                        break; 
+                                    } 
+                                }
+                                if (IsXMLData==false) {
+                                    if (s.IndexOf(AGS_Package.FILE_START)==0) {
+                                        IsXMLData=true;
+                                        sb =  new StringBuilder();
+                                        sb.Append(s);
+                                        
+                                        if (s.IndexOf(AGS_Package.FILE_END)>0) {
+                                            break; 
+                                        } 
+
+                                    } else {
+                                    // status = enumStatus.XMLReceiveFailed;
+                                        return -1;
+                                    // throw new Exception ("Unexpected response from AGS Server [" + s.Substring(0,32) + "]");
+                                    }
+                                }
                                 
-                                if (s.IndexOf(AGS_Package.FILE_END)>0) {
-                                    break; 
-                                } 
-
-                            } else {
-                                status = enumStatus.XMLReceiveFailed;
-                                throw new Exception ("Unexpected response from AGS Server [" + s.Substring(0,32) + "]");
+                                                    
                             }
+
+                        //    xml_data = Encoding.UTF8.GetString(ms.ToArray());
+                        AGS_Package ap = new AGS_Package (AGS_Package.ContentType.XML, sb.ToString());
+                        
+                        if (ap.HasXMLData()) {
+                            xml_data = ap.data_xml;
+                            status = enumStatus.XMLReceived;
+                            return 1;
+                        } else {
+                            return -1;       
+                            // throw new Exception("No XML data found in AGS_Package");
                         }
                         
-                                               
+                        DateTime dtNow = DateTime.Now;
+                        TimeSpan tsDuration = dtNow-dtStart;
+
+                        if (tsDuration.Minutes >= MAX_WAIT_MINS) {
+                            return -1;
+                        }
+
+                    } catch (Exception e) {
+                        Console.WriteLine (e.Message);
+                    //   status = enumStatus.XMLReceiveFailed;
+                        return -1;
                     }
-
-                //    xml_data = Encoding.UTF8.GetString(ms.ToArray());
-                AGS_Package ap = new AGS_Package (AGS_Package.ContentType.XML, sb.ToString());
-                
-                if (ap.HasXMLData()) {
-                    xml_data = ap.data_xml;
-                    status = enumStatus.XMLReceived;
-                } else {
-                    throw new Exception("No XML data found in AGS_Package");       
-                }
-                
-                // xml_data = sb.ToString();
-               // status = enumStatus.XMLReceived;
- 
-            } catch (Exception e) {
-                Console.WriteLine (e.Message);
-                 status = enumStatus.XMLReceiveFailed;
             }
-            
+
+            return -1;
+        
         }
-        public virtual void saveXML() {
+        protected async virtual Task<int> saveXML() {
             // Write xmldata to database
-             status = enumStatus.XMLSaved;
+             return -1;
         }
+        protected async virtual Task init_actions(Boolean SaveByAction) {}
+        protected async virtual Task actionStarted(string s1, DateTime when) {}
+        protected async virtual Task actionEnded(string s1, int status) { }
+        protected async virtual Task final_actions(string s1) {}
 
+      public async Task<enumStatus> start() {
 
-        public ge_AGS_Client.enumStatus start() {
- 
+            
+            status = enumStatus.AGSEmpty;
+            
+            await init_actions( true);
+
             while (IsConnected()) {
                 
-                if (status == AGS_Client_Base.enumStatus.AGSEmpty) {
-                    readAGS();
+                if (status == enumStatus.AGSEmpty) {
+                    
+                    await actionStarted("readAGS", DateTime.Now);
+                    int resp = await readAGS();
+                    await actionEnded("readAGS",resp);
+                    if (resp== NOT_OK) status = enumStatus.AGSStartFailed;
+                    if (resp >= OK) status = enumStatus.AGSReceived;
                 }
                 
                 if (status == AGS_Client_Base.enumStatus.AGSReceived) {
-                    saveAGS();
+                    await actionStarted("saveAGS", DateTime.Now); 
+                    int resp = await saveAGS();
+                    await actionEnded("readAGS",resp);
+                    if (resp== NOT_OK) status = enumStatus.AGSSaveFailed;
+                    if (resp >= OK) status = enumStatus.AGSSaved;
                 }
 
                 if (status == AGS_Client_Base.enumStatus.AGSSaved) {
-                    sendAGS();
+                    await actionStarted("sendAGS", DateTime.Now); 
+                    int resp = await sendAGS();
+                    await actionEnded("readAGS",resp);
+                    if (resp== NOT_OK) status = enumStatus.AGSSentFailed;
+                    if (resp >= OK) status = enumStatus.AGSSent;
                 }
 
                 if (status == AGS_Client_Base.enumStatus.AGSSent) {
-                    readXML();
+                    await actionStarted("readXML", DateTime.Now); 
+                    int resp = await readXML();
+                    await actionEnded("readXML",resp);
+                    if (resp == NOT_OK) status = enumStatus.XMLReceiveFailed;
+                    if (resp >= OK) status = enumStatus.XMLReceived;
                 }
 
                 if (status == AGS_Client_Base.enumStatus.XMLReceived) {
-                    saveXML();
+                    await actionStarted("saveXML", DateTime.Now); 
+                    int resp = await saveXML();
+                    await actionEnded("saveXML",resp);
+                    if (resp == NOT_OK) status = enumStatus.XMLSaveFailed;
+                    if (resp >= OK) status = enumStatus.XMLSaved;
                 }
                 
+                if (status == AGS_Client_Base.enumStatus.AGSSaveFailed) {
+                    CloseConnections();
+                    break;
+                }
+
                 if (status == AGS_Client_Base.enumStatus.XMLSaved) {
                     CloseConnections();
                     break;
                 }
 
-                if (status == AGS_Client_Base.enumStatus.AGSSendFailed) {
+                if (status == AGS_Client_Base.enumStatus.AGSSentFailed) {
                     CloseConnections();
                     break;
                 }
@@ -257,8 +315,15 @@ namespace ge_repository.AGS
                     CloseConnections();
                     break;
                 }
+                
+                if (status == AGS_Client_Base.enumStatus.XMLSaveFailed) {
+                    CloseConnections();
+                    break;
+                }
             }
+
         return status;
+
         }
 }
 public class AGS_ClientFile : AGS_Client_Base {
@@ -267,22 +332,30 @@ public class AGS_ClientFile : AGS_Client_Base {
         public String xml_fileNameOUT {get;set;}
    
         public AGS_ClientFile (string host, int port):base(host, port) {}
-        public override void readAGS() {
+        protected async override Task<int> readAGS() {
         
-        if (ags_fileNameIN.Length == 0) {
-            return;
-        }
+                if (ags_fileNameIN.Length == 0) {
+                    return -1;
+                }
+
                 using (System.IO.StreamReader file = 
                 new System.IO.StreamReader(ags_fileNameIN))
                     {
                         ags_data = file.ReadToEnd();
-                    }  
+                    }
+                
+                if (ags_data.Length == 0) {
+                    return -1;
+                }  
+
+                return 1;
         }  
-   public override void saveAGS(){
+
+        protected async override Task<int> saveAGS() {
         
-        if (ags_fileNameOUT.Length == 0) {
-            return;
-        }
+            if (ags_fileNameOUT.Length == 0) {
+                return -1;
+            }
         
             using (System.IO.StreamWriter file = 
                 new System.IO.StreamWriter(ags_fileNameOUT))
@@ -290,13 +363,20 @@ public class AGS_ClientFile : AGS_Client_Base {
                         file.Write(ags_data);
                         file.Flush();
                     }
+            
+            if (ags_data.Length == 0) {
+                return -1;
+            }
+
+            return 1;
+
         }
         
-        public override void saveXML() {
+        protected async override Task<int> saveXML() {
         
-        if (xml_fileNameOUT.Length == 0) {
-            return;
-        }
+            if (xml_fileNameOUT.Length == 0) {
+                return -1;
+            }
        
             using (System.IO.StreamWriter file = 
                 new System.IO.StreamWriter(xml_fileNameOUT))
@@ -304,6 +384,11 @@ public class AGS_ClientFile : AGS_Client_Base {
                         file.Write(xml_data);
                         file.Flush();
                     }
+            if (xml_data.Length == 0) {
+                return -1;
+            }
+
+            return 1;
         }
 }
 public class AGS_ClientDb : AGS_ClientFile {
@@ -313,12 +398,12 @@ public class AGS_ClientDb : AGS_ClientFile {
     public AGS_ClientDb (string host, int port):base(host, port) {}
      
    
-    public override void readAGS() {
+   protected async override Task<int> readAGS() { 
 
         if (db_connect.Length == 0) {
             Console.WriteLine ("db_connect:" + db_connect);
             Console.WriteLine ("Insufficient parameters for readDatabaseAGS");
-            return;
+            return -1;
         }    
         
             using (AGS_Database ad =  new AGS_Database (db_connect)) {
@@ -326,35 +411,44 @@ public class AGS_ClientDb : AGS_ClientFile {
                 ags_data = ad.readAGS();
             }
 
-           
+            if (ags_data.Length == 0) {
+                    return -1;
+            }  
+
+            return 1;
+        
         }   
    
-    public override void saveAGS() {
-        base.saveAGS();   
+      protected async override Task<int> saveAGS() {
+
+        base.saveAGS();  
+
         if (db_connect.Length == 0) {
                 Console.WriteLine ("Insufficient parameters for saveDatabaseAGS");
-                return;
+                return -1;
             } else { 
                 using (AGS_Database ad =  new AGS_Database (db_connect)) {
                 ad.setUniqueGUID_AGS(db_uniqueguidAGS);
                 ad.saveAGS();
                 }
             }
-        status = enumStatus.XMLSaved;  
+
+        return 1;
     }
-    public override void saveXML() {
+     protected async override Task<int> saveXML() {
         base.saveXML();
 
         if (db_connect.Length == 0) {
             Console.WriteLine ("Insufficient parameters for saveDatabaseXML");
-            return;
+            return -1;
         }   else { 
                 using (AGS_Database ad =  new AGS_Database (db_connect)) {
                 ad.setUniqueGUID_XML(db_uniqueguidXML);
                 ad.saveXML();
                 }
             }
-        status = enumStatus.XMLSaved; 
+
+       return 1;
     }
         
     public void setDbConnect(String connect) {

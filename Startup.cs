@@ -154,6 +154,8 @@ namespace ge_repository
 
             services.AddTransient<IDataLoggerFileService, DataLoggerFileService>();
             
+            services.AddTransient<IDataAGSService, DataAGSService>();
+            
             // groundwater db connections
             services.AddTransient<ILoggerFileService, LoggerFileService>();
             
