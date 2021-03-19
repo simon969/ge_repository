@@ -111,19 +111,24 @@ namespace ge_repository.services
                                                     toDT,
                                                     ge_source,
                                                     true);
+                if (batch==null) {
+                    continue;
+                }
                 
-               if (save_MOND == true) { 
+                if (batch.Count==0) {
+                    continue;
+                }
 
+                if (save_MOND == true) { 
                     string where2 = $"ge_source='{ge_source}'"; 
                     await UpdateRange(batch, where2);
-                            
                 }
                 
                 ordered.AddRange(batch.OrderBy(e=>e.DateTime).ToList());
 
             }
 
-        return ordered;
+            return ordered;
 
     }
     private int getInt32(string s1) {
