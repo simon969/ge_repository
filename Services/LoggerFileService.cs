@@ -412,7 +412,9 @@ namespace ge_repository.services
                     if (values[0].Contains("\"")) {
                             values = QuoteSplit(line);
                     }
-                    if (values[intReadTime] == "" || ContainsError(values[intReadTime])) {
+                    if (values[intReadTime] == "" || 
+                        ContainsError(values[intReadTime]) || 
+                        IsDateTime(values[intReadTime], dateformats)==false) {
                         continue;
                     }
                    
@@ -467,6 +469,15 @@ namespace ge_repository.services
 
 
  }
+  private Boolean IsDateTime(string s1, string[] dateformats) {
+      try {
+        DateTime dt = getDateTime(s1,dateformats);
+        return true;
+      }
+      catch (Exception e) {
+          return false;
+      }
+  }
   private DateTime getDateTime(string s1, string[] dateformats) {
 
                         if (dateformats!=null) {

@@ -530,44 +530,26 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
 
             ge_log_file log_file  = await _logService.GetByDataId(Id, table,true);
 
- 
-            List<MOND> mond = await _mondService.CreateMOND (log_file,
-                                                            table,
-                                                            round_ref,
-                                                            fromDT,
-                                                            toDT,
-                                                            save);
-
-             if (format == "view") {
-                return View("ViewMOND", mond);
-            } 
-
-            if (format == "json") {
-                return Json(mond);
+            if (log_file == null) {
+                return NotFound();
             }
 
-            return Ok(mond);
- }
-
-private async Task<IActionResult> createMOND(   ge_log_file log_file,
-                                                    string table, 
-                                                    DateTime? fromDT,
-                                                    DateTime? toDT,
-                                                    string round_ref,
-                                                    string format = "view", 
-                                                    Boolean save = false 
-                                                    ) 
- {
-            
-            
             List<MOND> mond = await _mondService.CreateMOND (log_file,
                                                             table,
                                                             round_ref,
                                                             fromDT,
                                                             toDT,
                                                             save);
+            
+            return await View(mond,format);
+ }
 
-             if (format == "view") {
+private async Task<IActionResult> View( List<MOND> mond,
+                                            string format = "view" 
+                                            ) 
+ {
+          
+            if (format == "view") {
                 return View("ViewMOND", mond);
             } 
 
@@ -745,7 +727,14 @@ public async Task<IActionResult> ProcessFile(   Guid Id,
     } 
     
     if (save_logger == false) {
-        return await createMOND(log_file,table,null,null,round_ref,format,false);    
+        await getMONDLogServiceFromDataId (Id); 
+        List<MOND> mond = await _mondService.CreateMOND (log_file,
+                                                            table,
+                                                            round_ref,
+                                                            null,
+                                                            null,
+                                                            save);
+        return await View  (mond, format);
     }  
     
     return await createMOND (Id,table, null, null, round_ref, format, save);
