@@ -429,7 +429,7 @@ private async Task<IActionResult> getMOND(Guid projectId,
             
             var project = await _context.ge_project
                                         .Include(p=>p.group)
-                                    .SingleOrDefaultAsync(m => m.Id == projectId);
+                                        .SingleOrDefaultAsync(m => m.Id == projectId);
             
             if (project == null)
             {
@@ -459,13 +459,39 @@ private async Task<IActionResult> getMOND(Guid projectId,
            
             sql_where = "gINTProjectId in (" + othergINTProjectId.ToDelimString(",","") + ")";
             
-
             points = points ?? new string[0];
+            
+            List<string> plist =  new List<string>();
 
-            if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
-               sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+             if (points.Length > 0 ) {
+                 List<POINT> POINTlist = new List<POINT>();
+                foreach (string s1 in points) {
+                    if (s1.Contains("where=")) {
+                        int start = s1.LastIndexOf("where=")+6;
+                        string where1 = s1.Substring(start, s1.Length-start);
+                        var resp = await getPOINT(projectId, null, othergINTProjectId, where1, "");
+                        var okResult = resp as OkObjectResult;   
+                        if (okResult!= null) {
+                            List<POINT> lwhere1 = okResult.Value as List<POINT>;
+                            POINTlist.AddRange (lwhere1);
+                        }
+                    } else {
+                     plist.Add (s1);
+                    }
+                }
+                if (POINTlist.Count > 0) {
+                plist.AddRange (POINTlist.Select (m=>m.PointID).Distinct().ToList());
+                }
             }
             
+            // if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
+            //    sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+            // }
+
+            if (plist.Count>0) {
+                sql_where += " and PointID in (" + plist.ToArray().ToDelimString(",","'") + ")";
+            }
+
             if (fromDT!=null) {
                 sql_where += " and " + String.Format("DateTime>='{0:yyyy-MM-dd HH:mm:ss}'",fromDT.Value);
             }
@@ -510,7 +536,7 @@ private async Task<IActionResult> getMOND(Guid projectId,
             return Ok(MOND);
 
  }
- 
+
  public async Task<List<MONV>> getMONV(Guid projectId,
                                         string[] points ) {
             
@@ -696,6 +722,7 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
   public async Task<IActionResult> getPOINT(Guid projectId, 
                                             string[] points = null, 
                                             string[] othergINTProjectId = null, 
+                                            string where = null,
                                             string format="") {
             
             if (projectId == null)
@@ -739,6 +766,10 @@ public async Task<List<PROJ>> getPROJ(Guid projectId) {
 
             if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
                 sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
+            }
+
+            if (where !=null) {
+                sql_where += " and " + where;
             }
 
             POINT = await Task.Run(() =>
@@ -992,7 +1023,7 @@ public async Task<IActionResult> createAGS(Guid Id,
                                 }
                             };
             if (save) {
-                    _context.Database.SetCommandTimeout(1200);
+                    _context.Database.SetCommandTimeout(4800);
                     _context.ge_data.Add(_data);
                     _context.SaveChanges();
             }

@@ -88,7 +88,7 @@ namespace ge_repository.Pages.UserOperations
                 return Page();
             }
             
-            var CurrentUserId= GetUserIdAsync().Result;
+            var CurrentUserId = GetUserIdAsync().Result;
             
                       
             if (user_ops.groupId!=null) {

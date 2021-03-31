@@ -305,13 +305,17 @@ namespace ge_repository.repositories
                         //what if there are other records (more) in dt_readings from a previous version of the ge_log_file? 
                         // mark for deletion all records not 'new' or 'updated'
                         if (file.readings.Count() < dt_readings.Rows.Count) {
+                            try {
                             foreach (DataRow row in dt_readings.Rows) {
-                            if (row.RowState == DataRowState.Added | 
+                            if (row.RowState != DataRowState.Added || 
                                 row.RowState != DataRowState.Modified) {
                                     row.Delete();
                                 }
 
                             } 
+                            } catch(Exception e) {
+                                
+                            }
                         }
 
                         return ret;

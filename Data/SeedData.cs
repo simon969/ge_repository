@@ -37,6 +37,7 @@ namespace ge_repository.Data
                 //FixLTC_OtherDatabase(context);
                //  FixUsers (context);
                 var u6 = await EnsureUser(serviceProvider, testUserPw, "connor.caplen@aecom.com","Connor","Caplen","+441412021849");
+                var u7= await EnsureUser(serviceProvider, testUserPw, "viktoria.nemeth@aecom.com","Viktoria","Nemeth","+447741566591");
             }
         }
 
@@ -103,7 +104,7 @@ namespace ge_repository.Data
             if (user == null)
             {
                 user = new ge_user(firstname,lastname,email,phonenumber);
-                await userManager.CreateAsync(user, testUserPw);
+                var resp = await userManager.CreateAsync(user, testUserPw);
 
             }
 
