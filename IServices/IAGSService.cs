@@ -11,5 +11,9 @@ namespace ge_repository.interfaces {
     public interface IDataAGSService: IDataService {
 
         Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups);
+      
+
     }
+
+   
 }

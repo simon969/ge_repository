@@ -2,12 +2,13 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your Javascript code.
-function showNewUserDetails() {
+function toggleUserDetails() {
     var newUserDetails = document.getElementById("newUserDetails");
-    newUserDetails.hidden=false;
-    var create_UserId = document.getElementById("create_userId");
-    create_UserId.value="";
+    var findUserDetails = document.getElementById("findUserDetails");
+    newUserDetails.hidden = !newUserDetails.hidden;
+    findUserDetails.hidden = !findUserDetails.hidden;
 }
+
 function addValue(sourceId, destinationId, delimeter, uniqueOnly) {
     var sourceEl = document.getElementById(sourceId);
     var destinationEl = document.getElementById(destinationId);

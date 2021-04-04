@@ -14,28 +14,30 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form method="post">
+        <form method="post"> 
+            <div id="findUserDetails">
                 <div class="form-group">
-                    <label asp-for="search_user" class="control-label"></label>
-                    <input asp-for="search_user" class="form-control" />
+                <h3>Find Existing User </h3>
+                    <button type=button onclick="toggleUserDetails()">Create New User...</button> 
+                </div>
+                <div class="form-group">
+                    <input asp-for="search_user" value="" class="form-control" />
                     <span asp-validation-for="search_user" class="text-danger"></span>
                 </div>
                 <input type="submit" value="Search" class="btn btn-default"/>
                 <div class="form-group">
-                    <label asp-for="user.Id" class="control-label"></label>
+                    <label asp-for="user.Id" class="control-label">Select User</label>
                     <select asp-for="user.Id" asp-items="ViewBag.create_userId" class="form-control">
                     <option selected value="">--- SELECT ---</option>
                     </select>
                     <span asp-validation-for="user.Id" class="text-danger"></span>
                 </div> 
-                <partial name="_inputUserOperations"
-                    for="user_ops"
-                    view-data="ViewData" />
-                <div class="form-group">
-                    <button type=button onclick="showNewUserDetails()">Create New User...</button> 
-                </div>
-
-             <div id="newUserDetails" hidden>
+                
+            </div>
+            <div id="newUserDetails" hidden>
+                 <div class="form-group">
+                 <h3>Create New User   </h3> <button type=button onclick="toggleUserDetails()">Find Existing User...</button>
+                 </div>
                  <div class="form-group">
                     <label asp-for="user.Email" class="control-label"></label>
                     <input asp-for="user.Email" class="form-control" />
@@ -56,11 +58,24 @@
                     <input asp-for="user.PhoneNumber" class="form-control" />
                     <span asp-validation-for="user.PhoneNumber" class="text-danger"></span>
                 </div>
-                </div>
-               
                 <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                    <label asp-for="_new_user_password" class="control-label"></label>
+                    <input asp-for="_new_user_password" class="form-control" readonly="true"/>
+                    <span asp-validation-for="_new_user_password" class="text-danger"></span>
+                    Password only applicable for Asp.Net Authentication and not Okta Authentication
                 </div>
+                 <div class="form-group">
+                  
+                </div>
+            </div>
+                
+            <partial name="_inputUserOperations"
+                for="user_ops"
+                view-data="ViewData" />
+                
+            <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-default" />
+            </div>
         </form>
         <div>
             <a asp-page="Index">Back to List</a>

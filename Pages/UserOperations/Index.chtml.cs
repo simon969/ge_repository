@@ -42,10 +42,12 @@ namespace ge_repository.Pages.UserOperations
                 var = _context.UserOperationsSearch (user.Id, pageFilter, "", groupId, projectId);
                 }
                 
-                int gu_pTotal;
+                int pTotal;
 
-                user_ops= await var.PagedResult(this.pageIndex,this.pageSize, o=>o.createdDT,true, out gu_pTotal).ToListAsync(); 
-          
+                user_ops= await var.PagedResult(this.pageIndex,this.pageSize, o=>o.createdDT,true, out pTotal).ToListAsync(); 
+                
+                pageTotal = pTotal;
+            
             return Page();
 
             }

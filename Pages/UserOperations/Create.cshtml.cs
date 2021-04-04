@@ -23,9 +23,9 @@ namespace ge_repository.Pages.UserOperations
 
         [Display(Name = "Password")] 
 
-        [BindProperty] public string new_user_password {get;set;} 
-        [Display(Name = "Find User")] [BindProperty] public string search_user {get;set;}
-      //  [BindProperty] public string create_userId {get;set;}
+        [BindProperty] public string _new_user_password {get;set;} 
+        [BindProperty] public string search_user {get;set;}
+     
         private readonly IEmailSender _emailSender;
         public CreateModel(
             ge_DbContext context,
@@ -34,6 +34,7 @@ namespace ge_repository.Pages.UserOperations
             IEmailSender emailSender) : base(context, authorizationService, userManager)
         {
             _emailSender = emailSender;
+            _new_user_password = "S*qecvrB+)H4~VN8";
         }
         
         public async Task<IActionResult> OnGetAsync(Guid? groupId, Guid? projectId)
@@ -43,7 +44,9 @@ namespace ge_repository.Pages.UserOperations
                 user = new ge_user();
                
                 user_ops = new ge_user_ops();
-       
+                user_ops.operations = "Read;Update;Delete";
+                user_ops.user_operations = "Create;Read;Update;Delete";
+                
                 if (groupId != null) {
                     user_ops.group =  _context.ge_group                                        
                                         .Where(o=>o.Id==groupId).FirstOrDefault();
@@ -112,18 +115,21 @@ namespace ge_repository.Pages.UserOperations
                     }
                     
             }
-                       
-                       
-            if (!String.IsNullOrEmpty(search_user) && String.IsNullOrEmpty(user.Id)) {
+                         
+            if (!String.IsNullOrEmpty(search_user)) {
                 ViewData["create_userId"] = _context.getUsers(search_user);
                 setViewData();
                 return Page();
             }
-                      
+            
             var createUserId= await ensureUser();
 
             if (createUserId==null) {
                 return RedirectToPageMessage(msgCODE.USER_CREATE_NOTFOUND); 
+            }
+
+            if (String.IsNullOrEmpty(user_ops.user_operations)) {
+                return RedirectToPageMessage(msgCODE.USER_OPS_CREATE_AMBIGUOUS); 
             }
 
             user_ops.userId = createUserId;
@@ -134,7 +140,26 @@ namespace ge_repository.Pages.UserOperations
             await _context.SaveChangesAsync();
             return RedirectToPage("./Index");
         }
+        private async Task<string> EnsureUser(
+                                                    string testUserPw, 
+                                                    string email,
+                                                    string firstname,
+                                                    string lastname,
+                                                    string phonenumber
+                                                    )
+        {
         
+            var user = await _userManager.FindByNameAsync(email);
+
+            if (user == null)
+            {
+                user = new ge_user(firstname,lastname,email,phonenumber);
+                var resp = await _userManager.CreateAsync(user, testUserPw);
+
+            }
+
+            return user.Id;
+        }
         private async Task<string> ensureUser()
         {
             
@@ -145,7 +170,7 @@ namespace ge_repository.Pages.UserOperations
                     String.IsNullOrEmpty(user.LastName) || 
                     String.IsNullOrEmpty(user.Email) ||
                     String.IsNullOrEmpty(user.PhoneNumber) ||
-                    String.IsNullOrEmpty(new_user_password)
+                    String.IsNullOrEmpty(_new_user_password)
                     ) {
                     return null;
                 } 
@@ -155,7 +180,7 @@ namespace ge_repository.Pages.UserOperations
                                 user.Email,
                                 user.PhoneNumber);
 
-                var ir = await _userManager.CreateAsync(u,  new_user_password);
+                var ir = await _userManager.CreateAsync(u,  _new_user_password);
                 
                 if (ir!=IdentityResult.Success){
                     return null;

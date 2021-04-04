@@ -89,62 +89,13 @@ namespace ge_repository.Controllers
             if (_OperationRequest.AreProjectOperationsAllowed("Download;Create") == false) {
                 return View ("OperationRequest",_OperationRequest);
             }
-            
-            
-            var resp = await runAGSClientAsync(config,
-                                                                    _serviceScopeFactory,
-                                                                    Id,
-                                                                    user.Id);
-            
-            //if (resp == ge_AGS_Client.enumStatus.NotConnected) {
-            //        return RedirectToPageMessage (msgCODE.AGS_NOTCONNECTED);
-            //}
+             
+            IAGSConvertXMLService _agsConvertXml = new AGSConvertXMLService(_serviceScopeFactory);
 
-            // if (resp == ge_AGS_Client.enumStatus.XMLReceiveFailed) {
-                
-            //     return RedirectToPageMessage (msgCODE.XML_NOTRECEIVED);
-            // }
-            //  if (resp == ge_AGS_Client.enumStatus.AGSSendFailed) {
-                
-            //     return RedirectToPageMessage (msgCODE.AGS_SENDFAILED);
-            // }
-            
-           // return RedirectToPage("/Data/Index",new {projectId=data.projectId});
-          return Ok($"AGS Processing File {data.filename} ({data.filesize} bytes), the pflag status will remain as 'Processing' until this workflow is complete");
+            var resp =  _agsConvertXml.NewAGSClientAsync(config, Id, user.Id);
+
+            return Ok($"AGS Processing File {data.filename} ({data.filesize} bytes), the pflag status will remain as 'Processing' until this workflow is complete");
        
-        }
-
-        public async Task<ge_AGS_Client.enumStatus> runAGSClientAsync(  ags_config Config, 
-                                                                        IServiceScopeFactory ServiceScopeFactory,
-                                                                        Guid Id,
-                                                                        String UserId) {
-            return  await Task.Run(()=> runAGSClient (Config,
-                                                    ServiceScopeFactory,
-                                                    Id,
-                                                    UserId));
-        }
-        
-        public ge_AGS_Client.enumStatus runAGSClient(   ags_config Config,
-                                                        IServiceScopeFactory ServiceScopeFactory,
-                                                        Guid Id, 
-                                                        String UserId) {
-            var scope = ServiceScopeFactory.CreateScope() ;
-            ge_DbContext _context = scope.ServiceProvider.GetService<ge_DbContext>();
-
-            IUnitOfWork _unit = new UnitOfWork(_context); 
-            IDataService _agsDataService = new DataService(_unit);
-          
-            ge_AGS_Client ac = new ge_AGS_Client(Config, 
-                                                Id,
-                                                _agsDataService, 
-                                                UserId);
-            if (!ac.IsConnected ()) {
-                return AGS_Client_Base.enumStatus.NotConnected;
-            }
-
-            ac.start();
-            
-            return AGS_Client_Base.enumStatus.Connected;
         }
 
         public ActionResult Index()
