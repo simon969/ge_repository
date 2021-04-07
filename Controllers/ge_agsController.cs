@@ -46,7 +46,7 @@ namespace ge_repository.Controllers
             
         }
             
-         public async Task<IActionResult> CreateXML(Guid Id, string dictionary_file, string data_structure)
+         public async Task<IActionResult> CreateXML(Guid Id, string dictionary_file, string data_structure, string options = "")
         {
             
             if (Id==null) {
@@ -54,32 +54,33 @@ namespace ge_repository.Controllers
             }
 
             ge_data data = await _dataService.GetDataByIdWithAll(Id);
-
+            
+            Boolean ignore_pflag = options.Contains("ignore_pflag");
          
             if (data==null) {
                 return NotFound();
             }
             
             if (data.fileext != FileExtension.AGS) {
-             return RedirectToPageMessage (msgCODE.AGS_UNKNOWN_FILE);
+                return RedirectToPageMessage (msgCODE.AGS_UNKNOWN_FILE);
             }
 
-            if (data.pflag ==pflagCODE.PROCESSING) {
-             return RedirectToPageMessage (msgCODE.AGS_PROCESSING_FILE);
+            if (data.pflag ==pflagCODE.PROCESSING && ignore_pflag == false) {
+                return RedirectToPageMessage (msgCODE.AGS_PROCESSING_FILE);
             }
             
             if (_agsConfig == null) {
-               return NotFound();
+                return NotFound();
             }
 
             ags_config config = _agsConfig.Value;
 
             if (data_structure!=null) {
-            config.data_structure = data_structure;
+                config.data_structure = data_structure;
             }
             
             if (dictionary_file!=null) {
-            config.dictionary_file = dictionary_file;
+                config.dictionary_file = dictionary_file;
             }
             
             ge_user user = await GetUserAsync();

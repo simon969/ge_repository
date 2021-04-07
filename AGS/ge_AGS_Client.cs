@@ -91,6 +91,7 @@ public class ge_AGS_Client : AGS_Client_Base {
     protected ge_data data_xml {get;set;}
     protected IDataService _dataService {get;}
     public Boolean saveByAction {get;set;} = false;
+
     protected string userId {get;}
     private DateTime _started; 
     private DateTime _started_action; 
@@ -189,13 +190,16 @@ public class ge_AGS_Client : AGS_Client_Base {
     
     
     }
-    private async Task init_actions(string s1) {
+    protected override async Task init_actions(string s1) {
+        // base.init_actions(s1); 
+        
+        saveByAction = true;
         
         var resp = await ensureDataFile();
 
         _started = DateTime.Now;
         _result =  $"{_started} Background ge_ags_client started with";
-        _result += $" dictionary='{dictionaryfile}' datastructure='{datastructure}'";
+        _result += $" dictionary='{dictionaryfile}' datastructure='{datastructure}'" + System.Environment.NewLine;
      
         data_ags.pflag = pflagCODE.PROCESSING;
         
@@ -207,18 +211,20 @@ public class ge_AGS_Client : AGS_Client_Base {
 
 
     }
-    private async Task close_actions() {
+     protected override async Task final_actions(string s1) {
         
+       // base.final_actions (s1);
+
         DateTime ended = DateTime.Now;
         TimeSpan dur = ended - _started;
 
-         string s1 =  $"{ended} Background ge_ags_client exited {String.Format("{0:0.000}",dur.TotalMinutes)} mins" + System.Environment.NewLine;
-         _result += s1;
+         string s2 =  $"{ended} Background ge_ags_client exited {String.Format("{0:0.000}",dur.TotalMinutes)} mins" + System.Environment.NewLine;
+         _result += s2;
          
         data_ags.pflag = pflagCODE.NORMAL;
          
         if (saveByAction==true) {
-            data_ags.phistory += s1;
+            data_ags.phistory += s2;
         } else {
             data_ags.phistory += _result;
         }   
@@ -226,6 +232,7 @@ public class ge_AGS_Client : AGS_Client_Base {
     }
 
     protected override async Task actionStarted (string s1, DateTime when) {
+        base.actionStarted (s1, when);
         _started_action = when;
         string s2 = $"{_started_action} {s1} started" + System.Environment.NewLine;
         _result += s2;
@@ -238,6 +245,7 @@ public class ge_AGS_Client : AGS_Client_Base {
     }
     
     protected override async Task actionEnded (string s1, int i) {
+        base.actionEnded (s1, i);
         string outcome = "";
         DateTime ended = DateTime.Now;
         TimeSpan dur = ended - _started_action;

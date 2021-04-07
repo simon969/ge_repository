@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ge_repository.Models;
 using ge_repository.interfaces;
 
@@ -30,6 +32,7 @@ namespace ge_repository.repositories
         
         public async Task<int> CommitAsync()
         {
+            _context.Database.SetCommandTimeout(4800);
             return await _context.SaveChangesAsync();
         }
 

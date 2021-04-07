@@ -6,6 +6,7 @@ using System.Text;
 
 namespace ge_repository.AGS
 {
+    
     public abstract class AGS_Client_Base  {
         public  String ags_data = "";
         public String xml_data = "";
@@ -13,6 +14,9 @@ namespace ge_repository.AGS
         public String datastructure;
         protected static int NOT_OK = -1;
         protected static int OK = 1;
+    
+        // public List<Client_Actions> actions {get;set;} = new List<Client_Actions>();
+
         public enumStatus status = enumStatus.AGSEmpty;
         TcpClient socket = null;
 
@@ -148,11 +152,18 @@ namespace ge_repository.AGS
         }
 
         protected  async virtual Task<int> saveAGS() {
-            // status = enumStatus.AGSSaved;
-            return -1;
+            
+            // Default status is AGS saved, 
+            // if ags file needs to be actually saved override function with save file routine.
+
+            status = enumStatus.AGSSaved;
+            return 1;
         }
 
         protected async virtual Task<int> readAGS() {
+            
+            // Default status is AGS has been read, just check size of data string 
+            // if ags file needs to be actually read override function to with read file routine.
             
             if (ags_data.Length>=0) {
                 status = AGS_Client_Base.enumStatus.AGSReceived;
@@ -216,15 +227,12 @@ namespace ge_repository.AGS
                             status = enumStatus.XMLReceived;
                             return 1;
                         } else {
-                            return -1;       
-                            // throw new Exception("No XML data found in AGS_Package");
-                        }
-                        
-                        DateTime dtNow = DateTime.Now;
-                        TimeSpan tsDuration = dtNow-dtStart;
+                            DateTime dtNow = DateTime.Now;
+                            TimeSpan tsDuration = dtNow-dtStart;
 
-                        if (tsDuration.Minutes >= MAX_WAIT_MINS) {
-                            return -1;
+                            if (tsDuration.Minutes >= MAX_WAIT_MINS) {
+                                return -1;
+                            }
                         }
 
                     } catch (Exception e) {
@@ -241,7 +249,7 @@ namespace ge_repository.AGS
             // Write xmldata to database
              return -1;
         }
-        protected async virtual Task init_actions(Boolean SaveByAction) {}
+        protected async virtual Task init_actions(string s1) {}
         protected async virtual Task actionStarted(string s1, DateTime when) {}
         protected async virtual Task actionEnded(string s1, int status) { }
         protected async virtual Task final_actions(string s1) {}
@@ -251,7 +259,7 @@ namespace ge_repository.AGS
             
             status = enumStatus.AGSEmpty;
             
-            await init_actions( true);
+            await init_actions("");
 
             while (IsConnected()) {
                 
@@ -267,7 +275,7 @@ namespace ge_repository.AGS
                 if (status == AGS_Client_Base.enumStatus.AGSReceived) {
                     await actionStarted("saveAGS", DateTime.Now); 
                     int resp = await saveAGS();
-                    await actionEnded("readAGS",resp);
+                    await actionEnded("saveAGS",resp);
                     if (resp== NOT_OK) status = enumStatus.AGSSaveFailed;
                     if (resp >= OK) status = enumStatus.AGSSaved;
                 }
@@ -275,7 +283,7 @@ namespace ge_repository.AGS
                 if (status == AGS_Client_Base.enumStatus.AGSSaved) {
                     await actionStarted("sendAGS", DateTime.Now); 
                     int resp = await sendAGS();
-                    await actionEnded("readAGS",resp);
+                    await actionEnded("sendAGS",resp);
                     if (resp== NOT_OK) status = enumStatus.AGSSentFailed;
                     if (resp >= OK) status = enumStatus.AGSSent;
                 }
@@ -322,6 +330,8 @@ namespace ge_repository.AGS
                 }
             }
 
+        final_actions("");
+        
         return status;
 
         }
