@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using ge_repository.Authorization;
 namespace ge_repository.OtherDatabase  { 
             
-    public class ge_ags_proj {
+    public class ge_ags {
         public List<PROJ> PROJ {get;set;}
         public List<MOND> MOND {get; set;}
         public List<MONV> MONV {get; set;}
+        public List<ERES> ERES {get; set;}
+        public List<SAMP> SAMP {get; set;}
         public List<MONG> MONG {get;set;}          
         public List<POINT> POINT {get;set;}
         public List<ABBR> ABBR {get;set;}

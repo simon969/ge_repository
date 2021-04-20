@@ -15,14 +15,14 @@ namespace ge_repository.interfaces
         Task<ge_log_file> GetByDataIdNoReadings(Guid dataId, string table);
         Task<IEnumerable<ge_log_file>> GetAllByDataIdNoReadings(Guid Id);
         Task<IEnumerable<ge_log_file>> GetAllByDataId(Guid Id);
-        Task<int> CreateLogFile(ge_log_file newData);
-        Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings);
-        Task<int> DeleteLogFile(ge_log_file data);
-        ge_log_file NewLogFile( ge_search dic, 
+        Task<int> CreateFile(ge_log_file newData);
+        Task<int> UpdateFile(ge_log_file data, Boolean includereadings);
+        Task<int> DeleteFile(ge_log_file data);
+        ge_log_file NewFile( ge_search dic, 
                                 string[] lines,
                                 Guid dataId,
                                 Guid templateId);
-        Task<ge_log_file> NewLogFile(Guid Id, 
+        Task<ge_log_file> NewFile(Guid Id, 
                                      Guid templateId, 
                                      string table, 
                                      string sheet, 

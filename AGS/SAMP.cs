@@ -34,7 +34,7 @@ namespace ge_repository.OtherDatabase  {
      //	[SAMP_CONT] [nvarchar](255) NULL,
      [Display(Name = "SAMP_PREP")] public string SAMP_PREP {get;set;}    
      //	[SAMP_PREP] [ntext] NULL,
-     [Display(Name = "SAMP_DIA")] public string SAMP_DIA {get;set;}    
+     [Display(Name = "SAMP_SDIA")] public string SAMP_SDIA {get;set;}    
      //	[SAMP_SDIA] [smallint] NULL,
      [Display(Name = "SAMP_WDEP")] public double? SAMP_WDEP {get;set;}   
      //	[SAMP_WDEP] [float] NULL,
@@ -54,7 +54,7 @@ namespace ge_repository.OtherDatabase  {
     // 	[SAMP_REM] [ntext] NULL,
     [Display(Name = "SAMP_DESC")] public string SAMP_DESC {get;set;}
     // 	[SAMP_DESC] [ntext] NULL,
-    [Display(Name = "SAMP_DESD")] public DateTime SAMP_DESD {get;set;}    
+    [Display(Name = "SAMP_DESD")] public DateTime? SAMP_DESD {get;set;}    
     // 	[SAMP_DESD] [datetime] NULL,
     [Display(Name = "SAMP_LOG")] public string SAMP_LOG {get;set;}
     // 	[SAMP_LOG] [nvarchar](255) NULL,
@@ -110,7 +110,7 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "SAMP_UBLO" && values[i] != "") SAMP_UBLO =Convert.ToInt16(values[i]);
                 if (header[i] == "SAMP_CONT" && values[i] != "") SAMP_CONT = values[i];
                 if (header[i] == "SAMP_PREP" && values[i] != "") SAMP_PREP = values[i];
-                if (header[i] == "SAMP_DIA" && values[i] != "") SAMP_DIA = values[i];
+                if (header[i] == "SAMP_SDIA" && values[i] != "") SAMP_SDIA = values[i];
                 if (header[i] == "SAMP_WDEP" && values[i] != "") SAMP_WDEP = Convert.ToDouble(values[i]); 
                 if (header[i] == "SAMP_RECV" && values[i] != "") SAMP_RECV = Convert.ToInt16(values[i]); 
                 if (header[i] == "SAMP_TECH" && values[i] != "") SAMP_TECH = values[i]; 
@@ -140,6 +140,56 @@ namespace ge_repository.OtherDatabase  {
          }
          
          return 0;
+        }
+
+        public override string[] get_values(string[] header, string[] unit, string[] type) {
+                  
+            try {
+                string[] ret = new string[header.Length];  
+            for (int i=0;i<header.Count();i++) {
+                if (header[i] == "HEADING") ret[i] = "DATA";
+                if (header[i] == "LOCA_ID" && PointID!=null) ret[i] = PointID;
+                if (header[i] == "SAMP_TOP") ret[i] = String.Format(get_format(unit[i],type[i]),Depth);
+                if (header[i] == "SAMP_REF" && SAMP_REF != null) ret[i]=SAMP_REF;
+                if (header[i] == "SAMP_TYPE" && SAMP_TYPE != null) ret[i] = SAMP_TYPE;
+                if (header[i] == "SAMP_ID" && SAMP_ID != null) ret[i] = SAMP_ID;
+                if (header[i] == "SAMP_BASE" && SAMP_BASE != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_BASE.Value);
+                if (header[i] == "SAMP_LINK" && SAMP_LINK != null) ret[i] = SAMP_LINK;
+                if (header[i] == "SAMP_DTIM" && SAMP_DTIM != null) ret[i] = SAMP_DTIM.Value.ToString(get_format(unit[i],type[i]));
+                if (header[i] == "SAMP_UBLO" && SAMP_UBLO != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_UBLO.Value);
+                if (header[i] == "SAMP_CONT" && SAMP_CONT != null) ret[i] = SAMP_CONT;
+                if (header[i] == "SAMP_PREP" && SAMP_PREP != null) ret[i] = SAMP_PREP;
+                if (header[i] == "SAMP_SDIA" && SAMP_SDIA != null) ret[i] = SAMP_SDIA;
+                if (header[i] == "SAMP_WDEP" && SAMP_WDEP != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_WDEP.Value); 
+                if (header[i] == "SAMP_RECV" && SAMP_RECV != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_RECV.Value); 
+                if (header[i] == "SAMP_TECH" && SAMP_TECH != null) ret[i] = SAMP_TECH; 
+                if (header[i] == "SAMP_MATX" && SAMP_MATX != null) ret[i] = SAMP_MATX; 
+                if (header[i] == "SAMP_TYPC" && SAMP_TYPC != null) ret[i] = SAMP_TYPC; 
+                if (header[i] == "SAMP_WHO" && SAMP_WHO != null) ret[i] = SAMP_WHO; 
+                if (header[i] == "SAMP_WHY" && SAMP_WHY != null) ret[i] = SAMP_WHY; 
+                if (header[i] == "SAMP_DESC" && SAMP_DESC != null) ret[i] = SAMP_DESC;  
+                if (header[i] == "SAMP_DESD" && SAMP_DESD != null) ret[i] = SAMP_DESD.Value.ToString(get_format(unit[i],type[i])); 
+                if (header[i] == "SAMP_LOG" && SAMP_LOG != null) ret[i] = SAMP_LOG; 
+                if (header[i] == "SAMP_COND" && SAMP_COND != null) ret[i] = SAMP_COND; 
+                if (header[i] == "SAMP_CLSS" && SAMP_CLSS != null) ret[i] = SAMP_CLSS; 
+                if (header[i] == "SAMP_BAR" && SAMP_BAR != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_BAR.Value); 
+                if (header[i] == "SAMP_TEMP" && SAMP_TEMP != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_TEMP.Value); 
+                if (header[i] == "SAMP_PRES" && SAMP_PRES != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_PRES.Value); 
+                if (header[i] == "SAMP_FLOW" && SAMP_FLOW != null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_FLOW.Value); 
+                if (header[i] == "SAMP_ETIM" && SAMP_ETIM != null) ret[i] = SAMP_ETIM.Value.ToString(get_format(unit[i],type[i])); 
+                if (header[i] == "SAMP_DURN" && SAMP_DURN!= null) ret[i] = String.Format(get_format(unit[i],type[i]),SAMP_DURN.Value); 
+                if (header[i] == "SAMP_CAPT" && SAMP_CAPT!= null) ret[i] = SAMP_CAPT; 
+                if (header[i] == "GEOL_STAT" && GEOL_STAT != null) ret[i] = GEOL_STAT; 
+                if (header[i] == "SAMP_RECL" && SAMP_RECL != null) ret[i] = SAMP_RECL; 
+                if (header[i] == "FILE_FSET" && FILE_FSET != null) ret[i] = FILE_FSET;
+            }
+            
+            return ret;
+
+         } catch {
+             return null;
+         }
+         
         }
 }
 }

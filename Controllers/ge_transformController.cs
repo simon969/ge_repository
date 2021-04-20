@@ -59,6 +59,7 @@ namespace ge_repository.Controllers
 		public static string constHref_gINT = "/ge_gINT";
 		public static string constHref_AGS = "/ge_ags";
 		public static string constHref_LTC = "/ge_LTC";
+		public static string constHref_ESdat = "/ge_ESdat";
 		public static string ge_gis_xmlGet_Endpoint = "ge_gis/xmlGet";
 		public static string ge_data_xmlGetData_Endpoint ="ge_data/xmlGetData";
 		public static string ge_data_xmlGetProjects_Endpoint ="ge_data/xmlGetProjects";
@@ -589,7 +590,7 @@ namespace ge_repository.Controllers
 			transform_params.host_esri = getHostHref() + constHref_esriFEATURE;
 			transform_params.host_logger = getHostHref() + constHref_Logger;
 			transform_params.host_gint = getHostHref() + constHref_gINT;
-			transform_params.host_esri = getHostHref() + constHref_esriFEATURE;
+			transform_params.host_esdat = getHostHref() + constHref_ESdat;
 			transform_params.host_ags = getHostHref() + constHref_AGS;
 			transform_params.version = version;
 			// transform_params.sessionid = this.Session.Id; 

@@ -1297,6 +1297,66 @@ private string getAGSTable(List<MOND> rows,
     
     return sb.ToString();
 }
+private string getAGSTable(List<ERES> rows, 
+                        string version, bool min = false) {
+    
+    if (version!=AGS404 && version!=AGS403) {
+        return "";
+    } 
+    
+    string table_name = "\"GROUP\",\"ERES\"";
+    string table_headings = "\"HEADING\",\"LOCA_ID\",\"SAMP_TOP\",\"SAMP_REF\",\"SAMP_TYPE\",\"SAMP_ID\",\"SPEC_REF\",\"SPEC_DPTH\",\"ERES_CODE\",\"ERES_METH\",\"ERES_MATX\",\"ERES_RTYP\",\"ERES_TESN\",\"ERES_NAME\",\"ERES_TNAM\",\"ERES_RVAL\",\"ERES_RUNI\",\"ERES_RTXT\",\"ERES_RTCD\",\"ERES_RRES\",\"ERES_DETF\",\"ERES_ORG\",\"ERES_IQLF\",\"ERES_LQLF\",\"ERES_RDLM\",\"ERES_MDLM\",\"ERES_QLM\",\"ERES_DUNI\",\"ERES_TICP\",\"ERES_TICT\",\"ERES_RDAT\",\"ERES_SGRP\",\"SPEC_PREP\",\"SPEC_DESC\",\"ERES_DTIM\",\"ERES_TEST\",\"ERES_TORD\",\"ERES_LOCN\",\"ERES_BAS\",\"ERES_DIL\",\"ERES_LMTH\",\"ERES_LDTM\",\"ERES_IREF\",\"ERES_SIZE\",\"ERES_PERP\",\"ERES_REM\",\"ERES_LAB\",\"ERES_CRED\",\"TEST_STAT\",\"FILE_FSET\"";
+    string table_units = "\"UNIT\",\"\",\"m\",\"\",\"\",\"\",\"\",\"m\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"%\",\"s\",\"yyyy-mm-dd\",\"\",\"\",\"\",\"yyyy-mm-ddThh:mm:ss\",\"\",\"\",\"\",\"\",\"\",\"\",\"yyyy-mm-ddThh:mm:ss\",\"\",\"mm\",\"%\",\"\",\"\",\"\",\"\",\"\"";
+    string table_types = "\"TYPE\",\"ID\",\"2DP\",\"X\",\"PA\",\"ID\",\"X\",\"2DP\",\"PA\",\"X\",\"PA\",\"PA\",\"X\",\"X\",\"X\",\"2DP\",\"PA\",\"X\",\"PA\",\"YN\",\"YN\",\"YN\",\"X\",\"X\",\"2DP\",\"2DP\",\"2DP\",\"PA\",\"0DP\",\"0DP\",\"DT\",\"X\",\"X\",\"X\",\"DT\",\"X\",\"X\",\"PA\",\"PA\",\"0DP\",\"X\",\"DT\",\"X\",\"0DP\",\"1DP\",\"X\",\"X\",\"X\",\"X\",\"X\"";
+
+    StringBuilder sb = new StringBuilder();
+    sb.Append (table_name);
+    sb.AppendLine();
+    sb.Append (table_headings);
+    sb.AppendLine();
+    sb.Append (table_units);
+    sb.AppendLine();
+    sb.Append (table_types);
+    sb.AppendLine();
+
+    foreach (ERES row in rows) {
+        string line = $"\"DATA\",\"{row.PointID}\",\"{row.Depth}\",\"{row.SAMP_REF}\",\"{row.SAMP_TYPE}\",\"{row.SAMP_ID}\",\"{row.SPEC_REF}\",\"{row.SAMP_Depth}\",\"{row.ItemKey}\",\"{row.ERES_METH}\",\"{row.ERES_MATX}\",\"{row.ERES_RTYP}\",\"{row.ERES_TESN}\",\"{row.ERES_NAME}\",\"{row.ERES_TNAM}\",\"{row.ERES_RVAL}\",\"{row.ERES_RUNI}\",\"{row.ERES_RTXT}\",\"{row.ERES_RTCD}\",\"{row.ERES_RRES}\",\"{row.ERES_DETF}\",\"{row.ERES_ORG}\",\"{row.ERES_IQLF}\",\"{row.ERES_LQLF}\",\"{row.ERES_RDLM}\",\"{row.ERES_MDLM}\",\"{row.ERES_QLM}\",\"{row.ERES_DUNI}\",\"{row.ERES_TPICP}\",\"{row.ERES_TICT}\",\"{String.Format(DATE_FORMAT_AGS,row.ERES_RDAT)}\",\"{row.ERES_SGRP}\",\"{row.SPEC_PREP}\",\"{row.SPEC_DESC}\",\"{String.Format(DATETIME_FORMAT_AGS,row.ERES_DTIM)}\",\"{row.ERES_TEST}\",\"{row.ERES_TORD}\",\"{row.ERES_LOCN}\",\"{row.ERES_BAS}\",\"{row.ERES_DIL}\",\"{row.ERES_LMTH}\",\"{row.ERES_LDTM}\",\"{row.ERES_IREF}\",\"{row.ERES_SIZE}\",\"{row.ERES_PERP}\",\"{row.ERES_REM}\",\"{row.ERES_LAB}\",\"{row.ERES_CRED}\",\"{row.TEST_STAT}\",\"{row.FILE_FSET}\"";
+        sb.Append(line);
+        sb.AppendLine();
+    }
+    
+    return sb.ToString();
+}
+private string getAGSTable(List<SAMP> rows, 
+                        string version, bool min = false) {
+    
+    if (version!=AGS404 && version!=AGS403) {
+        return "";
+    } 
+    
+    string table_name ="\"GROUP\",\"SAMP\"";
+    string table_headings = "\"HEADING\",\"LOCA_ID\",\"SAMP_TOP\",\"SAMP_REF\",\"SAMP_TYPE\",\"SAMP_ID\",\"SAMP_BASE\",\"SAMP_DTIM\",\"SAMP_UBLO\",\"SAMP_CONT\",\"SAMP_PREP\",\"SAMP_SDIA\",\"SAMP_WDEP\",\"SAMP_RECV\",\"SAMP_TECH\",\"SAMP_MATX\",\"SAMP_TYPC\",\"SAMP_WHO\",\"SAMP_WHY\",\"SAMP_REM\",\"SAMP_DESC\",\"SAMP_DESD\",\"SAMP_LOG\",\"SAMP_COND\",\"SAMP_CLSS\",\"SAMP_BAR\",\"SAMP_TEMP\",\"SAMP_PRES\",\"SAMP_FLOW\",\"SAMP_ETIM\",\"SAMP_DURN\",\"SAMP_CAPT\",\"SAMP_LINK\",\"GEOL_STAT\",\"FILE_FSET\",\"SAMP_RECL\"";
+    string table_units = "\"UNIT\",\"\",\"m\",\"\",\"\",\"\",\"m\",\"yyyy-mm-ddThh:mm:ss\",\"\",\"\",\"\",\"mm\",\"m\",\"%\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"yyyy-mm-dd\",\"\",\"\",\"\",\"bar\",\"DegC\",\"bar\",\"l/min\",\"yyyy-mm-ddThh:mm:ss\",\"hh:mm:ss\",\"\",\"\",\"\",\"\",\"mm\"";
+    string table_types = "\"TYPE\",\"ID\",\"2DP\",\"X\",\"PA\",\"ID\",\"2DP\",\"DT\",\"0DP\",\"X\",\"X\",\"0DP\",\"X\",\"0DP\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"X\",\"DT\",\"X\",\"X\",\"X\",\"1DP\",\"0DP\",\"1DP\",\"1DP\",\"DT\",\"T\",\"X\",\"X\",\"X\",\"X\",\"0DP\"";
+
+    StringBuilder sb = new StringBuilder();
+    sb.Append (table_name);
+    sb.AppendLine();
+    sb.Append (table_headings);
+    sb.AppendLine();
+    sb.Append (table_units);
+    sb.AppendLine();
+    sb.Append (table_types);
+    sb.AppendLine();
+
+    foreach (SAMP row in rows) {
+        string line = $"\"DATA\",\"{row.PointID}\",\"{row.Depth}\",\"{row.SAMP_REF}\",\"{row.SAMP_TYPE}\",\"{row.SAMP_ID}\",\"{row.SAMP_BASE}\",\"{String.Format(DATETIME_FORMAT_AGS,row.SAMP_DTIM)}\",\"{row.SAMP_UBLO}\",\"{row.SAMP_CONT}\",\"{row.SAMP_PREP}\",\"{row.SAMP_SDIA}\",\"{row.SAMP_WDEP}\",\"{row.SAMP_RECV}\",\"{row.SAMP_TECH}\",\"{row.SAMP_MATX}\",\"{row.SAMP_TYPC}\",\"{row.SAMP_WHO}\",\"{row.SAMP_WHY}\",\"{row.SAMP_REM}\",\"{row.SAMP_DESC}\",\"{row.SAMP_DESD}\",\"{row.SAMP_LOG}\",\"{row.SAMP_COND}\",\"{row.SAMP_CLSS}\",\"{row.SAMP_BAR}\",\"{row.SAMP_TEMP}\",\"{row.SAMP_PRES}\",\"{row.SAMP_FLOW}\",\"{row.SAMP_ETIM}\",\"{row.SAMP_DURN}\",\"{row.SAMP_CAPT}\",\"{row.SAMP_LINK}\",\"{row.GEOL_STAT}\",\"{row.FILE_FSET}\",\"{row.SAMP_RECL}\"";;
+        sb.Append(line);
+        sb.AppendLine();
+    }
+    
+    return sb.ToString();
+}
 private string getAGSTable(List<TRAN> rows, 
                         string version, Boolean min = false) {
     
@@ -1855,7 +1915,7 @@ private void setValues(SAMP item, DataRow row) {
                         if (item.SAMP_UBLO == null) {row["SAMP_UBLO"] = DBNull.Value;} else {row["SAMP_UBLO"] = item.SAMP_UBLO;}
                         row["SAMP_CONT"] = item.SAMP_CONT;
                         row["SAMP_PREP"] = item.SAMP_PREP;
-                        if (item.SAMP_DIA == null) {row["SAMP_DIA"] = DBNull.Value;} else {row["SAMP_DIA"] = item.SAMP_DIA;}
+                        if (item.SAMP_SDIA == null) {row["SAMP_SDIA"] = DBNull.Value;} else {row["SAMP_DIA"] = item.SAMP_SDIA;}
                         if (item.SAMP_WDEP == null) {row["SAMP_WDEP"] = DBNull.Value;} else {row["SAMP_WDEP"] = item.SAMP_WDEP;}
                         if (item.SAMP_RECV == null) {row["SAMP_RECV"] = DBNull.Value;} else {row["SAMP_RECV"] = item.SAMP_RECV;}
                         row["SAMP_TECH"] = item.SAMP_TECH; 

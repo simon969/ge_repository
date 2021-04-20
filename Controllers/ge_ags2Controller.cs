@@ -255,7 +255,7 @@ namespace ge_repository.Controllers
         
             IUnitOfWork _unit = new UnitOfWork(_context); 
             IDataAGSService _dataservice = new DataAGSService(_unit);
-            AGS404GroupTables ags_tables = await _dataservice.GetAGS404GroupTables (Id, tables);
+            IAGSGroupTables ags_tables = await _dataservice.GetAGSData (Id, tables);
             
             if (format=="view") {
                 return View (ags_tables);
@@ -790,7 +790,7 @@ namespace ge_repository.Controllers
                 if (header[i] == "SAMP_UBLO" && values[i] != "") p.SAMP_UBLO =Convert.ToInt16(values[i]);
                 if (header[i] == "SAMP_CONT" && values[i] != "") p.SAMP_CONT = values[i];
                 if (header[i] == "SAMP_PREP" && values[i] != "") p.SAMP_PREP = values[i];
-                if (header[i] == "SAMP_DIA" && values[i] != "") p.SAMP_DIA = values[i];
+                if (header[i] == "SAMP_SDIA" && values[i] != "") p.SAMP_SDIA = values[i];
                 if (header[i] == "SAMP_WDEP" && values[i] != "") p.SAMP_WDEP = Convert.ToDouble(values[i]); 
                 if (header[i] == "SAMP_RECV" && values[i] != "") p.SAMP_RECV = Convert.ToInt16(values[i]); 
                 if (header[i] == "SAMP_TECH" && values[i] != "") p.SAMP_TECH = values[i]; 

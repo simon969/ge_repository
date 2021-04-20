@@ -155,6 +155,8 @@ namespace ge_repository
             services.AddTransient<IDataLoggerFileService, DataLoggerFileService>();
             
             services.AddTransient<IDataAGSService, DataAGSService>();
+
+            services.AddTransient<IDataESdatFileService, DataESdatFileService>();
             
             // groundwater db connections
             services.AddTransient<ILoggerFileService, LoggerFileService>();
@@ -165,6 +167,7 @@ namespace ge_repository
             // Esri Feature Server connections
             services.AddTransient<ILTCEsriService, LTCEsriService>();
 
+          
             // services.AddSwaggerGen(c =>
             // {
             //     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ge_repository.api", Version = "v1" });

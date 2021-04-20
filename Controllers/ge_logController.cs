@@ -241,7 +241,7 @@ public async Task<IActionResult> ReadFile(Guid Id,
             
             _logService = await getLoggerFileServiceFromDataId(Id);
 
-            ge_log_file log_file = await _logService.NewLogFile(Id,templateId,table,sheet,_dataService);
+            ge_log_file log_file = await _logService.NewFile(Id,templateId,table,sheet,_dataService);
 
             if (log_file==null){
                 return Json($"Unable to locate table ({table}) from template file ({_template.filename}) in data file ({_data.filename})");
@@ -269,10 +269,10 @@ public async Task<IActionResult> ReadFile(Guid Id,
                     // int del = await DeleteFile(Id);
                     // ViewData["fileStatus"] = $"Existing records deleted ({del})";
                     log_file.Id  = exist_log_file.Id;
-                    int updated = await  _logService.UpdateLogFile(log_file,true);
+                    int updated = await  _logService.UpdateFile(log_file,true);
                     ViewData["fileStatus"] = $"File records updated ({updated})";
                 } else {
-                int add = await _logService.CreateLogFile(log_file);
+                int add = await _logService.CreateFile(log_file);
                     if (add>0) { 
                         ViewData["fileStatus"] = $"File records written ({add})";
                     }
@@ -339,7 +339,7 @@ public async Task<IActionResult> ReadFile(Guid Id,
             ge_log_file exist_log_file = await  _logService.GetByDataId(Id,table);
 
             if (templateId!=null) {
-                log_file = await _logService.NewLogFile (Id,templateId.Value,table,sheet,_dataService);
+                log_file = await _logService.NewFile (Id,templateId.Value,table,sheet,_dataService);
             }
 
             if (log_file==null && exist_log_file==null) {
@@ -371,10 +371,10 @@ public async Task<IActionResult> ReadFile(Guid Id,
                            log_file.Id  = exist_log_file.Id;
                            Boolean include_readings = true;
                            if (templateId==null) { include_readings = false;}
-                           int updated = await _logService.UpdateLogFile(log_file,include_readings);
+                           int updated = await _logService.UpdateFile(log_file,include_readings);
                            ViewData["fileStatus"] = $"File records updated ({updated})";
                         } else {
-                        int add = await _logService.CreateLogFile(log_file);
+                        int add = await _logService.CreateFile(log_file);
                             if (add>0) { 
                                 ViewData["fileStatus"] = $"File records written ({add})";
                             }
@@ -434,7 +434,7 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             }
 
             if (templateId!=null) {
-                log_file = await _logService.NewLogFile(Id,templateId.Value,table,"",_dataService);
+                log_file = await _logService.NewFile(Id,templateId.Value,table,"",_dataService);
             }
             
             
@@ -491,10 +491,10 @@ public async Task<IActionResult> CalculateVWT(  Guid Id,
             
              if (save==true) {
                         if (log_file.Id == Guid.Empty) {
-                            var log_added = await _logService.CreateLogFile(log_file);
+                            var log_added = await _logService.CreateFile(log_file);
                             ViewData["fileStatus"] = $"Records created({log_added})";
                         } else {             
-                            var log_updated = await _logService.UpdateLogFile(log_file, true);
+                            var log_updated = await _logService.UpdateFile(log_file, true);
                             ViewData["fileStatus"] = $"Records updated({log_updated})";
                         }
             }
@@ -817,7 +817,7 @@ public async Task<IActionResult> Calculate2(Guid Id,
 
             if (templateId!=null) {
 
-                log_file =  await _logService.NewLogFile(Id, templateId.Value,table,"",_dataService);
+                log_file =  await _logService.NewFile(Id, templateId.Value,table,"",_dataService);
                       
             }
             
@@ -888,10 +888,10 @@ public async Task<IActionResult> Calculate2(Guid Id,
 
             if (save==true) {
                         if (log_file.Id == Guid.Empty) {
-                            var log_added = await _logService.CreateLogFile(log_file);
+                            var log_added = await _logService.CreateFile(log_file);
                             ViewData["fileStatus"] = $"Records created({log_added})";
                         } else {             
-                            var log_updated = await _logService.UpdateLogFile(log_file, true);
+                            var log_updated = await _logService.UpdateFile(log_file, true);
                             ViewData["fileStatus"] = $"Records updated({log_updated})";
                         }
             }
@@ -967,7 +967,7 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             }
 
             if (templateId!=null) {
-                log_file = await _logService.NewLogFile (Id,templateId.Value,table,"",_dataService);
+                log_file = await _logService.NewFile (Id,templateId.Value,table,"",_dataService);
             }
             
             if (log_file==null && exist_log_file!=null) {
@@ -995,10 +995,10 @@ public async Task<IActionResult> CalculateWQ(Guid Id,
             
             if (save==true) {
                         if (log_file.Id == Guid.Empty) {
-                            var log_added = await _logService.CreateLogFile(ge_wq.log_file);
+                            var log_added = await _logService.CreateFile(ge_wq.log_file);
                             ViewData["fileStatus"] = $"Records created({log_added})";
                         } else {
-                        var log_updated = await _logService.UpdateLogFile(ge_wq.log_file, true);
+                        var log_updated = await _logService.UpdateFile(ge_wq.log_file, true);
                         ViewData["fileStatus"] = $"Records updated({log_updated})";
                         }
             }
@@ -1049,7 +1049,7 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             }
 
             if (templateId!=null) {
-               log_file = await _logService.NewLogFile (Id,templateId.Value,table,"",_dataService);
+               log_file = await _logService.NewFile (Id,templateId.Value,table,"",_dataService);
             }
             
             if (log_file==null && exist_log_file!=null) {
@@ -1099,10 +1099,10 @@ public async Task<IActionResult> CalculateDiver(Guid Id,
             
             if (save==true) {
                         if (log_file.Id == Guid.Empty) {
-                            var log_added = await _logService.CreateLogFile(log_file);
+                            var log_added = await _logService.CreateFile(log_file);
                             ViewData["fileStatus"] = $"Records created({log_added})";
                         } else {             
-                            var log_updated = await _logService.UpdateLogFile(log_file, true);
+                            var log_updated = await _logService.UpdateFile(log_file, true);
                             ViewData["fileStatus"] = $"Records updated({log_updated})";
                         }
             }

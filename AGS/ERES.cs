@@ -176,12 +176,77 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "TEST_STAT" && values[i] != "") TEST_STAT = values[i]; 
                 if (header[i] == "FILE_FSET") FILE_FSET= values[i];
             }
-
+            return 0;
          } catch {
              return -1;
          }
          
-         return 0;
+         
+        }
+        public override string[] get_values(string[] header, string[] unit, string[] type) {
+         try {
+            
+            string[] ret = new string[header.Length];  
+            
+            for (int i=0;i<header.Length;i++) {
+                if (header[i] == "HEADING") ret[i] = "DATA";
+                if (header[i] == "LOCA_ID" && PointID != null) ret[i] =  ret[i] = PointID;
+                if (header[i] == "SAMP_TOP") ret[i] =  String.Format(get_format(unit[i],type[i]),SAMP_Depth);
+                if (header[i] == "SAMP_REF" && SAMP_REF!= null) ret[i] =  SAMP_REF;
+                if (header[i] == "SAMP_TYPE" && SAMP_TYPE != null) ret[i] =  SAMP_TYPE;
+                if (header[i] == "SAMP_ID" && SAMP_ID != null) ret[i] =  SAMP_ID;
+                if (header[i] == "SPEC_DPTH") ret[i] = String.Format(get_format(unit[i],type[i]),Depth);
+                if (header[i] == "SPEC_REF" && SPEC_REF != null) ret[i] =  SPEC_REF;
+                if (header[i] == "ERES_CODE" && ItemKey != null) ret[i] =  ItemKey;
+                if (header[i] == "ERES_METH" && ERES_METH != null) ret[i] =  ERES_METH;
+                if (header[i] == "Matrix-Run Type" && Matrix_Run_Type != null) ret[i] =  Matrix_Run_Type;
+                if (header[i] == "ERES_MATX" && ERES_MATX != null) ret[i] =  ERES_MATX;
+                if (header[i] == "ERES_RTYP" && ERES_RTYP != null) ret[i] =  ERES_RTYP;
+                if (header[i] == "ERES_TESN" && ERES_TESN != null) ret[i] =  ERES_TESN; 
+                if (header[i] == "ERES_NAME" && ERES_NAME != null) ret[i] =  ERES_NAME; 
+                if (header[i] == "ERES_TNAM" && ERES_TNAM != null) ret[i] =  ERES_TNAM; 
+                if (header[i] == "ERES_RVAL" && ERES_RVAL != null) ret[i] =  String.Format(get_format(unit[i],type[i]), ERES_RVAL.Value); 
+                if (header[i] == "ERES_RUNI" && ERES_RUNI != null) ret[i] =  ERES_RUNI; 
+                if (header[i] == "ERES_RTXT" && ERES_RTXT != null) ret[i] =  ERES_RTXT; 
+                if (header[i] == "ERES_RTCD" && ERES_RTCD != null) ret[i] =  ERES_RTCD; 
+                if (header[i] == "ERES_RRES" && ERES_RRES != null) ret[i] =  getBooleanString(unit[i],type[i],ERES_RRES.Value);  
+                if (header[i] == "ERES_DETF" && ERES_DETF != null) ret[i] = getBooleanString(unit[i],type[i],ERES_DETF.Value); 
+                if (header[i] == "ERES_ORG" && ERES_ORG != null) ret[i] =  getBooleanString(unit[i],type[i],ERES_ORG.Value); 
+                if (header[i] == "ERES_IQLF" && ERES_IQLF != null) ret[i] =  ERES_IQLF; 
+                if (header[i] == "ERES_LQLF" && ERES_LQLF != null) ret[i] =  ERES_LQLF; 
+                if (header[i] == "ERES_RDLM" && ERES_RDLM != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_RDLM.Value); 
+                if (header[i] == "ERES_MDLM" && ERES_MDLM != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_MDLM.Value); 
+                if (header[i] == "ERES_QLM" && ERES_QLM != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_QLM.Value); 
+                if (header[i] == "ERES_DUNI" && ERES_DUNI != null) ret[i] =  ERES_DUNI; 
+                if (header[i] == "ERES_TPICP" && ERES_TPICP != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_TPICP.Value); 
+                if (header[i] == "ERES_TICT" && ERES_TICT != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_TICT.Value); 
+                if (header[i] == "ERES_RDAT" && ERES_RDAT != null) ret[i] =  ERES_RDAT.Value.ToString(get_format(unit[i],type[i])); 
+                if (header[i] == "ERES_SGRP" && ERES_SGRP != null) ret[i] =  ERES_SGRP; 
+                if (header[i] == "SPEC_DESC" && SPEC_DESC != null) ret[i] =  SPEC_DESC; 
+                if (header[i] == "SPEC_PREP" && SPEC_PREP != null) ret[i] =  SPEC_PREP; 
+                if (header[i] == "ERES_DTIM" && ERES_DTIM != null) ret[i] =  ERES_DTIM.Value.ToString(get_format(unit[i],type[i])); 
+                if (header[i] == "ERES_TEST" && ERES_TEST != null) ret[i] =  ERES_TEST; 
+                if (header[i] == "ERES_TORD" && ERES_TORD != null) ret[i] =  ERES_TORD; 
+                if (header[i] == "ERES_LOCN" && ERES_LOCN != null) ret[i] =  ERES_LOCN; 
+                if (header[i] == "ERES_BAS" && ERES_BAS != null) ret[i] =  ERES_BAS; 
+                if (header[i] == "ERES_DIL" && ERES_DIL != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_DIL.Value); 
+                if (header[i] == "ERES_LMTH" &&  ERES_LMTH != null) ret[i] =  ERES_LMTH; 
+                if (header[i] == "ERES_LDTM" && ERES_LDTM != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_LDTM.Value); 
+                if (header[i] == "ERES_IREF" && ERES_IREF != null) ret[i] =  ERES_IREF; 
+                if (header[i] == "ERES_SIZE" && ERES_SIZE != null) ret[i] =  ERES_SIZE; 
+                if (header[i] == "ERES_PERP" && ERES_PERP != null) ret[i] =  String.Format(get_format(unit[i],type[i]),ERES_PERP.Value); 
+                if (header[i] == "ERES_REM" && ERES_REM  != null) ret[i] =  ERES_REM; 
+                if (header[i] == "ERES_LAB" && ERES_LAB != null) ret[i] =  ERES_LAB; 
+                if (header[i] == "ERES_CRED" && ERES_CRED!= null) ret[i] =  ERES_CRED; 
+                if (header[i] == "TEST_STAT" && TEST_STAT != null) ret[i] =  TEST_STAT; 
+                if (header[i] == "FILE_FSET") ret[i] = FILE_FSET;
+            }
+            return ret;
+         } catch {
+             return null;
+         }
+         
+         
         }
     }
     

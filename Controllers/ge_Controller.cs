@@ -16,6 +16,8 @@ using System.Data;
 using ge_repository.Authorization;
 using ge_repository.DAL;
 using ge_repository.Models;
+using ge_repository.OtherDatabase;
+
 namespace ge_repository.Controllers 
 {
 
@@ -74,6 +76,9 @@ namespace ge_repository.Controllers
 
            return HostRef;
         }
+
+       
+
          public static List<T> ConvertDataTable<T>(DataTable dt)  
         {  
             List<T> data = new List<T>();  

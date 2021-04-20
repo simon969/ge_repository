@@ -3,7 +3,7 @@ using ge_repository.OtherDatabase;
 
 namespace ge_repository.AGS  {
 
-public class AGS404GroupLists {
+public class AGS404GroupLists : IAGSGroupLists {
             
             public List<PROJ> PROJ {get;set;}
 
@@ -23,24 +23,122 @@ public class AGS404GroupLists {
             public List<ABBR> ABBR {get;set;}
 
 }
-public class AGS404GroupTables {
+
+public interface IAGSGroupTables {
+    AGSTable<PROJ> AddTable(List<PROJ> list);
+    AGSTable<ERES> AddTable(List<ERES> list);
+    AGSTable<POINT> AddTable(List<POINT> list);
+    AGSTable<SAMP> AddTable(List<SAMP> list);
+    AGSTable<ABBR> AddTable(List<ABBR> list);
+    AGSTable<TRAN> AddTable(List<TRAN> list);
+    AGSTable<UNIT> AddTable(List<UNIT> list);
+
+    // int AppendTable<T> (List<T> list);
+    string ToString();
+}
+public interface IAGSGroupLists {
+
+
+}
+public class AGS404GroupTables : IAGSGroupTables {
+            
+            // 
             
             public AGSTable<PROJ> PROJ {get;set;}
+            public AGSTable<PROJ> AddTable(List<PROJ> list) {
+                PROJ = new AGSTable<PROJ>();
+                PROJ.headers = new List<string>() {"HEADING","PROJ_ID","PROJ_NAME","PROJ_LOC","PROJ_CLNT","PROJ_CONT","PROJ_ENG","PROJ_MEMO","FILE_FSET"};
+                PROJ.units = new List<string>(){"UNIT","","","","","","","",""};
+                PROJ.types = new List<string>(){"TYPE","ID","X","X","X","X","X","X","X"};
+                PROJ.values = list;
+                return PROJ;
+            }
+
+           // public int AppendTable<T>(List<AGS> list) {
+
+             //    if (typeof(T) == typeof(PROJ)) {PROJ.values.AddRange(list); return P;}
+
+            // }
 
             public AGSTable<POINT> LOCA {get;set;}
-
+            public AGSTable<POINT> AddTable(List<POINT> list) {
+                LOCA = new AGSTable<POINT>();
+                LOCA.headers = new List<string>() {"HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_GL","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD","LOCA_LETT","LOCA_LOCX","LOCA_LOCY","LOCA_LOCZ","LOCA_LREF","LOCA_DATM","LOCA_ETRV","LOCA_NTRV","LOCA_LTRV","LOCA_XTRL","LOCA_YTRL","LOCA_ZTRL","LOCA_LAT","LOCA_LON","LOCA_ELAT","LOCA_ELON","LOCA_LLZ","LOCA_LOCM","LOCA_LOCA","LOCA_CLST","LOCA_ALID","LOCA_OFFS","LOCA_CNGE","LOCA_TRAN","FILE_FSET","LOCA_NATD","LOCA_ORID","LOCA_ORJO","LOCA_CHKG","LOCA_CKDT","LOCA_APPG"};
+                LOCA.units = new List<string>() {"UNIT","","","","m","m","m","m","","m","yyyy-mm-dd","","","yyyy-mm-dd","","m","m","m","","","m","m","m","m","m","m","deg","deg","m","","","","","","","m","m","","","","","","","",""};
+                LOCA.types = new List<string>() {"TYPE","ID","X","X","2DP","2DP","X","2DP","X","2DP","DT","X","X","DT","X","2DP","2DP","2DP","X","X","2DP","2DP","2DP","2DP","2DP","2DP","X","X","2DP","X","X","X","X","X","X","2DP","2DP","X","X"};
+                LOCA.values = list;
+                return LOCA;
+            }
             public AGSTable<MOND> MOND {get; set;}
+            public AGSTable<MOND> AddTable(List<MOND> list) {
+                MOND = new AGSTable<MOND>();
+                MOND.headers = new List<string>() {"HEADING","LOCA_ID","MONG_ID","MONG_DIS","MOND_DTIM","MOND_TYPE","MOND_REF","MOND_INST","MOND_RDNG","MOND_UNIT","MOND_METH","MOND_LIM","MOND_ULIM","MOND_NAME","MOND_CRED","MOND_CONT","MOND_REM","FILE_FSET"};
+                MOND.units = new List<string>() {"UNIT","","","m","yyyy-mm-ddThh:mm:ss","m","","","m","","","","","","","","",""};
+                MOND.types = new List<string>() {"TYPE","ID","X","2DP","DT","PA","X","X","XN","PU","X","U","U","X","X","X","X","X"};                
+                MOND.values = list;
+                return MOND;
+            }
             public AGSTable<MONG> MONG {get;set;}          
             public AGSTable<ERES> ERES {get;set;}
+            public AGSTable<ERES> AddTable(List<ERES> list) {
+                ERES = new AGSTable<ERES>();
+                ERES.headers = new List<string>() {"HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SPEC_REF","SPEC_DPTH","ERES_CODE","ERES_METH","ERES_MATX","ERES_RTYP","ERES_TESN","ERES_NAME","ERES_TNAM","ERES_RVAL","ERES_RUNI","ERES_RTXT","ERES_RTCD","ERES_RRES","ERES_DETF","ERES_ORG","ERES_IQLF","ERES_LQLF","ERES_RDLM","ERES_MDLM","ERES_QLM","ERES_DUNI","ERES_TICP","ERES_TICT","ERES_RDAT","ERES_SGRP","SPEC_PREP","SPEC_DESC","ERES_DTIM","ERES_TEST","ERES_TORD","ERES_LOCN","ERES_BAS","ERES_DIL","ERES_LMTH","ERES_LDTM","ERES_IREF","ERES_SIZE","ERES_PERP","ERES_REM","ERES_LAB","ERES_CRED","TEST_STAT","FILE_FSET"};
+                ERES.units = new List<string>() {"UNIT","","m","","","","","m","","","","","","","","","","","","","","","","","","","","","%","s","yyyy-mm-dd","","","","yyyy-mm-ddThh:mm:ss","","","","","","","yyyy-mm-ddThh:mm:ss","","mm","%","","","","",""};
+                ERES.types = new List<string>() {"TYPE","ID","2DP","X","PA","ID","X","2DP","PA","X","PA","PA","X","X","X","2DP","PA","X","PA","YN","YN","YN","X","X","2DP","2DP","2DP","PA","0DP","0DP","DT","X","X","X","DT","X","X","PA","PA","0DP","X","DT","X","0DP","1DP","X","X","X","X","X"};
+                ERES.values = list;
+                return ERES;
+            }
             public AGSTable<SPEC> SPEC {get;set;}
             public AGSTable<SAMP> SAMP {get;set;}
-           
+            public AGSTable<SAMP> AddTable(List<SAMP> list) {
+                SAMP = new AGSTable<SAMP>();
+                SAMP.headers = new List<string>() {"HEADING","LOCA_ID","SAMP_TOP","SAMP_REF","SAMP_TYPE","SAMP_ID","SAMP_BASE","SAMP_DTIM","SAMP_UBLO","SAMP_CONT","SAMP_PREP","SAMP_SDIA","SAMP_WDEP","SAMP_RECV","SAMP_TECH","SAMP_MATX","SAMP_TYPC","SAMP_WHO","SAMP_WHY","SAMP_REM","SAMP_DESC","SAMP_DESD","SAMP_LOG","SAMP_COND","SAMP_CLSS","SAMP_BAR","SAMP_TEMP","SAMP_PRES","SAMP_FLOW","SAMP_ETIM","SAMP_DURN","SAMP_CAPT","SAMP_LINK","GEOL_STAT","FILE_FSET","SAMP_RECL"};
+                SAMP.units = new List<string>() {"UNIT","","m","","","","m","yyyy-mm-ddThh:mm:ss","","","","mm","m","%","","","","","","","","yyyy-mm-dd","","","","bar","DegC","bar","l/min","yyyy-mm-ddThh:mm:ss","hh:mm:ss","","","","","mm"};
+                SAMP.types = new List<string>() {"TYPE","ID","2DP","X","PA","ID","2DP","DT","0DP","X","X","0DP","X","0DP","X","X","X","X","X","X","X","DT","X","X","X","1DP","0DP","1DP","1DP","DT","T","X","X","X","X","0DP"};
+                SAMP.values = list;
+                return SAMP;
+            }
             public AGSTable<TRAN> TRAN {get;set;}
-
+            public AGSTable<TRAN> AddTable(List<TRAN> list) {
+                TRAN = new AGSTable<TRAN>();
+                TRAN.headers = new List<string>() {"HEADING","TRAN_ISNO","TRAN_DATE","TRAN_PROD","TRAN_STAT","TRAN_DESC","TRAN_AGS","TRAN_RECV","TRAN_DLIM","TRAN_RCON","TRAN_REM","FILE_FSET"};
+                TRAN.units = new List<string>() {"UNIT","","yyyy-mm-dd","","","","","","","","",""};
+                TRAN.types = new List<string>() {"TYPE","X","DT","X","X","X","X","X","X","X","X","X"};
+                TRAN.values = list;
+                return TRAN;
+            }
             public AGSTable<TYPE> TYPE {get;set;}
             public AGSTable<UNIT> UNIT {get;set;}
+            public AGSTable<UNIT> AddTable(List<UNIT> list) {
+                
+                if (UNIT == null) {
+                    UNIT = new AGSTable<UNIT>();
+                    UNIT.headers = new List<string>() {"HEADING","UNIT_UNIT","UNIT_DESC","UNIT_REM","FILE_FSET"};
+                    UNIT.units = new List<string>() {"UNIT","","","",""};
+                    UNIT.types = new List<string>() {"TYPE","X","X","X","X"};
+                    UNIT.values = list;
+                } else {
+                    UNIT.values.AddRange (list);
+                }
+                                
+                return UNIT;
+            }
             public AGSTable<DICT> DICT {get;set;}
             public AGSTable<ABBR> ABBR {get;set;}
+            public AGSTable<ABBR> AddTable(List<ABBR> list) {
+                
+                if (ABBR==null) {
+                    ABBR = new AGSTable<ABBR>();
+                    ABBR.headers = new List<string>() {"HEADING","ABBR_HDNG","ABBR_CODE","ABBR_DESC","ABBR_LIST","ABBR_REM","FILE_FSET"};
+                    ABBR.units = new List<string>() {"UNIT","","","","","",""};
+                    ABBR.types = new List<string>() {"TYPE","X","X","X","X","X","X"};
+                    ABBR.values = list;
+                } else {
+                    ABBR.values.AddRange(list);
+                }
+
+                return ABBR;
+            }
             
  
 }

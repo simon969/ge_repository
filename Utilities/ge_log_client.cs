@@ -323,15 +323,15 @@ public class ge_log_client {
     
         if (exist != null) {
             log_file.Id = exist.Id;
-            return await _logService.UpdateLogFile(log_file, true);
+            return await _logService.UpdateFile(log_file, true);
         } else {
-            return await _logService.CreateLogFile (log_file);
+            return await _logService.CreateFile (log_file);
         }
 
     }
     private async Task<int> NewFileLoggerAsync() {
 
-            log_file = await _logService.NewLogFile(  Id,
+            log_file = await _logService.NewFile(  Id,
                                                 templateId.Value,
                                                 table,
                                                 sheet,
@@ -354,7 +354,7 @@ public class ge_log_client {
       
     private int NewFileLogger() {
 
-            log_file = _logService.NewLogFile( template_loaded,
+            log_file = _logService.NewFile( template_loaded,
                                                     lines,
                                                     Id,
                                                     templateId.Value);

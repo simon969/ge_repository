@@ -10,9 +10,9 @@ namespace ge_repository.interfaces {
 
     public interface IDataAGSService: IDataService {
 
-        Task<AGS404GroupTables> GetAGS404GroupTables(Guid Id, string[] groups);
+        Task<IAGSGroupTables> GetAGSData(Guid Id, string[] groups);
       
-
+        Task<string> NewAGSData (Guid projectId,string UserId,IAGSGroupTables tables, string filename, string format);
     }
 
    

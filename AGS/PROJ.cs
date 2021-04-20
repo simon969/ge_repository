@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using ge_repository.AGS;
 using ge_repository.interfaces;
-namespace ge_repository.OtherDatabase  {
+using ge_repository.AGS;
+
+namespace ge_repository.OtherDatabase {
 
     public class PROJ : AGSGroup, IGintTable  {
 

@@ -44,12 +44,12 @@ namespace ge_repository.services
         public async Task<IEnumerable<ge_log_file>> GetAllByDataId(Guid Id) {
             return await _unitOfWork.LoggerFile.GetAllByDataIdAsync(Id);
         }
-        public async Task<int>  CreateLogFile(ge_log_file newData) {
+        public async Task<int>  CreateFile(ge_log_file newData) {
              await _unitOfWork.LoggerFile.AddAsync (newData);
              return await _unitOfWork.CommitBulkAsync();
         }
 
-        public async Task<int> UpdateLogFile(ge_log_file data, Boolean includereadings) {
+        public async Task<int> UpdateFile(ge_log_file data, Boolean includereadings) {
 
             var existing = await _unitOfWork.LoggerFile.FindByIdAsync(data.Id);
             
@@ -70,7 +70,7 @@ namespace ge_repository.services
             return -1;
         }
 
-        public async Task<int> DeleteLogFile(ge_log_file dataToBeDeleted) {
+        public async Task<int> DeleteFile(ge_log_file dataToBeDeleted) {
             _unitOfWork.LoggerFile.Remove(dataToBeDeleted);
             return await _unitOfWork.CommitAsync();
         }
@@ -125,7 +125,7 @@ namespace ge_repository.services
         return -1;
   }
 
-        public async Task<ge_log_file> NewLogFile(Guid Id, Guid templateId, string table, string sheet, IDataService _dataService) {
+        public async Task<ge_log_file> NewFile(Guid Id, Guid templateId, string table, string sheet, IDataService _dataService) {
 
         string[] lines = null;
         ge_search template_loaded = null;
@@ -164,7 +164,7 @@ namespace ge_repository.services
             }
         }
         
-        return NewLogFile ( template_loaded, 
+        return NewFile ( template_loaded, 
                             lines, 
                             Id, 
                             templateId);
@@ -173,7 +173,7 @@ namespace ge_repository.services
        
 
 
-        public ge_log_file NewLogFile ( ge_search dic, 
+        public ge_log_file NewFile ( ge_search dic, 
                                         string[] lines,
                                         Guid dataId,
                                         Guid templateId) {

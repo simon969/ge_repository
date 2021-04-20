@@ -27,11 +27,166 @@ using System.Xml.Serialization;
 
 using ge_repository.Models;
 using ge_repository.Authorization;
+using ge_repository.OtherDatabase;
 
 namespace  ge_repository.Extensions {
 
     public static class Extensions {
+    public static string remove_ext(this string filename) {
+        if (filename.Contains(".")) {
+        return filename.Substring(0,filename.IndexOf("."));
+        }
+        return filename;
+    }
+    public static string[] get_values<T>(string[] header, T item) {
 
+         try {
+            Type temp = typeof(T);  
+            string[] ret = new string[header.Length];  
+            for (int i=0;i<header.Count();i++) {
+             foreach (PropertyInfo pro in temp.GetProperties())  
+                { 
+                    if (pro.Name==header[i]) {
+                        object value = pro.GetValue(item);
+                        ret[i] = getString(value);
+                    }
+
+                } 
+            }
+            return ret;
+         } 
+         catch (Exception e) {
+            return null;
+         } 
+
+
+    }
+    public static List<T> ConvertDataTable<T>(DataTable dt, table_map tm)  
+        {  
+            List<T> data = new List<T>();  
+            foreach (DataRow row in dt.Rows)  
+            {  
+                T item = GetItem<T>(row, tm);  
+                data.Add(item);  
+            }  
+            return data;  
+        }  
+        public static T GetItem<T>(DataRow dr, table_map tm)  
+        {  
+            try {
+            Type temp = typeof(T);  
+            T obj = Activator.CreateInstance<T>();  
+        
+             foreach (PropertyInfo pro in temp.GetProperties())  
+                {  
+                    field_map fm = tm.field_maps.Find(e=>e.destination==pro.Name);
+                    if (fm==null) {
+                    continue;
+                    }
+                    
+                    if(dr.Table.Columns.Contains(fm.source)) {
+                        object value =  getTyped(dr[fm.source],pro.PropertyType);
+                        if (value == DBNull.Value) {value = null;}
+                        pro.SetValue(obj, value, null);  
+                    }
+                    
+                }
+
+            return obj;  
+         
+        } catch (Exception e){
+            Console.Write (e.Message);
+            return default(T);
+        } 
+
+    }
+    private static string getString(object obj) {
+        try {
+        string obj_string = (string) obj;
+        return obj_string;
+        } catch (Exception e) {
+            return "";
+        }
+
+    }
+    private static Boolean? getBoolean(object obj){
+        try {
+
+        if (obj.GetType() == typeof(String)){
+            string var = Convert.ToString(obj);
+            if (var=="") return null;
+            if (var == "Y") return true;
+            if (var == "Yes") return true;
+            return false;
+        };
+        
+        return Convert.ToBoolean(obj); 
+        
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+    private static int? getInt32(string s) {
+        int ret = 0;
+
+        if (Int32.TryParse(s, out ret)){
+            return ret;
+        }
+        return null;
+
+    }
+     private static long? getInt64(string s) {
+        long ret = 0;
+
+        if (Int64.TryParse(s, out ret)){
+            return ret;
+        }
+        return null;
+
+    }
+
+    private static double? getDouble(string s) {
+        Double ret = 0;
+
+        if (Double.TryParse(s, out ret)){
+            return ret;
+        }
+        return null;
+
+    }
+    
+    private static float? getFloat(string s) {
+        float ret = 0;
+
+        if (Single.TryParse(s, out ret)){
+            return ret;
+        }
+        return null;
+
+    }
+    public static object getTyped(object obj, Type type) {
+        
+        try {
+            if (obj == null)  return null;
+            string obj_string = (string) obj;
+            if (type == typeof(String)) return obj_string;
+            if (obj_string=="") return null;
+
+            if (type == typeof(DateTime) || type == typeof(Nullable<DateTime>)) return Convert.ToDateTime(obj); 
+            if (type == typeof(double) || type == typeof(Nullable<double>)) return getDouble(obj_string);
+            if (type == typeof(float) || type == typeof(Nullable<float>)) return getFloat(obj_string); 
+            if (type == typeof(int) || type == typeof(Nullable<int>)) return getInt32(obj_string);
+            if (type == typeof(long) || type == typeof(Nullable<long>)) return getInt64(obj_string); 
+            if (type == typeof(Boolean) || type == typeof(Nullable<Boolean>)) return getBoolean(obj); 
+            
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+
+
+    }
       public static void Copy<T>(T from, T to)
     {
         Type t = typeof (T);

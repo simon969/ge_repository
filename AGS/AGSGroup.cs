@@ -8,10 +8,11 @@ namespace ge_repository.AGS {
 
         string GroupName();
         int set_values(string[] header, string[] values) ;
-        string ValueToCSV (string[] include_order, string delimeter, string encapsulation);
-        string HeaderToCSV (string[] include_order, string delimeter, string encapsulation);
-        string UnitToCSV (string[] include_order, string delimeter, string encapsulation);
-        string TypeToCSV (string[] include_order, string delimeter, string encapsulation);
+        string [] get_values(string[] header, string[] unit, string[] type) ;
+        // string ValueToCSV (string[] include_order, string delimeter, string encapsulation);
+        // string HeaderToCSV (string[] include_order, string delimeter, string encapsulation);
+        // string UnitToCSV (string[] include_order, string delimeter, string encapsulation);
+        // string TypeToCSV (string[] include_order, string delimeter, string encapsulation);
 
     }
     public interface IAGSTable {
@@ -28,12 +29,30 @@ namespace ge_repository.AGS {
         public AGSGroup(string name) {
             _groupName = name;
         }
+         public string get_format(string unit, string type) {
+
+             if (type=="2DP") return "{0:0.00}";
+             if (type=="1DP") return "{0:0.0}";
+             if (type=="0DP") return "{0:0}";
+             if (type=="DT") return unit.Replace("-mm-","-MM-").Replace("hh:","HH:");
+            
+             return "{0:%}";             
+        
+        }
+        public string getBooleanString(string unit, string type, Boolean value) {
+            if (type=="YN" && value) return "Y";
+            return "N";
+        }
+
 
         public virtual int set_values(string[] header, string[] values) {return -1;}
-        public string ValueToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
-        public string HeaderToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
-        public string UnitToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
-        public string TypeToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
+        public virtual string[] get_values(string[] header, string[] unit, string[] type) { return null;}
+
+        // public string ValueToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
+        // public string HeaderToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
+        // public string UnitToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
+        // public string TypeToCSV (string[] include_order, string delimeter=",", string encapsulation = "\"") {return "";}
+        
     }
 
     public class AGSTable<T> : IAGSTable {

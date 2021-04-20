@@ -50,7 +50,8 @@ namespace ge_repository.Controllers
         {
             
             if (Id==null) {
-                return NotFound(); 
+                // return NotFound();
+                return Json("Id not found"); 
             }
 
             ge_data data = await _dataService.GetDataByIdWithAll(Id);
@@ -58,7 +59,8 @@ namespace ge_repository.Controllers
             Boolean ignore_pflag = options.Contains("ignore_pflag");
          
             if (data==null) {
-                return NotFound();
+                // return NotFound();
+                return Json("data not found"); 
             }
             
             if (data.fileext != FileExtension.AGS) {
@@ -70,7 +72,8 @@ namespace ge_repository.Controllers
             }
             
             if (_agsConfig == null) {
-                return NotFound();
+               // return NotFound();
+                return Json("agsConfig not found"); 
             }
 
             ags_config config = _agsConfig.Value;
@@ -184,7 +187,7 @@ namespace ge_repository.Controllers
                 return NotFound();
             }
             
-            AGS404GroupTables ags_tables = await _dataService.GetAGS404GroupTables (Id, tables);
+            IAGSGroupTables ags_tables = await _dataService.GetAGSData (Id, tables);
             
             if (save == true) { 
 

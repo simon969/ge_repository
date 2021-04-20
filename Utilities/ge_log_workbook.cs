@@ -133,9 +133,9 @@ namespace ge_repository.OtherDatabase
 
      //}
 
-     public string WorksheetToCSV() {
+     public string WorksheetToCSV(int MIN_COLUMN_COUNT=50, Boolean Encapsulate=false) {
         
-        int MIN_COLUMN_COUNT = 50;
+        //int MIN_COLUMN_COUNT = 50;
         
         string empty_row = new String(',', MIN_COLUMN_COUNT);
 
@@ -160,7 +160,7 @@ namespace ge_repository.OtherDatabase
             }
 
             int lastColumn = Math.Max(r.LastCellNum, MIN_COLUMN_COUNT);
-            string row_str = RowCSV(r,0,lastColumn,false);
+            string row_str = RowCSV(r,0,lastColumn, Encapsulate);
             sb.Append (row_str);
         
         }
@@ -340,11 +340,11 @@ namespace ge_repository.OtherDatabase
     }
 
 
-public string [] WorksheetToTable() {
+public string [] WorksheetToTable(int MIN_COLUMN_COUNT=50, Boolean Encapsulate=false) {
 
     //ISheet copy = worksheet.CopySheet("copy");
     
-    string tableCSV = WorksheetToCSV();
+    string tableCSV = WorksheetToCSV(MIN_COLUMN_COUNT, Encapsulate);
   
     string[] lines = tableCSV.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
   

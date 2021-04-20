@@ -36,11 +36,33 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "ABBR_REM" ) ABBR_REM = values[i];
                 if (header[i] == "FILE_FSET") FILE_FSET = values[i];
             }
+            return 0;
          } catch {
              return -1;
          }
 
-        return 0;
+        
+      }
+      public override string[] get_values(string[] header, string[] unit, string[] type) {
+         try {
+            
+            string[] ret = new string[header.Length];  
+            
+            for (int i=0;i<header.Length;i++) {
+                if (header[i] == "HEADING") ret[i] = "DATA";
+                if (header[i] == "ABBR_CODE" && ABBR_CODE != null) ret[i] = ABBR_CODE;
+                if (header[i] == "ABBR_DESC" && ABBR_DESC != null) ret[i] = ABBR_DESC;
+                if (header[i] == "ABBR_HDNG" && ABBR_HDNG != null) ret[i] = ABBR_HDNG;
+                if (header[i] == "ABBR_LIST" && ABBR_LIST != null) ret[i] = ABBR_LIST;
+                if (header[i] == "ABBR_REM" && ABBR_REM != null) ret[i] = ABBR_REM;
+                if (header[i] == "FILE_FSET" && FILE_FSET!=null) ret[i] = FILE_FSET;
+            }
+            
+            return ret;
+
+         } catch {
+             return null;
+         }
       }
     }
 

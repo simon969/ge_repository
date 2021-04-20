@@ -47,11 +47,11 @@ public class AGSReader {
         if (groups.Contains("PROJ")) { g.PROJ = new AGSGroupReader<PROJ>(_lines).GroupTable();}
 
         if (groups.Contains("UNIT")) { g.UNIT = new AGSGroupReader<UNIT>(_lines).GroupTable();}
-        if (groups.Contains("DICT")) {g.DICT = new AGSGroupReader<DICT>(_lines).GroupTable();}
-        if (groups.Contains("ABBR")) {g.ABBR = new AGSGroupReader<ABBR>(_lines).GroupTable();}
-        if (groups.Contains("TYPE")) {g.TYPE = new AGSGroupReader<TYPE>(_lines).GroupTable();}
+        if (groups.Contains("DICT")) { g.DICT = new AGSGroupReader<DICT>(_lines).GroupTable();}
+        if (groups.Contains("ABBR")) { g.ABBR = new AGSGroupReader<ABBR>(_lines).GroupTable();}
+        if (groups.Contains("TYPE")) { g.TYPE = new AGSGroupReader<TYPE>(_lines).GroupTable();}
         
-        if (groups.Contains("LOCA")) {g.LOCA = new AGSGroupReader<POINT>(_lines).GroupTable();}
+        if (groups.Contains("LOCA")) { g.LOCA = new AGSGroupReader<POINT>(_lines).GroupTable();}
         
         if (groups.Contains("SAMP")) { g.SAMP = new AGSGroupReader<SAMP>(_lines).GroupTable();}
         if (groups.Contains("ERES")) { g.ERES = new AGSGroupReader<ERES>(_lines).GroupTable();}

@@ -29,15 +29,32 @@ namespace ge_repository.OtherDatabase  {
     public override int set_values(string[] header, string[] values) {
          try {
             for (int i=0;i<header.Length;i++) {
-               if (header[i] == "FILE_FSET") FILE_FSET = values[i];
                if (header[i] == "UNIT_DESC") UNIT_DESC = values[i];
                if (header[i] == "UNIT_REM") UNIT_REM = values[i];
-               if (header[i] == "UNIT_UNIT") UNIT_UNIT = values[i];
+               if (header[i] == "UNIT_UNIT") UNIT_UNIT = values[i]; 
+               if (header[i] == "FILE_FSET") FILE_FSET = values[i];
             }
+            return 0;
          } catch {
              return -1;
          }
-        return 0;
       }
+    public override string[] get_values(string[] header, string[] unit, string[] type) {
+         try {
+            
+            string[] ret = new string[header.Length];  
+            
+            for (int i=0;i<header.Length;i++) {
+               if (header[i] == "HEADING") ret[i] = "DATA";
+               if (header[i] == "UNIT_DESC" && UNIT_DESC != null) ret[i] = UNIT_DESC;
+               if (header[i] == "UNIT_REM" && UNIT_REM != null) ret[i] = UNIT_REM;
+               if (header[i] == "UNIT_UNIT" && UNIT_UNIT != null) ret[i] = UNIT_UNIT;
+               if (header[i] == "FILE_FSET" && FILE_FSET != null) ret[i] = FILE_FSET;
+            }
+            return ret;
+         } catch {
+             return null;
+         }
+      }  
     } 
 }

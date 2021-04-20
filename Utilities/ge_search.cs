@@ -13,13 +13,10 @@
         public string status {get;set;}
         public string name {get;set;}
         
-        public List<search_item> search_items {get;set;}
-        public List<search_table> search_tables {get;set;}
-        public List<array_item> array_items {get;set;}
-        public ge_search() {
-            search_items = new List<search_item>();
-            search_tables = new List<search_table>();
-        }
+        public List<search_item> search_items {get;set;} = new List<search_item>();
+        public List<search_table> search_tables {get;set;}  = new List<search_table>();
+        public List<array_item> array_items {get;set;} = new List<array_item>();
+       
         
         public value_header getHeader(string db_name) {
             return getFoundHeader(db_name);
@@ -295,6 +292,7 @@
          //   public string match_exact {get;set;} = "false";
             
         }
+        
 
         public class search_table {
             public string name {get;set;}
@@ -374,6 +372,10 @@
                         return gs_ws;
                     }
                 } 
+                if (wb.worksheet == null) {
+                    gs_ws.status = $"There is more than one worksheet in this workbook, or unable to find {sheet}";
+                    return gs_ws; 
+                }
                 
                 // recalcuate an formula cells ahead of search
                 wb.evaluateSheet();
@@ -467,7 +469,7 @@
 
         return gs_ws;
     }
-
+    
     public ge_search findSearchTerms(ge_search dic, string name, string[] lines) {
         
         ge_search new_dic = new ge_search();
