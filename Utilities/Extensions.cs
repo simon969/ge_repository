@@ -63,9 +63,12 @@ namespace  ge_repository.Extensions {
     }
     public static List<T> ConvertDataTable<T>(DataTable dt, table_map tm)  
         {  
+            DataRow[] rows = dt.Select(tm.where,tm.order);
+            
             List<T> data = new List<T>();  
-            foreach (DataRow row in dt.Rows)  
-            {  
+            
+            foreach (DataRow row in rows)
+            {
                 T item = GetItem<T>(row, tm);  
                 data.Add(item);  
             }  

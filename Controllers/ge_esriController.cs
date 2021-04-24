@@ -135,7 +135,7 @@ namespace ge_repository.Controllers
         return Json ("No EsriConnectionSettings found");
         }
 
-        EsriAppClient eaClient = cs.EsriAppClient;
+        IEsriAppClient eaClient = cs.EsriAppClient;
         
         if (eaClient == null) {
         return Json ("No EsriAppClient found");
@@ -155,9 +155,10 @@ namespace ge_repository.Controllers
 
         HttpClient client = new HttpClient();
         
-        var token2 = eaClient.GetToken(client);
+        var token2 = eaClient.GetToken();
+        string token = token2.Result.AccessToken;
 
-        EsriFeatureQueryRequest  eFeature = new EsriFeatureQueryRequest(client, token2.Result.AccessToken,es.Url);
+        EsriFeatureQueryRequest  eFeature = new EsriFeatureQueryRequest(client, token,es.Url);
 
         var result = await eFeature.getFeaturesArray(where, page_size, pages, orderby);
         
@@ -203,7 +204,8 @@ namespace ge_repository.Controllers
 
         HttpClient client = new HttpClient();
         
-        EsriAppClient eaClient =  new EsriAppClient (client);
+        IEsriAppClient eaClient =  new EsriAppClient ();
+
         var token2 = eaClient.GetToken();
 
         EsriFeatureUpdateRequest  eFeature = new EsriFeatureUpdateRequest(client, token2.Result.AccessToken,"HOLEPHASE2_UPDATE");
@@ -236,7 +238,7 @@ namespace ge_repository.Controllers
         return Json ("No EsriConnectionSettings found");
         }
 
-        EsriAppClient eaClient = cs.EsriAppClient;
+        IEsriAppClient eaClient = cs.EsriAppClient;
         
         if (eaClient == null) {
         return Json ("No EsriAppClient found");
@@ -256,7 +258,7 @@ namespace ge_repository.Controllers
 
         HttpClient client = new HttpClient();
         
-        var token2 = eaClient.GetToken(client);
+        var token2 = eaClient.GetToken();
 
         EsriFeatureUpdateRequest  eFeature = new EsriFeatureUpdateRequest(client, token2.Result.AccessToken,es.Url);
 

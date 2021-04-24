@@ -13,6 +13,9 @@ public class ge_table_map {
             public string name {get;set;}
             public string destination {get;set;}
             public string source {get;set;}
+            public string where {get;set;}
+            public string order {get;set;}
+            
             public List<field_map> field_maps {get;set;} = new List<field_map>();
     }
         

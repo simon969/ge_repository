@@ -60,7 +60,7 @@ namespace ge_repository.Pages.Project {
             projects = await lproject.Include (p=>p.group)
                     .Include (p=>p.data)
                     .Include (p=>p.transform)
-                    .PagedResult(pageIndex,pageSize,m=>m.createdDT,true, out pTotal).ToListAsync();
+                    .PagedResult(pageIndex,pageSize,m=>m.createdDT,false, out pTotal).ToListAsync();
             
             pageTotal = pTotal;
 

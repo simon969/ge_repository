@@ -10,7 +10,7 @@ namespace ge_repository.interfaces {
 public interface IEsriRepository <TEntity> where TEntity: class{
 List<TEntity> list {get;set;}
 Task<string[]> getFeatures(string where, int page_size, int[] pages, int orderby);
-void SetConnections (EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable);
+void SetConnections (IEsriOrgClient Client, IEsriAppClient AppClient, EsriFeatureTable FeatureTable);
 
 }
 

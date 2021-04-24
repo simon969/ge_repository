@@ -14,14 +14,14 @@ namespace ge_repository.repositories
     
     public class RepositoryEsri<TEntity> : IEsriRepository<TEntity> where TEntity: class {
        
-        protected EsriClient _client;
-        protected EsriAppClient _appClient;
+        protected IEsriOrgClient _client;
+        protected IEsriAppClient _appClient;
         protected EsriFeatureTable _featureTable;
         protected DataTable _feature;
         public List<TEntity> list {get;set;}
-        public RepositoryEsri(EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable) {}
+        public RepositoryEsri(IEsriOrgClient Client, IEsriAppClient AppClient, EsriFeatureTable FeatureTable) {}
         public RepositoryEsri() {}
-        public void SetConnections(EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable) {
+        public void SetConnections(IEsriOrgClient Client, IEsriAppClient AppClient, EsriFeatureTable FeatureTable) {
             _client = Client;
             _appClient = AppClient;
             _featureTable = FeatureTable;
@@ -30,7 +30,7 @@ namespace ge_repository.repositories
         
             HttpClient client = new HttpClient();
             
-            var token2 = _appClient.GetToken(client);
+            var token2 = _appClient.GetToken();
 
             EsriService es = _featureTable.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
             
@@ -51,14 +51,14 @@ namespace ge_repository.repositories
 
     public class RepositoryParentEsri<TEntity> : RepositoryEsri<TEntity>, IEsriParentRepository<TEntity> where TEntity: class, IEsriParent, new() {
        
-        public RepositoryParentEsri(EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable) : base (Client,AppClient, FeatureTable) {
+        public RepositoryParentEsri(IEsriOrgClient Client, IEsriAppClient AppClient, EsriFeatureTable FeatureTable) : base (Client,AppClient, FeatureTable) {
         }
         
         public async  Task<string[]> getFeatures(string where = "", int page_size = 250, int[] pages = null, int orderby=Esri.OrderBy.None) {
         
             HttpClient client = new HttpClient();
             
-            var token2 = _appClient.GetToken(client);
+            var token2 = _appClient.GetToken();
 
             EsriService es = _featureTable.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
             
@@ -78,14 +78,14 @@ namespace ge_repository.repositories
     }  
       public class RepositoryChildEsri<TEntity> : RepositoryEsri<TEntity>, IEsriChildRepository<TEntity> where TEntity: class, IEsriChild, new() {
        
-        public RepositoryChildEsri(EsriClient Client, EsriAppClient AppClient, EsriFeatureTable FeatureTable):base (Client,AppClient,FeatureTable) {
+        public RepositoryChildEsri(IEsriOrgClient Client, IEsriAppClient AppClient, EsriFeatureTable FeatureTable):base (Client,AppClient,FeatureTable) {
         }
         
         public async  Task<string[]> getFeatures(string where = "", int page_size = 250, int[] pages = null, int orderby=Esri.OrderBy.None) {
         
             HttpClient client = new HttpClient();
             
-            var token2 = _appClient.GetToken(client);
+            var token2 = _appClient.GetToken();
 
             EsriService es = _featureTable.services.FirstOrDefault(s=>s.geServiceAction=="getFeatures");
             

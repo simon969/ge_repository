@@ -128,7 +128,7 @@ namespace ge_repository.ESRI
         public double North {get;set;}
     }
 
-    public class EsriClient
+    public class EsriOrgClient : IEsriOrgClient
     {
         private HttpClient _httpClient {get; set;}
         public string Id {get;set;} = "AECOM";
@@ -137,10 +137,15 @@ namespace ge_repository.ESRI
         public string clientSecret {get;set;}  = "3fc47f44369c4f96ae9fc7cf71075cfb"; // update
         public string grantType {get;set;}    = "client_credentials";
         public int expirationInMinutes {get;set;}   = 120;
-        public EsriClient() {}
-        public EsriClient(HttpClient httpClient)
+        public EsriOrgClient() {
+            _httpClient = new HttpClient();
+        }
+        public EsriOrgClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+        public async Task<EsriTokenResponse> GetToken() {
+            return await GetToken(null);
         }
         public async Task<EsriTokenResponse> GetToken(HttpClient httpClient = null)
         {
@@ -161,8 +166,17 @@ namespace ge_repository.ESRI
             return token;
         }
     }
+    public interface IEsriAppClient {
 
-    public class EsriAppClient {
+    Task<EsriAppTokenResponse> GetToken();
+
+    }
+    public interface IEsriOrgClient {
+
+    Task<EsriTokenResponse> GetToken();
+
+    }
+    public class EsriAppClient : IEsriAppClient{
         private HttpClient _httpClient;
         public string Id {get;set;} = "LTC";
         public string tokenUrl {get;set;}  = "https://pc-ltc.maps.arcgis.com/sharing/generateToken"; //update
@@ -173,7 +187,7 @@ namespace ge_repository.ESRI
         public string referer {get;set;}  = "pc-ltc.maps.arcgis.com"; //update
         private string token1 = ""; 
         public EsriAppClient() {
-
+            _httpClient = new HttpClient();
         }
         public EsriAppClient(HttpClient httpClient, string Token)
         {
@@ -187,24 +201,53 @@ namespace ge_repository.ESRI
            
         
         }
+        
         private Boolean get_token1() {
-            EsriClient eClient = new EsriClient(_httpClient);
+            EsriOrgClient eClient = new EsriOrgClient();
             var token = eClient.GetToken();
             token1 = token.Result.AccessToken;
             return true;
         }
-        public async Task<EsriAppTokenResponse> GetToken(HttpClient httpClient = null)
+        public async Task<EsriAppTokenResponse> GetToken2(HttpClient httpClient = null)
         {
-            if (httpClient != null) {
-                _httpClient = httpClient;
+          //  if (httpClient != null) {
+          //      _httpClient = httpClient;
                 get_token1();
-            }
-
+          //  }
+           // tokenUrl = "https://pc-ltc.maps.arcgis.com/portal/sharing/rest/generateToken";
+           // tokenUrl = "https://pc-ltc.maps.arcgis.com/tokens/generateToken";
             var url =
                 $"{tokenUrl}?request={request}&token={token1}&f={f}&username={username}&password={password}&referer={referer}";
             var response = await _httpClient.PostAsync(url, null);
             var result =
                 await response.Content.ReadAsStringAsync();
+            var token = JsonConvert.DeserializeObject<EsriAppTokenResponse>(result);
+            if (string.IsNullOrWhiteSpace(token.AccessToken)) // Esri does not respect HTTP status codes and will always return 200. It puts errors in the body. 
+            {
+                throw new Exception("Could not retrieve Esri Token");
+            }
+            return token;
+        }
+        public async Task<EsriAppTokenResponse> GetToken()
+        {
+           
+            get_token1();
+
+            _httpClient.BaseAddress = new Uri("https://pc-ltc.maps.arcgis.com");
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("request",request),
+                new KeyValuePair<string, string>("token",token1),
+                new KeyValuePair<string, string>("username",username),
+                new KeyValuePair<string, string>("password",password),
+                new KeyValuePair<string, string>("referer", referer),
+                new KeyValuePair<string, string>("f",f)
+            });
+
+            var response = await _httpClient.PostAsync("/sharing/generateToken",content);   
+            
+            var result = await response.Content.ReadAsStringAsync();
+            
             var token = JsonConvert.DeserializeObject<EsriAppTokenResponse>(result);
             if (string.IsNullOrWhiteSpace(token.AccessToken)) // Esri does not respect HTTP status codes and will always return 200. It puts errors in the body. 
             {
@@ -514,7 +557,7 @@ public class EsriDataSet {
 
 public class EsriConnectionSettings {
 
-    public EsriClient EsriClient {get;set;}
+    public EsriOrgClient EsriClient {get;set;}
     public EsriAppClient EsriAppClient {get;set;}
     public List<EsriFeatureTable> features {get;set;}
     public List<EsriDataSet> datasets {get;set;}

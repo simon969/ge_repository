@@ -13,8 +13,8 @@ public class EsriUnitOfWork<TParent, TChild, TGeom> : IEsriUnitOfWork<TParent, T
                                                       where TGeom:class, IEsriGeometryWithAttributes 
     {   
         protected EsriConnectionSettings _conn;
-        protected EsriClient _client {get;}
-        protected EsriAppClient _appClient {get;}
+        protected IEsriOrgClient _client {get;}
+        protected IEsriAppClient _appClient {get;}
         protected readonly EsriFeatureTable _featureParentTable;
         protected readonly EsriFeatureTable _featureChildTable;
         protected IEsriParentRepository<TParent> _parentData; 
@@ -35,8 +35,8 @@ public class EsriUnitOfWork<TParent, TChild, TGeom> : IEsriUnitOfWork<TParent, T
          _conn = esriConnectionSettings;
          return 1;
         }
-        public EsriUnitOfWork (EsriClient Client,
-                               EsriAppClient AppClient,
+        public EsriUnitOfWork (IEsriOrgClient Client,
+                               IEsriAppClient AppClient,
                                EsriFeatureTable FeatureParentTable,
                                EsriFeatureTable FeatureChildTable,
                                IEsriParentRepository<TParent> ParentRepository, 

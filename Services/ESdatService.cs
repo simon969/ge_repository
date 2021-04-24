@@ -156,19 +156,19 @@ namespace ge_repository.services
                     ags_tables.AddTable (proj);
                 }
 
-                
                 if (agstables.Contains("ERES")) {
-                    table_map tm = map.table_maps.Find(m=>m.destination=="ERES");
-                    if (tm!=null) {
-                        List<ERES> list = ConvertDataTable<ERES>(es_file.dt, tm);
-                        ags_tables.AddTable(list);
-                        if (agstables.Contains("ABBR")) {
-                            List<ABBR> abbr =  getABBR (list);
-                            ags_tables.AddTable (abbr);
-                        }
-                        if (agstables.Contains("UNIT")) {
-                            List<UNIT> unit =  getUNIT (list);
-                            ags_tables.AddTable (unit);
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="ERES")) {
+                        if (tm!=null) {
+                            List<ERES> list = ConvertDataTable<ERES>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                            if (agstables.Contains("ABBR")) {
+                                List<ABBR> abbr =  getABBR (list);
+                                ags_tables.AddTable (abbr);
+                            }
+                            if (agstables.Contains("UNIT")) {
+                                List<UNIT> unit =  getUNIT (list);
+                                ags_tables.AddTable (unit);
+                            }
                         }
                     }
                 }
@@ -179,22 +179,20 @@ namespace ge_repository.services
                 }
 
                 if (agstables.Contains("POINT")) {
-                    table_map tm = map.table_maps.Find(m=>m.destination=="LOCA");
-                    if (tm!=null) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="LOCA")) {
                         List<POINT> list = ConvertDataTable<POINT>(es_file.dt, tm);
                         string[] distinct = list.Select (m=>m.PointID).Distinct().ToArray();
                         List<POINT> unique = getFirsts (list,distinct);
                         ags_tables.AddTable(unique);
-                        if (agstables.Contains("ABBR")) {
-                            List<ABBR> abbr =  getABBR (list);
-                            ags_tables.AddTable (abbr);
-                        }
+                            if (agstables.Contains("ABBR")) {
+                                List<ABBR> abbr =  getABBR (list);
+                                ags_tables.AddTable (abbr);
+                            }
                     }
                 }
-
+                
                 if (agstables.Contains("SAMP")) {
-                    table_map tm = map.table_maps.Find(m=>m.destination=="SAMP");
-                    if (tm!=null) {
+                    foreach(table_map tm in map.table_maps.Where(m=>m.destination=="SAMP")) {
                         List<SAMP> list  = ConvertDataTable<SAMP>(es_file.dt, tm);
                         string[] distinct = list.Select (m=>m.SAMP_ID).Distinct().ToArray();
                         List<SAMP> unique = getFirsts (list,distinct);
@@ -202,6 +200,22 @@ namespace ge_repository.services
                     }
                 }
 
+                if (agstables.Contains("MOND")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="MOND")) {
+                        if (tm!=null) {
+                            List<ERES> list = ConvertDataTable<ERES>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                            if (agstables.Contains("ABBR")) {
+                                List<ABBR> abbr =  getABBR (list);
+                                ags_tables.AddTable (abbr);
+                            }
+                            if (agstables.Contains("UNIT")) {
+                                List<UNIT> unit =  getUNIT (list);
+                                ags_tables.AddTable (unit);
+                            }
+                        }
+                    }
+                }
                
 
                 return ags_tables;
@@ -271,7 +285,7 @@ namespace ge_repository.services
                 
                 // Abbreviations ERES_MATX
                 string[] eres_matx = list.Select (m=>m.ERES_MATX).Distinct().ToArray();
-                foreach (string s in eres_codes) {
+                foreach (string s in eres_matx) {
                     ABBR ab =  new ABBR(); 
                     ab.ABBR_HDNG = "ERES_MATX";
                     ab.ABBR_CODE = s;
