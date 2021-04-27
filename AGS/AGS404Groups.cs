@@ -25,14 +25,18 @@ public class AGS404GroupLists : IAGSGroupLists {
 }
 
 public interface IAGSGroupTables {
+   
     AGSTable<PROJ> AddTable(List<PROJ> list);
-    AGSTable<ERES> AddTable(List<ERES> list);
     AGSTable<POINT> AddTable(List<POINT> list);
+    AGSTable<ERES> AddTable(List<ERES> list);
+    AGSTable<MOND> AddTable(List<MOND> list);
+    AGSTable<MONG> AddTable(List<MONG> list);
     AGSTable<SAMP> AddTable(List<SAMP> list);
-    AGSTable<ABBR> AddTable(List<ABBR> list);
     AGSTable<TRAN> AddTable(List<TRAN> list);
     AGSTable<UNIT> AddTable(List<UNIT> list);
-
+    AGSTable<ABBR> AddTable(List<ABBR> list);
+    AGSTable<TYPE> AddTable(List<TYPE> list);
+    AGSTable<DICT> AddTable(List<DICT> list);
     // int AppendTable<T> (List<T> list);
     string ToString();
 }
@@ -62,10 +66,15 @@ public class AGS404GroupTables : IAGSGroupTables {
 
             public AGSTable<POINT> LOCA {get;set;}
             public AGSTable<POINT> AddTable(List<POINT> list) {
+                // "GROUP","LOCA"
+                // "HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_GL","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD","LOCA_LETT","LOCA_LOCX","LOCA_LOCY","LOCA_LOCZ","LOCA_LREF","LOCA_DATM","LOCA_ETRV","LOCA_NTRV","LOCA_LTRV","LOCA_XTRL","LOCA_YTRL","LOCA_ZTRL","LOCA_LAT","LOCA_LON","LOCA_ELAT","LOCA_ELON","LOCA_LLZ","LOCA_LOCM","LOCA_LOCA","LOCA_CLST","LOCA_ALID","LOCA_OFFS","LOCA_CNGE","LOCA_TRAN","FILE_FSET","LOCA_NATD","LOCA_ORID","LOCA_ORJO","LOCA_ORCO","LOCA_CHKG","LOCA_APPG","LOCA_PNCT"
+                // "UNIT","","","","m","m","","m","","m","yyyy-mm-dd","","","yyyy-mm-dd","","m","m","m","","","m","m","m","m","m","m","","","","","","","","","","","","","","","","","","","",""
+                // "TYPE","ID","PA","PA","2DP","2DP","PA","2DP","X","2DP","DT","X","X","DT","X","2DP","2DP","2DP","X","X","2DP","2DP","2DP","2DP","2DP","2DP","DMS","DMS","DMS","DMS","X","X","X","X","X","2DP","X","X","X","PA","U","X","X","X","X","X"
+
                 LOCA = new AGSTable<POINT>();
-                LOCA.headers = new List<string>() {"HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_GL","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD","LOCA_LETT","LOCA_LOCX","LOCA_LOCY","LOCA_LOCZ","LOCA_LREF","LOCA_DATM","LOCA_ETRV","LOCA_NTRV","LOCA_LTRV","LOCA_XTRL","LOCA_YTRL","LOCA_ZTRL","LOCA_LAT","LOCA_LON","LOCA_ELAT","LOCA_ELON","LOCA_LLZ","LOCA_LOCM","LOCA_LOCA","LOCA_CLST","LOCA_ALID","LOCA_OFFS","LOCA_CNGE","LOCA_TRAN","FILE_FSET","LOCA_NATD","LOCA_ORID","LOCA_ORJO","LOCA_CHKG","LOCA_CKDT","LOCA_APPG"};
-                LOCA.units = new List<string>() {"UNIT","","","","m","m","m","m","","m","yyyy-mm-dd","","","yyyy-mm-dd","","m","m","m","","","m","m","m","m","m","m","deg","deg","m","","","","","","","m","m","","","","","","","",""};
-                LOCA.types = new List<string>() {"TYPE","ID","X","X","2DP","2DP","X","2DP","X","2DP","DT","X","X","DT","X","2DP","2DP","2DP","X","X","2DP","2DP","2DP","2DP","2DP","2DP","X","X","2DP","X","X","X","X","X","X","2DP","2DP","X","X"};
+                LOCA.headers = new List<string>() {"HEADING","LOCA_ID","LOCA_TYPE","LOCA_STAT","LOCA_NATE","LOCA_NATN","LOCA_GREF","LOCA_GL","LOCA_REM","LOCA_FDEP","LOCA_STAR","LOCA_PURP","LOCA_TERM","LOCA_ENDD","LOCA_LETT","LOCA_LOCX","LOCA_LOCY","LOCA_LOCZ","LOCA_LREF","LOCA_DATM","LOCA_ETRV","LOCA_NTRV","LOCA_LTRV","LOCA_XTRL","LOCA_YTRL","LOCA_ZTRL","LOCA_LAT","LOCA_LON","LOCA_ELAT","LOCA_ELON","LOCA_LLZ","LOCA_LOCM","LOCA_LOCA","LOCA_CLST","LOCA_ALID","LOCA_OFFS","LOCA_CNGE","LOCA_TRAN","FILE_FSET","LOCA_NATD","LOCA_ORID","LOCA_ORJO","LOCA_ORCO","LOCA_CHKG","LOCA_APPG","LOCA_PNCT"};
+                LOCA.units = new List<string>() {"UNIT","","","","m","m","","m","","m","yyyy-mm-dd","","","yyyy-mm-dd","","m","m","m","","","m","m","m","m","m","m","","","","","","","","","","","","","","","","","","","",""};
+                LOCA.types = new List<string>() {"TYPE","ID","PA","PA","2DP","2DP","PA","2DP","X","2DP","DT","X","X","DT","X","2DP","2DP","2DP","X","X","2DP","2DP","2DP","2DP","2DP","2DP","DMS","DMS","DMS","DMS","X","X","X","X","X","2DP","X","X","X","PA","U","X","X","X","X","X"};
                 LOCA.values = list;
                 return LOCA;
             }
@@ -78,7 +87,13 @@ public class AGS404GroupTables : IAGSGroupTables {
                 MOND.values = list;
                 return MOND;
             }
-            public AGSTable<MONG> MONG {get;set;}          
+            public AGSTable<MONG> MONG {get;set;}    
+              public AGSTable<MONG> AddTable(List<MONG> list) {
+              
+                MONG.values = list;
+                return MONG;
+            }
+
             public AGSTable<ERES> ERES {get;set;}
             public AGSTable<ERES> AddTable(List<ERES> list) {
                 ERES = new AGSTable<ERES>();
@@ -108,6 +123,24 @@ public class AGS404GroupTables : IAGSGroupTables {
                 return TRAN;
             }
             public AGSTable<TYPE> TYPE {get;set;}
+
+            public AGSTable<TYPE> AddTable(List<TYPE> list) {
+                //  "GROUP","TYPE"
+                // "HEADING","TYPE_TYPE","TYPE_DESC","FILE_FSET"
+                // "UNIT","","",""
+                // "TYPE","X","X","X"
+                if (TYPE == null) {
+                    TYPE = new AGSTable<TYPE>();
+                    TYPE.headers = new List<string>() {"HEADING","TYPE_TYPE","TYPE_DESC","FILE_FSET"};
+                    TYPE.units = new List<string>() {"UNIT","","",""};
+                    TYPE.types = new List<string>() {"TYPE","X","X","X"};
+                    TYPE.values = list;
+                } else {
+                    TYPE.values.AddRange (list);
+                }
+                                
+                return TYPE;
+            }
             public AGSTable<UNIT> UNIT {get;set;}
             public AGSTable<UNIT> AddTable(List<UNIT> list) {
                 
@@ -124,6 +157,24 @@ public class AGS404GroupTables : IAGSGroupTables {
                 return UNIT;
             }
             public AGSTable<DICT> DICT {get;set;}
+            public AGSTable<DICT> AddTable(List<DICT> list) {
+            // "HEADING","DICT_TYPE","DICT_GRP","DICT_HDNG","DICT_STAT","DICT_DTYP","DICT_DESC","DICT_UNIT","DICT_EXMP","DICT_PGRP","DICT_REM","FILE_FSET"
+            // "UNIT","","","","","","","","","","",""
+            // "TYPE","PA","X","X","PA","PT","X","PU","X","X","X","X"
+
+             if (DICT == null) {
+                    DICT = new AGSTable<DICT>();
+                    DICT.headers = new List<string>() {"HEADING","DICT_TYPE","DICT_GRP","DICT_HDNG","DICT_STAT","DICT_DTYP","DICT_DESC","DICT_UNIT","DICT_EXMP","DICT_PGRP","DICT_REM","FILE_FSET"};
+                    DICT.units = new List<string>() {"UNIT","","","",""};
+                    DICT.types = new List<string>() {"TYPE","PA","X","X","PA","PT","X","PU","X","X","X","X"};
+                    DICT.values = list;
+                } else {
+                    DICT.values.AddRange (list);
+                }
+                                
+                return DICT;
+            }
+
             public AGSTable<ABBR> ABBR {get;set;}
             public AGSTable<ABBR> AddTable(List<ABBR> list) {
                 

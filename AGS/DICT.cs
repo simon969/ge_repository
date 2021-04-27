@@ -52,12 +52,12 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "DICT_TYPE") DICT_TYPE = values[i];
                 if (header[i] == "DICT_UNIT") DICT_UNIT = values[i];
                 if (header[i] == "FILE_FSET") FILE_FSET = values[i];
-            }
+            } 
+            return 0;
          } catch {
              return -1;
          }
-         
-         return 0;
+                
         }
     }
 }

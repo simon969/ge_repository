@@ -22,4 +22,6 @@ namespace ge_repository.OtherDatabase  {
     [Display(Name = "File Set")] public string FILE_FSET {get;set;} 
     // 	[FILE_FSET] [nvarchar](255) NOT NULL,
     }
+
+    
 }

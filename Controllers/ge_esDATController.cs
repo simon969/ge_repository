@@ -54,7 +54,8 @@ namespace ge_repository.Controllers
                                                         string table, 
                                                         string sheet,
                                                         Guid? tablemapId, 
-                                                        string[] agstables, 
+                                                        string[] agstables,
+                                                        Guid? agslibraryId, 
                                                         string options = "",
                                                         string format = "view", 
                                                         Boolean save = false ) { 
@@ -116,12 +117,19 @@ namespace ge_repository.Controllers
         if (save_esdat == false) {
             IESdatAGSService _esdatAGSService = new ESdatAGSService();
             ge_table_map _tm = await _dataESdatService.GetFileAsClass<ge_table_map>(tablemapId.Value);
+            
             if (_tm == null) {
                 return Json($"table map for field not found for id={tablemapId.Value}");
             }
 
-            IAGSGroupTables _ags_file = _esdatAGSService.CreateAGS(_esdat_file,_tm,agstables,options);
+            IAGSGroupTables _ags_file = _esdatAGSService.CreateAGS(_esdat_file,_tm, agstables, options);
             
+            if (agslibraryId!=null) {
+                await _dataAGSService.SetLibraryAGSData(agslibraryId.Value,null);
+            }
+            
+            await _dataAGSService.AddLibraryAGSData(_ags_file, null);
+
             if (save_ags == true) {
                 var _data = await _dataESdatService.GetDataByIdWithAll(Id);
                 var _user = await GetUserAsync();

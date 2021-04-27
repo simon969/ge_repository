@@ -138,11 +138,10 @@ namespace ge_repository.services
     }
 
     public class ESdatAGSService : IESdatAGSService {
-        public async Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId,string[] agstables,string options, IDataService _dataService) {
+        public async Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId, string[] agstables,string options, IDataService _dataService) {
 
                 ge_esdat_file es_file = await _dataService.GetFileAsClass<ge_esdat_file>(Id);
                 ge_table_map map = await _dataService.GetFileAsClass<ge_table_map>(tablemapId);
-
                 IAGSGroupTables ags_file = CreateAGS (es_file, map, agstables,options);
 
                 return ags_file;
@@ -203,7 +202,7 @@ namespace ge_repository.services
                 if (agstables.Contains("MOND")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="MOND")) {
                         if (tm!=null) {
-                            List<ERES> list = ConvertDataTable<ERES>(es_file.dt, tm);
+                            List<MOND> list = ConvertDataTable<MOND>(es_file.dt, tm);
                             ags_tables.AddTable(list);
                             if (agstables.Contains("ABBR")) {
                                 List<ABBR> abbr =  getABBR (list);
@@ -216,7 +215,55 @@ namespace ge_repository.services
                         }
                     }
                 }
-               
+
+                if (agstables.Contains("MONG")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="MONG")) {
+                        if (tm!=null) {
+                            List<MONG> list = ConvertDataTable<MONG>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                            if (agstables.Contains("ABBR")) {
+                                List<ABBR> abbr =  getABBR (list);
+                                ags_tables.AddTable (abbr);
+                            }
+                        }
+                    }
+                }
+
+                if (agstables.Contains("ABBR")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="ABBR")) {
+                        if (tm!=null) {
+                            List<ABBR> list = ConvertDataTable<ABBR>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                        }
+                    }
+                }
+                
+                if (agstables.Contains("UNIT")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="UNIT")) {
+                        if (tm!=null) {
+                            List<UNIT> list = ConvertDataTable<UNIT>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                        }
+                    }
+                }
+                
+                if (agstables.Contains("TYPE")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="TYPE")) {
+                        if (tm!=null) {
+                            List<TYPE> list = ConvertDataTable<TYPE>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                        }
+                    }
+                }
+                
+                if (agstables.Contains("DICT")) {
+                    foreach (table_map tm in map.table_maps.Where(m=>m.destination=="DICT")) {
+                        if (tm!=null) {
+                            List<DICT> list = ConvertDataTable<DICT>(es_file.dt, tm);
+                            ags_tables.AddTable(list);
+                        }
+                    }
+                }
 
                 return ags_tables;
         }
@@ -244,6 +291,38 @@ namespace ge_repository.services
             return list;
 
 
+        }
+        private List<ABBR> getABBR(List<MONG> list) {
+                
+                string[] mong_types = list.Select (m=>m.MONG_TYPE).Distinct().ToArray();
+                
+                List<ABBR> abbr = new List<ABBR>();
+
+                foreach (string s in mong_types) {
+                    ABBR ab =  new ABBR(); 
+                    ab.ABBR_HDNG = "MONG_TYPE";
+                    ab.ABBR_CODE = s;
+                    ab.ABBR_DESC = "";
+                    abbr.Add (ab);
+                }
+
+                return abbr;
+        }
+         private List<ABBR> getABBR(List<MOND> list) {
+                
+                string[] mond_types = list.Select (m=>m.MOND_TYPE).Distinct().ToArray();
+                
+                List<ABBR> abbr = new List<ABBR>();
+
+                foreach (string s in mond_types) {
+                    ABBR ab =  new ABBR(); 
+                    ab.ABBR_HDNG = "MOND_TYPE";
+                    ab.ABBR_CODE = s;
+                    ab.ABBR_DESC = "";
+                    abbr.Add (ab);
+                }
+
+                return abbr;
         }
          private List<ABBR> getABBR(List<POINT> list) {
                 
@@ -298,6 +377,20 @@ namespace ge_repository.services
         private List<UNIT> getUNIT(List<ERES> list) {
                 
                 string[] distinct = list.Select (m=>m.ERES_DUNI).Distinct().ToArray();
+                
+                List<UNIT> uList =  new List<UNIT>();
+                
+                foreach (string s in distinct) {
+                    UNIT u =  new UNIT(); 
+                    u.UNIT_UNIT = s;
+                    uList.Add (u);
+                }
+
+                return uList;
+        }
+        private List<UNIT> getUNIT(List<MOND> list) {
+                
+                string[] distinct = list.Select (m=>m.MOND_UNIT).Distinct().ToArray();
                 
                 List<UNIT> uList =  new List<UNIT>();
                 

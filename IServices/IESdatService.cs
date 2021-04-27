@@ -25,8 +25,8 @@ public interface IDataESdatFileService: IDataService {
 }
 
 public interface IESdatAGSService {
-  Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId,string[] agstables,string options,IDataService _dataService);
-  IAGSGroupTables CreateAGS (ge_esdat_file es_file, ge_table_map mapping,string[] agstables,string options);
+  Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId,string[] agstables, string options,IDataService _dataService);
+  IAGSGroupTables CreateAGS (ge_esdat_file es_file, ge_table_map mapping, string[] agstables,string options);
 }
 
 }

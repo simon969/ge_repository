@@ -31,19 +31,33 @@ public class AGSWriter {
              gw.writeGroup(sb);
            
         }
+
+        if (groups.Contains("ERES") && _tables404.ERES != null) {
+            AGSGroupWriter<ERES> gw = new AGSGroupWriter<ERES>(_tables404.ERES); 
+            sb.AppendLine(); 
+            gw.writeGroup(sb);
+        }
+        
+        if (groups.Contains("MONG") && _tables404.MONG != null) {
+            AGSGroupWriter<MONG> gw = new AGSGroupWriter<MONG>(_tables404.MONG); 
+             sb.AppendLine();
+             gw.writeGroup(sb);
            
+        }  
+
+        if (groups.Contains("MOND") && _tables404.MOND != null) {
+            AGSGroupWriter<MOND> gw = new AGSGroupWriter<MOND>(_tables404.MOND); 
+             sb.AppendLine();
+             gw.writeGroup(sb);
+           
+        }   
+        
         if (groups.Contains("SAMP") && _tables404.SAMP != null) {
             AGSGroupWriter<SAMP> gw = new AGSGroupWriter<SAMP>(_tables404.SAMP); 
             sb.AppendLine();  
             gw.writeGroup(sb);
         }
         
-        if (groups.Contains("ERES") && _tables404.ERES != null) {
-            AGSGroupWriter<ERES> gw = new AGSGroupWriter<ERES>(_tables404.ERES); 
-            sb.AppendLine(); 
-            gw.writeGroup(sb);
-        }
-
         if (groups.Contains("TRAN") && _tables404.TRAN != null) {
             AGSGroupWriter<TRAN> gw = new AGSGroupWriter<TRAN>(_tables404.TRAN); 
             sb.AppendLine(); 
@@ -52,6 +66,12 @@ public class AGSWriter {
 
         if (groups.Contains("ABBR") && _tables404.ABBR != null) {
             AGSGroupWriter<ABBR> gw = new AGSGroupWriter<ABBR>(_tables404.ABBR); 
+            sb.AppendLine(); 
+            gw.writeGroup(sb);
+        }
+        
+        if (groups.Contains("TYPE") && _tables404.TYPE != null) {
+            AGSGroupWriter<TYPE> gw = new AGSGroupWriter<TYPE>(_tables404.TYPE); 
             sb.AppendLine(); 
             gw.writeGroup(sb);
         }
