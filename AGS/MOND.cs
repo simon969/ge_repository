@@ -122,8 +122,10 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "LOCA_ID" && PointID != null) ret[i] = PointID;
                 if (header[i] == "MONG_ID" && ItemKey !=null) ret[i] = ItemKey;
                 if (header[i] == "MOND_CONT" && MOND_CONT != null) ret[i] = MOND_CONT;
-                if (header[i] == "MOND_CRED" && MOND_CRED!= null) ret[i] = MOND_CRED;
-                if (header[i] == "MOND_DTIM" && DateTime!= null) ret[i] = DateTime.Value.ToString(get_format(unit[i],type[i])); ;
+                if (header[i] == "MOND_CRED" && MOND_CRED != null) ret[i] = MOND_CRED;
+                if (header[i] == "MOND_DTIM" && DateTime != null) {
+                  ret[i] = DateTime.Value.ToString(get_format(unit[i],type[i])); 
+                }
                 if (header[i] == "MOND_INST" && MOND_INST != null) ret[i] = MOND_INST;
                 if (header[i] == "MOND_LIM" && MOND_LIM != null) ret[i] = String.Format(get_format(unit[i],type[i]), MOND_LIM.Value); 
                 if (header[i] == "MOND_METH" && MOND_METH != null) ret[i] = MOND_METH;
@@ -134,7 +136,7 @@ namespace ge_repository.OtherDatabase  {
                 if (header[i] == "MOND_TYPE" && MOND_TYPE != null) ret[i] = MOND_TYPE;
                 if (header[i] == "MOND_ULIM" && MOND_ULIM != null) ret[i] = String.Format(get_format(unit[i],type[i]), MOND_ULIM.Value); 
                 if (header[i] == "MOND_UNIT" && MOND_UNIT!= null) ret[i] = MOND_UNIT;
-                if (header[i] == "MONG_DIS" && MONG_DIS != null) ret[i] = String.Format(get_format(unit[i],type[i]),MONG_DIS); 
+                if (header[i] == "MONG_DIS" && MONG_DIS != null) ret[i] = String.Format(get_format(unit[i],type[i]),MONG_DIS.Value); 
                 if (header[i] == "FILE_FSET" && FILE_FSET != null) ret[i] = FILE_FSET;
                 
                 //Non standard LTC  fields

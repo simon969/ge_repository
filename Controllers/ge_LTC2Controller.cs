@@ -1886,7 +1886,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey, LTM_Survey_Data_Repeat2 
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,
                         MONG_DIS = mg.MONG_DIS,
-                        RND_REF = survey.mon_rd_nb,
+                        RND_REF = String.Format("{0:00}", round),
                         MOND_REF = String.Format("Round {0:00} Seconds {1:00}" ,round,repeat.elapse_t),
                         };
         return md;    
@@ -1903,7 +1903,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey, LTM_Survey_Data_Repeat2 
                         gINTProjectID = pt.gINTProjectID,
                         PointID = pt.PointID,
                         DateTime = gINTDateTime(survey.date1_getDT()),
-                        RND_REF = survey.mon_rd_nb,
+                        RND_REF = String.Format("{0:00}", round),
                         MONV_REF = String.Format("Round {0:00}", round)
                         };
         return mv;    
@@ -1923,7 +1923,7 @@ private MOND NewMOND (MONG mg, LTM_Survey_Data2 survey ) {
                         PointID = mg.PointID,
                         ItemKey = mg.ItemKey,
                         MONG_DIS = mg.MONG_DIS,
-                        RND_REF = survey.mon_rd_nb,
+                        RND_REF = String.Format("{0:00}", round),
                         MOND_REF = String.Format("Round {0:00}", round),
                         DateTime =  gINTDateTime(survey.date1_getDT())
                         };
