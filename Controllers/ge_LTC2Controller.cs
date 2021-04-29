@@ -1386,7 +1386,6 @@ private int AddVisit(POINT pt, LTM_Survey_Data2 survey){
                 mv.PID_SRLN = IfOther(survey.PID_instr, survey.PID_instr_other);
                 mv.PID_CLBD = gINTDateTime(survey.PID_cali_d_getDT());
                 
-                mv.RND_REF = survey.mon_rd_nb;
                 mv.MONV_DATM = survey.dip_datum;
 
                 mv.AIR_PRESS = survey.atmo_pressure;
