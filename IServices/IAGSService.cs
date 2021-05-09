@@ -12,7 +12,7 @@ namespace ge_repository.interfaces {
         Task<IAGSGroupTables> SetLibraryAGSData(Guid Id, string[] groups);
         Task<int> AddLibraryAGSData(IAGSGroupTables tables, Guid? LibraryAGSDataId);
         Task<IAGSGroupTables> GetAGSData(Guid Id, string[] groups);
-        Task<string> NewAGSData (Guid projectId,string UserId,IAGSGroupTables tables, string filename, string format);
+        Task<ge_data> CreateData (Guid projectId,string UserId,IAGSGroupTables tables, string filename, string description, string format);
     }
 
    

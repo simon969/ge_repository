@@ -71,9 +71,8 @@ namespace ge_repository.Pages.Data
             }
 
             data = await _context.ge_data
-                                    .Include (d =>d.project)
-                                    .Include (d =>d.file)
-                                    .SingleOrDefaultAsync(m => m.Id == id);
+                                   .Include(m => m.project)
+                                   .SingleOrDefaultAsync(m => m.Id == id);
 
             if (data == null) {
                 return NotFound();
@@ -89,9 +88,24 @@ namespace ge_repository.Pages.Data
             }
             // remember projectId before deleting data
             Guid projectId = data.projectId;
-
+            //var objectContext = (_context as IObjectContextAdapter).ObjectContext;
+            // Sets the command timeout for all the commands
+            //objectContext.CommandTimeout = 120;
+            
+            _context.Database.SetCommandTimeout(120);
+           // _context.Database.ExecuteSqlCommand("delete dbo.ge_data where Id = {0}", new object[] { data.Id });
+            
+            // Create empty ge_data_file with ge_data Id to avoid having to download all data
+            ge_data_file empty_file =  new ge_data_file () {Id=data.Id};
+            _context.ge_data_file.Attach (empty_file);
+            // Now mark the ge_data entity and ge_data_file for deletion
+            _context.ge_data_file.Remove (empty_file);
             _context.ge_data.Remove(data);
+            //_context.Entry<ge_data_file>(empty_file).State = EntityState.Deleted; 
+            //_context.Entry<ge_data>(data).State = EntityState.Deleted; 
+            // Apply changes
             await _context.SaveChangesAsync();
+
 
             return RedirectToPage("./Index",new {projectId=projectId});
         }

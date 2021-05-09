@@ -152,7 +152,7 @@
         
         if (line_start==NotFoundVal) {
             line_start = find_row(st.header.search_item_name,NotFoundVal); 
-            line_start = line_start + 1;   
+            // line_start = line_start + 1;   
         }
         
         if (line_start==NotFoundVal) {

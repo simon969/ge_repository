@@ -96,7 +96,7 @@ namespace ge_repository.services
             return ags_tables;
     }
 
-    public async Task<string> NewAGSData (Guid projectId,string UserId, IAGSGroupTables tables, string filename, string format = "ags") {
+    public async Task<ge_data> CreateData (Guid projectId,string UserId, IAGSGroupTables tables, string filename, string description, string format = "ags") {
 
            AGSWriter writer = new AGSWriter(tables);
 
@@ -121,15 +121,14 @@ namespace ge_repository.services
                             version= "P01.1",
                             vstatus= VersionStatus.Intermediate,
                             qstatus = QualitativeStatus.AECOMFactual,
-                            description= "AGS conversion",
+                            description= description,
                             operations ="Read;Download;Update;Delete",
                             file = new ge_data_file {
                                  data_string = s1
                                 }
                             };
-            await CreateData (_data);
+            return await CreateData (_data);
 
-            return s1;
         }
     }
 }

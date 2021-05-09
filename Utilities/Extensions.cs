@@ -358,6 +358,18 @@ namespace  ge_repository.Extensions {
 
         return filename;
         }
+        public static string FileNameNoExtention(this ge_data file)
+        {
+            string filename = "";
+            
+            if (file.filename.Contains(".")) {
+                filename = file.filename.Substring(0,file.filename.LastIndexOf("."));
+            } else {
+                filename = file.filename;
+            }
+
+            return filename;
+        }
        public static Encoding PeekEncoding(this IFormFile formFile, Encoding defaultEncodingIfNoBom) {
          
        using (var reader = new StreamReader(formFile.OpenReadStream(), defaultEncodingIfNoBom, true))
@@ -1700,6 +1712,22 @@ public static string AttributeValue<TEnum,TAttribute>(this TEnum value,Func<TAtt
                 return textWriter.ToString();
             }
         }
+    public static string SerializeToXmlStringUTF8<T>(this T toSerialize)
+    {
+        XmlSerializer ser = new XmlSerializer(toSerialize.GetType());
+        // Using a MemoryStream to store the serialized string as a byte array, 
+        // which is "encoding-agnostic"
+        using (MemoryStream ms = new MemoryStream())
+            // Few options here, but remember to use a signature that allows you to 
+            // specify the encoding  
+            using (XmlTextWriter tw = new XmlTextWriter(ms, Encoding.UTF8)) 
+            {
+                tw.Formatting = Formatting.Indented;
+                ser.Serialize(tw, toSerialize);
+                // Now we get the serialized data as a string in the desired encoding
+                return Encoding.UTF8.GetString(ms.ToArray());
+            }
+    }
     public static string SetEncoding(this String xmlString, Encoding newEncoding) {
     try {
         XmlDocument xmlDocument = new XmlDocument();

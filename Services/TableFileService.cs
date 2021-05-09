@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Data;
+using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using ge_repository.interfaces;
@@ -10,9 +11,11 @@ using ge_repository.OtherDatabase;
 using ge_repository.Models;
 using ge_repository.AGS;
 using static ge_repository.Extensions.Extensions;
+using static ge_repository.Authorization.Constants;
+
 namespace ge_repository.services
 {
-    public class ESdatFileService : IESdatFileService
+    public class TableFileService : ITableFileService
     {
           private static int NOT_FOUND = -1;
         
@@ -67,7 +70,7 @@ namespace ge_repository.services
             return -1;
             
         }
-        public async Task<ge_esdat_file> NewFile(Guid Id, 
+        public async Task<ge_data_table> NewFile(Guid Id, 
                                      Guid templateId, 
                                      string table, 
                                      string sheet, 
@@ -85,37 +88,42 @@ namespace ge_repository.services
             return null;
         }
 
-        return NewFile ( template_loaded, 
+        ge_data_table   dt = NewFile ( template_loaded, 
                             lines, 
                             Id, 
                             templateId);
+        
+                        dt.search_template = template;
+                        dt.search_table = template_loaded.search_tables[0];
+        return dt;
     }   
-     public ge_esdat_file NewFile( ge_search dic, 
+     public ge_data_table NewFile( ge_search dic, 
                                 string[] lines,
                                 Guid dataId,
                                 Guid templateId) {
             
             
-           
-            search_range sr =  dic.search_tables[0].header;
+            search_table st = dic.search_tables[0];
+            search_range sr =  st.header;
             string header_row = dic.search_items.Find(e=>e.name==sr.search_item_name).row_text;
             string[] columns =  Split(header_row); 
             int line_start = dic.data_start_row(NOT_FOUND);
             int line_end = dic.data_end_row(lines.Count());
 
-            ge_esdat_file  _esdat = new ge_esdat_file(columns);
-            
+            ge_data_table  _dt = new ge_data_table(st.name, columns);
+
+
             for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
                 if (line.Length>0) {
                 string[] values = Split(line);
-                DataRow row = _esdat.dt.NewRow();
+                DataRow row = _dt.dt.NewRow();
                 set_values(columns, values, row);
-                _esdat.dt.Rows.Add(row);
+                _dt.dt.Rows.Add(row);
                 }
             }
 
-            return  _esdat;
+            return  _dt;
     }     
     private string[] Split(string line) {
 
@@ -137,16 +145,20 @@ namespace ge_repository.services
     }
     }
 
-    public class ESdatAGSService : IESdatAGSService {
+    public class TableFileAGSService : ITableFileAGSService {
         public async Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId, string[] agstables,string options, IDataService _dataService) {
 
-                ge_esdat_file es_file = await _dataService.GetFileAsClass<ge_esdat_file>(Id);
+                ge_data_table dt = await _dataService.GetFileAsClass<ge_data_table>(Id);
                 ge_table_map map = await _dataService.GetFileAsClass<ge_table_map>(tablemapId);
-                IAGSGroupTables ags_file = CreateAGS (es_file, map, agstables,options);
-
+                
+                if (dt != null && map != null) {
+                IAGSGroupTables ags_file = CreateAGS (dt, map, agstables,options);
                 return ags_file;
+                }
+
+                return null;
         }
-        public IAGSGroupTables CreateAGS (ge_esdat_file es_file, ge_table_map map, string[] agstables,string options) {
+        public IAGSGroupTables CreateAGS (ge_data_table dt_file, ge_table_map map, string[] agstables,string options) {
 
                 IAGSGroupTables ags_tables = new AGS404GroupTables();
 
@@ -158,7 +170,7 @@ namespace ge_repository.services
                 if (agstables.Contains("ERES")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="ERES")) {
                         if (tm!=null) {
-                            List<ERES> list = ConvertDataTable<ERES>(es_file.dt, tm);
+                            List<ERES> list = ConvertDataTable<ERES>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                             if (agstables.Contains("ABBR")) {
                                 List<ABBR> abbr =  getABBR (list);
@@ -179,7 +191,7 @@ namespace ge_repository.services
 
                 if (agstables.Contains("POINT")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="LOCA")) {
-                        List<POINT> list = ConvertDataTable<POINT>(es_file.dt, tm);
+                        List<POINT> list = ConvertDataTable<POINT>(dt_file.dt, tm);
                         string[] distinct = list.Select (m=>m.PointID).Distinct().ToArray();
                         List<POINT> unique = getFirsts (list,distinct);
                         ags_tables.AddTable(unique);
@@ -192,7 +204,7 @@ namespace ge_repository.services
                 
                 if (agstables.Contains("SAMP")) {
                     foreach(table_map tm in map.table_maps.Where(m=>m.destination=="SAMP")) {
-                        List<SAMP> list  = ConvertDataTable<SAMP>(es_file.dt, tm);
+                        List<SAMP> list  = ConvertDataTable<SAMP>(dt_file.dt, tm);
                         string[] distinct = list.Select (m=>m.SAMP_ID).Distinct().ToArray();
                         List<SAMP> unique = getFirsts (list,distinct);
                         ags_tables.AddTable(unique);
@@ -202,7 +214,7 @@ namespace ge_repository.services
                 if (agstables.Contains("MOND")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="MOND")) {
                         if (tm!=null) {
-                            List<MOND> list = ConvertDataTable<MOND>(es_file.dt, tm);
+                            List<MOND> list = ConvertDataTable<MOND>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                             if (agstables.Contains("ABBR")) {
                                 List<ABBR> abbr =  getABBR (list);
@@ -219,7 +231,7 @@ namespace ge_repository.services
                 if (agstables.Contains("MONG")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="MONG")) {
                         if (tm!=null) {
-                            List<MONG> list = ConvertDataTable<MONG>(es_file.dt, tm);
+                            List<MONG> list = ConvertDataTable<MONG>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                             if (agstables.Contains("ABBR")) {
                                 List<ABBR> abbr =  getABBR (list);
@@ -232,7 +244,7 @@ namespace ge_repository.services
                 if (agstables.Contains("ABBR")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="ABBR")) {
                         if (tm!=null) {
-                            List<ABBR> list = ConvertDataTable<ABBR>(es_file.dt, tm);
+                            List<ABBR> list = ConvertDataTable<ABBR>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                         }
                     }
@@ -241,7 +253,7 @@ namespace ge_repository.services
                 if (agstables.Contains("UNIT")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="UNIT")) {
                         if (tm!=null) {
-                            List<UNIT> list = ConvertDataTable<UNIT>(es_file.dt, tm);
+                            List<UNIT> list = ConvertDataTable<UNIT>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                         }
                     }
@@ -250,7 +262,7 @@ namespace ge_repository.services
                 if (agstables.Contains("TYPE")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="TYPE")) {
                         if (tm!=null) {
-                            List<TYPE> list = ConvertDataTable<TYPE>(es_file.dt, tm);
+                            List<TYPE> list = ConvertDataTable<TYPE>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                         }
                     }
@@ -259,7 +271,7 @@ namespace ge_repository.services
                 if (agstables.Contains("DICT")) {
                     foreach (table_map tm in map.table_maps.Where(m=>m.destination=="DICT")) {
                         if (tm!=null) {
-                            List<DICT> list = ConvertDataTable<DICT>(es_file.dt, tm);
+                            List<DICT> list = ConvertDataTable<DICT>(dt_file.dt, tm);
                             ags_tables.AddTable(list);
                         }
                     }
@@ -425,11 +437,53 @@ namespace ge_repository.services
                 return newList;
         }
     }
-    public class DataESdatFileService : DataService, IDataESdatFileService {
-    public DataESdatFileService(IUnitOfWork unitOfWork): base (unitOfWork) {}
-    public Task<ge_esdat_file> NewData(Guid projectId, string UserId, ge_esdat_file esdat_file, string format) {
+    public class DataTableFileService : DataService, IDataTableFileService {
+    public DataTableFileService(IUnitOfWork unitOfWork): base (unitOfWork) {}
+    public async Task<ge_data> CreateData(Guid projectId, 
+                                          string UserId, 
+                                          ge_data_table dt_file, 
+                                          string filename, 
+                                          string description, 
+                                          string format) {
+        
+        ge_MimeTypes mtypes = new ge_MimeTypes();
+        string fileext = "xml";
+        
+        string s1 = dt_file.SerializeToXmlStringUTF8<ge_data_table>();
+        
+        if (format=="xml") fileext = ".xml";
+        if (format=="json") fileext = ".json";
+ 
+        string filetype = mtypes[fileext];
 
-        return null;
+        var _data =  new ge_data {
+                            Id = Guid.NewGuid(),
+                            projectId = projectId,
+                            createdId = UserId,
+                            createdDT = DateTime.Now,
+                            editedDT = DateTime.Now,
+                            editedId = UserId,
+                            filename = filename,
+                            filesize = s1.Length,
+                            fileext = fileext,
+                            filetype = filetype,
+                            filedate = DateTime.Now,
+                            encoding = "utf-8",
+                            datumProjection = datumProjection.NONE,
+                            pstatus = PublishStatus.Uncontrolled,
+                            cstatus = ConfidentialityStatus.RequiresClientApproval,
+                            version= "P01.1",
+                            vstatus= VersionStatus.Intermediate,
+                            qstatus = QualitativeStatus.AECOMFactual,
+                            description= description,
+                            operations ="Read;Download;Update;Delete",
+                            file = new ge_data_file {
+                                 data_xml = s1
+                                }
+                            };
+            
+            return await CreateData (_data);
+
     } 
 
     }

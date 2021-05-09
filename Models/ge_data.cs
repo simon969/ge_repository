@@ -37,6 +37,11 @@ namespace ge_repository.Models {
         {
             var types = new ge_MimeTypes();
             var ext = Path.GetExtension(filename).ToLowerInvariant();
+            
+            if (ext == "") {
+                ext = fileext;
+            }
+
             String type = types[ext];
             
             if (filetype!=null) {
@@ -51,6 +56,7 @@ namespace ge_repository.Models {
             string m_type = GetContentType();
 
             if (m_type == "text/plain") return "data_string";
+            if (m_type == "text/xsl") return "data_xml";
             if (m_type == "text/xml") return "data_xml";
                
             return "data_string";

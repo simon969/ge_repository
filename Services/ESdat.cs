@@ -130,28 +130,20 @@ public class ge_ESdatChemistry {
     }
 
 
-    public class ge_esdat_file {
-    private string[] headers {get;set;}
-    private string[] rows {get;set;}
-    public ge_esdat_file() {}
-    public ge_esdat_file(string[] columns) {
-        foreach(string column_name in columns) {
-            dt.Columns.Add(column_name);
-        }
-    }
-    public DataTable dt {get; } = new DataTable(); 
-            // https://stackoverflow.com/questions/1042618/how-to-create-a-datatable-in-c-sharp-and-how-to-add-rows
-            // dt.Clear();
-            // dt.Columns.Add("Name");
-            // dt.Columns.Add("Marks");
-            // DataRow _ravi = dt.NewRow();
-            // _ravi["Name"] = "ravi";
-            // _ravi["Marks"] = "500";
-            // dt.Rows.Add(_ravi);
-    public List<ge_ESdatChemistry> chemistry {get;set;}
+    // public class ge_esdat_file : ge_data_table {
+    // private string[] headers {get;set;}
+    // private string[] rows {get;set;}
+    // public ge_esdat_file() {}
+    // public ge_esdat_file(string[] columns) {
+    //     foreach(string column_name in columns) {
+    //         dt.Columns.Add(column_name);
+    //     }
+    // }
+
+    // public List<ge_ESdatChemistry> chemistry {get;set;}
 
 
 
-    }
+    // }
 }
    
