@@ -237,7 +237,7 @@ public class OSGB_to_WGS84 : ge_projection_transform {
    trans_x = 446.448;
    
    // translation parallel to Y =	-125.157
-   trans_y = 125.157;
+   trans_y = -125.157;
 
    // translation parallel to Z =	542.060
    trans_z = 542.060;
@@ -368,10 +368,13 @@ public class Transform_WGS84_and_OSGB {
       _osgb.locNorth = _north;
       _osgb.locHeight = _height;
 
+
       return OSGB_East_North_to_WGS84_Lat_Long_Height(_osgb);
    }
 
    public ge_data OSGB_East_North_to_WGS84_Lat_Long_Height(ge_data _osg36) {
+
+      ge_data wg84 =  new ge_data();
 
       // Step 1 Convert OSGB36 easting, northing and height to OSGB36 latitude and longitude		
       
@@ -396,6 +399,7 @@ public class Transform_WGS84_and_OSGB {
       HelmertTransform ht = new HelmertTransform(t);
       ge_coords osg36_coords = new ge_coords(osg36);
       ge_coords wg84_coords = ht.Transform(osg36_coords);
+
       wg84.locX = wg84_coords.coord_x;
       wg84.locY = wg84_coords.coord_y;
       wg84.locZ = wg84_coords.coord_z;

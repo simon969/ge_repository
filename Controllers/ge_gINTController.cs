@@ -459,31 +459,34 @@ private async Task<IActionResult> getMOND(Guid projectId,
            
             sql_where = "gINTProjectId in (" + othergINTProjectId.ToDelimString(",","") + ")";
             
-            points = points ?? new string[0];
+           // points = points ?? new string[0];
             
             List<string> plist =  new List<string>();
-
-             if (points.Length > 0 ) {
-                 List<POINT> POINTlist = new List<POINT>();
-                foreach (string s1 in points) {
-                    if (s1.Contains("where=")) {
-                        int start = s1.LastIndexOf("where=")+6;
-                        string where1 = s1.Substring(start, s1.Length-start);
-                        var resp = await getPOINT(projectId, null, othergINTProjectId, where1, "");
-                        var okResult = resp as OkObjectResult;   
-                        if (okResult!= null) {
-                            List<POINT> lwhere1 = okResult.Value as List<POINT>;
-                            POINTlist.AddRange (lwhere1);
+            
+            if (points !=null) {
+                if (points.Length > 0 ) {
+                    List<POINT> POINTlist = new List<POINT>();
+                    foreach (string s1 in points) {
+                        if (s1==null) {continue;}
+                        if (s1.Contains("where=")) {
+                            int start = s1.LastIndexOf("where=")+6;
+                            string where1 = s1.Substring(start, s1.Length-start);
+                            var resp = await getPOINT(projectId, null, othergINTProjectId, where1, "");
+                            var okResult = resp as OkObjectResult;   
+                            if (okResult!= null) {
+                                List<POINT> lwhere1 = okResult.Value as List<POINT>;
+                                POINTlist.AddRange (lwhere1);
+                            }
+                        } else {
+                        plist.Add (s1);
                         }
-                    } else {
-                     plist.Add (s1);
+                    }
+                    if (POINTlist.Count > 0) {
+                    plist.AddRange (POINTlist.Select (m=>m.PointID).Distinct().ToList());
                     }
                 }
-                if (POINTlist.Count > 0) {
-                plist.AddRange (POINTlist.Select (m=>m.PointID).Distinct().ToList());
-                }
             }
-            
+
             // if (points.Length > 0 && !String.IsNullOrEmpty(points [0])) {
             //    sql_where += " and PointID in (" + points.ToDelimString(",","'") + ")";
             // }

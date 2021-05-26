@@ -37,7 +37,9 @@ public interface IAGSGroupTables {
     AGSTable<ABBR> AddTable(List<ABBR> list);
     AGSTable<TYPE> AddTable(List<TYPE> list);
     AGSTable<DICT> AddTable(List<DICT> list);
+    
     // int AppendTable<T> (List<T> list);
+    
     string ToString();
 }
 public interface IAGSGroupLists {

@@ -30,8 +30,7 @@ namespace ge_repository.interfaces
         Task DeleteData(ge_data data);
         Boolean DataExists (Guid Id);
         ge_data NewData (Guid projectId, string UserId);
-      
-
+       
         
     }
 

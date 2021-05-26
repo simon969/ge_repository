@@ -26,7 +26,10 @@ namespace ge_repository.DAL
         bool calcMapRef_fromEN(); 
         bool calcLatLong_fromEN(); 
         bool calcEN_fromLatLong(); 
-        bool updateAll(string s1);
+        _ge_location location();
+        void SetEastNorthLevel(double locEast, double locNorth, double loclevel);
+        void SetLatitudeLongitudeHeight(double locLatitude, double locLongitude, double locHeight);
+        bool updateAll(string sourceCoordSystem);
         string getMessage();
         Constants.datumProjection datumProjection();
     }

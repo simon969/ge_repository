@@ -9,39 +9,77 @@ namespace ge_repository.DAL {
 
 
 public class ProjectionSystem {
+
+        private ige_projectionDAL _projectionDAL;
+        
         public ProjectionSystem() {
 
         }
         public ige_projectionDAL getProjectionDAL(_ge_location loc) {
-            
-            Constants.datumProjection dp = loc.datumProjection;
-            
-            switch(dp) { 
-                        case Constants.datumProjection.OSGB36NG: 
-                        return new ge_projectionOSGB36(loc);
+ 
+            Constants.datumProjection _dp  = loc.datumProjection;
+ 
+            if (loc.datumProjection == Constants.datumProjection.OSGB36NG) {_projectionDAL = new ge_projectionOSGB36(loc);}
 
-                        case Constants.datumProjection.OSGB36NGODN:
-                        return new ge_projectionOSGB36(loc);
+            if (loc.datumProjection ==  Constants.datumProjection.OSGB36NGODN) {_projectionDAL = new ge_projectionOSGB36(loc);}
                         
-                        case Constants.datumProjection.WGS84:
-                        return new ge_projectionWGS84(loc);
+            if (loc.datumProjection ==  Constants.datumProjection.WGS84) {_projectionDAL = new ge_projectionWGS84(loc);}
 
-                        case Constants.datumProjection.GRS80:
-                        return new ge_projectionGRS80(loc);
+            if (loc.datumProjection == Constants.datumProjection.GRS80) {_projectionDAL  = new ge_projectionGRS80(loc);}
                         
-                        default: 
-                        return null;
-            }
+            return _projectionDAL;
 
        }
-    
+
+       public Boolean updateAll(string sourceCoordSystem) {
+
+          if (_projectionDAL.datumProjection() == Constants.datumProjection.WGS84) {
+                _projectionDAL.updateAll(sourceCoordSystem);
+               
+                if (_projectionDAL.location().locEast==null || 
+                    _projectionDAL.location().locNorth==null) {
+                    return false;
+                } 
+                
+                double height = 50;
+
+                if (_projectionDAL.location().locNorth!=null) {
+                    height = _projectionDAL.location().locNorth.Value;
+                }
+                Transform_WGS84_and_OSGB t =  new Transform_WGS84_and_OSGB();
+                ge_data _wgs84 = t.OSGB_East_North_to_WGS84_Lat_Long_Height(_projectionDAL.location().locEast.Value, 
+                                                                            _projectionDAL.location().locNorth.Value, 
+                                                                            height);
+                _projectionDAL.SetLatitudeLongitudeHeight(_wgs84.locLatitude.Value, _wgs84.locLongitude.Value, _wgs84.locHeight.Value);   
+                
+                return true;                                                        
+                
+          } else {
+            return _projectionDAL.updateAll(sourceCoordSystem);
+          }
+       }
+
     }
 
     public abstract class _ge_projectionDAL : ige_projectionDAL {
     public ge_conversion gc {get;set;}
     public _ge_location loc {get;set;}
     private string msg {get;set;}
+    public _ge_location location() {
+        return loc;
+    }
+    public void SetEastNorthLevel(double locEast, double locNorth, double locLevel) {
+        loc.locEast = locEast;
+        loc.locNorth = locNorth;
+        loc.locLevel = locLevel;
 
+    }
+
+     public void SetLatitudeLongitudeHeight(double locLatitude, double locLongitude, double locHeight) {
+         loc.locLatitude=locLatitude;
+         loc.locLongitude =locLongitude;
+         loc.locHeight = locHeight;
+     }
     public _ge_projectionDAL(_ge_location Loc ){
         gc = new ge_conversion();
         loc = Loc;
@@ -488,7 +526,9 @@ public class ProjectionSystem {
         gc.pf = pf;
     }
     public override Constants.datumProjection datumProjection(){return  Constants.datumProjection.WGS84;}
-}
+
+   }
+
  public class ge_projectionGRS80 : _ge_projectionDAL {
   
     public ge_projectionGRS80(_ge_location Loc): base(Loc) {  

@@ -28,6 +28,7 @@ using System.Xml.Serialization;
 using ge_repository.Models;
 using ge_repository.Authorization;
 using ge_repository.OtherDatabase;
+using static ge_repository.Authorization.Constants;
 
 namespace  ge_repository.Extensions {
 
@@ -84,14 +85,23 @@ namespace  ge_repository.Extensions {
                 {  
                     field_map fm = tm.field_maps.Find(e=>e.destination==pro.Name);
                     if (fm==null) {
-                    continue;
+                        continue;
                     }
                     
-                    if(dr.Table.Columns.Contains(fm.source)) {
+                    if (fm.value!=null) {  
+                        object value =  getTyped(fm.value,pro.PropertyType);
+                        pro.SetValue(obj, value,null);
+                        continue;
+                    }
+                    
+                    if (dr.Table.Columns.Contains(fm.source)) {
                         object value =  getTyped(dr[fm.source],pro.PropertyType);
                         if (value == DBNull.Value) {value = null;}
-                        pro.SetValue(obj, value, null);  
-                    }
+                        pro.SetValue(obj, value, null);
+                        continue;  
+                    } 
+
+                   
                     
                 }
 
@@ -182,7 +192,9 @@ namespace  ge_repository.Extensions {
             if (type == typeof(int) || type == typeof(Nullable<int>)) return getInt32(obj_string);
             if (type == typeof(long) || type == typeof(Nullable<long>)) return getInt64(obj_string); 
             if (type == typeof(Boolean) || type == typeof(Nullable<Boolean>)) return getBoolean(obj); 
-            
+            if (type == typeof(datumProjection)) {
+                return Enum.Parse(typeof(datumProjection), obj_string);
+            }
             return null;
         } catch (Exception e) {
             return null;

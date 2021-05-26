@@ -6,7 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using ge_repository.interfaces;
-using ge_repository.ESdat;
+using ge_repository.spatial;
 using ge_repository.OtherDatabase;
 using ge_repository.Models;
 using ge_repository.AGS;
@@ -106,7 +106,7 @@ namespace ge_repository.services
             search_table st = dic.search_tables[0];
             search_range sr =  st.header;
             string header_row = dic.search_items.Find(e=>e.name==sr.search_item_name).row_text;
-            string[] columns =  Split(header_row); 
+            string[] columns =  Split(header_row, 100); 
             int line_start = dic.data_start_row(NOT_FOUND);
             int line_end = dic.data_end_row(lines.Count());
 
@@ -116,7 +116,7 @@ namespace ge_repository.services
             for (int i = line_start; i<line_end; i++) {
                 string line = lines[i];
                 if (line.Length>0) {
-                string[] values = Split(line);
+                string[] values = Split(line, _dt.dt.Columns.Count);
                 DataRow row = _dt.dt.NewRow();
                 set_values(columns, values, row);
                 _dt.dt.Rows.Add(row);
@@ -125,14 +125,14 @@ namespace ge_repository.services
 
             return  _dt;
     }     
-    private string[] Split(string line) {
+    private string[] Split(string line, int columns) {
 
         if (line.Contains("\",\"")) {
             string trimmed = line.Substring(1,line.Length-2); 
-            string[] values = trimmed.Split("\",\"");
+            string[] values = trimmed.Split("\",\"",columns);
             return values;
         } else {
-             string[] values = line.Split(",");
+             string[] values = line.Split(",", columns);
              return values;
         }
 
@@ -140,11 +140,127 @@ namespace ge_repository.services
     private void set_values(string[] header, string[] values, DataRow row) {
 
            for (int i=0; i<header.Count();i++) {
-           row[header[i]] = values[i]; 
+            if (header[i]!="") {
+                row[header[i]] = values[i];
+            } 
            }
     }
     }
+    public class TableFileKMLService : ITableFileKMLService {
+        public async Task<KMLDoc> CreateKML (Guid Id,Guid tablemapId, string options, IDataService _dataService) {
 
+                ge_data_table dt = await _dataService.GetFileAsClass<ge_data_table>(Id);
+                ge_table_map map = await _dataService.GetFileAsClass<ge_table_map>(tablemapId);
+                
+                if (dt != null && map != null) {
+                KMLDoc kml_file = CreateKML (dt, map, options);
+                return kml_file;
+                }
+
+                return null;
+        }
+        public KMLDoc CreateKML (ge_data_table dt_file, ge_table_map map, string options) {
+
+                KMLDoc kml = new KMLDoc();
+                ILocaService _locaService = new LocaService();
+                foreach (table_map tm in map.table_maps.Where(m=>m.destination=="kml")) {
+                    List<ge_data> list = ConvertDataTable<ge_data>(dt_file.dt, tm);
+                    foreach (ge_data d in list) { 
+                        string msg;
+                        if (d.folder==null) {
+                            d.folder = dt_file.dt.TableName;
+                        }
+                        if (d.datumProjection==datumProjection.NONE) {
+                            d.datumProjection = datumProjection.OSGB36NG;
+                        }
+                        if (d.locName == "P2BH20") {
+                            Console.WriteLine("P2BH20");
+                        }
+                        _locaService.UpdateProjectionLoc (d, out msg, "");
+                        d.phistory = msg;
+                    }
+                    string[] folders =  list.Select (m=>m.folder).Distinct().ToArray();
+                    foreach( string folder in folders) {
+                        Folder f = new Folder();
+                        f.name = folder;
+                        f.Placemarks =  GetPlacemarks(list);
+                        kml.Document.Folders.Add(f);
+                    }
+                }
+
+                return kml;
+
+        } 
+
+        // private Folder GetPlacemarkFolder(string Name, List<ge_data> data) {
+            
+        //     Folder f = new Folder {name = Name};
+            
+        //         foreach (ge_data d in data) {
+        //             Placemark pm = new Placemark(d.locName,d.description, $"{d.locLongitude},{d.locLatitude}");
+        //             f.Add (pm);
+        //         }
+
+        //         return f;
+        // }
+
+        private List<Placemark> GetPlacemarks(List<ge_data> data) {
+
+            List<Placemark> list = new List<Placemark>();
+            
+                foreach (ge_data d in data) {
+                    Placemark pm = new Placemark(d.locName,d.description, $"{d.locLongitude},{d.locLatitude}");
+                    list.Add (pm);
+                }
+
+                return list;
+        }
+
+        private List<Placemark> GetPlacemarks(DataTable dt, table_map map) {
+            
+            List<Placemark> list = new List<Placemark>();
+
+            foreach(DataRow row in dt.Rows) {
+                ge_data d = new ge_data();
+                d.locNorth = get_double("locNorth",row,dt, map);
+                d.locEast  = get_double("locEast",row,dt, map);
+                d.locLevel = get_double("locLevel", row, dt, map);
+
+            } 
+
+            return list;
+
+        }
+        private double? get_double(string field2, DataRow row, DataTable dt, table_map map) {
+            
+            field_map fm = map.field_maps.First(m=>m.destination==field2);
+            
+            if (fm==null) {
+                return null;
+            } 
+
+            if (dt.Columns.Contains(fm.source)) {
+                return Convert.ToDouble(row[fm.source]);
+            } 
+
+            return null;
+        }
+         private string get_string(string field2, DataRow row, DataTable dt, table_map map) {
+            
+            field_map fm = map.field_maps.First(m=>m.destination==field2);
+            
+            if (fm==null) {
+                return "";
+            } 
+
+            if (dt.Columns.Contains(fm.source)) {
+                return Convert.ToString(row[fm.source]);
+            } 
+
+            return "";
+        }
+
+    }
     public class TableFileAGSService : ITableFileAGSService {
         public async Task<IAGSGroupTables> CreateAGS (Guid Id,Guid tablemapId, string[] agstables,string options, IDataService _dataService) {
 

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using ge_repository.Models;
 using ge_repository.Authorization;
@@ -30,13 +31,17 @@ namespace ge_repository.Controllers
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly IDataTableFileService _dataTableFileService;
         protected readonly IDataAGSService _dataAGSService;
+        protected readonly IDataKMLService _dataKMLService;
         protected readonly IUserOpsService _userService;
         protected readonly IOptions<ge_config> _ge_config;
 		protected readonly IHostingEnvironment _env;
+        private static string LOCAL_HOST ="https://localhost";
+
         public ge_tablefileController(
             IServiceScopeFactory ServiceScopeFactory,
             IDataTableFileService DataTableFileService,
-            IDataAGSService AGSDataService,
+            IDataAGSService DataAGSService,
+            IDataKMLService DataKMLService,
             IUserOpsService UserOpsService,
             IHostingEnvironment HostEnvironment,
             IOptions<ge_config> ge_config)
@@ -44,12 +49,35 @@ namespace ge_repository.Controllers
         {
            _serviceScopeFactory = ServiceScopeFactory;
            _dataTableFileService = DataTableFileService;
-           _dataAGSService = AGSDataService;
+           _dataAGSService = DataAGSService;
+           _dataKMLService = DataKMLService;
            _userService = UserOpsService;
            _env = HostEnvironment;
            _ge_config = ge_config;
         }
+
         public async Task<IActionResult> ProcessFile(   Guid Id, 
+                                                        Guid? templateId, 
+                                                        string table, 
+                                                        string sheet,
+                                                        Guid? tablemapId, 
+                                                        string[] agstables,
+                                                        Guid? agslibraryId, 
+                                                        string options = "",
+                                                        string format = "view", 
+                                                        Boolean save = false ) { 
+        return await ProcessFileToAGS (Id,
+                                        templateId,
+                                        table,
+                                        sheet,
+                                        tablemapId,
+                                        agstables,
+                                        agslibraryId,
+                                        options,
+                                        format,
+                                        save);
+        }
+        public async Task<IActionResult> ProcessFileToAGS(   Guid Id, 
                                                         Guid? templateId, 
                                                         string table, 
                                                         string sheet,
@@ -260,7 +288,160 @@ namespace ge_repository.Controllers
               return null;
           }
     }
+      public string getHostHref() {
+           string DisplayUrl = Request.GetDisplayUrl();
+           string PathQuery =  Request.GetEncodedPathAndQuery();
+           string HostRef = DisplayUrl.Substring(0, DisplayUrl.IndexOf(PathQuery));  
+           
+           
+           // Check for running on local host otherwise add the application folder for Href
+           if (HostRef.Contains(LOCAL_HOST)==false) {
+           HostRef += "/" + _env.ApplicationName;
+           }
+
+           return HostRef;
+        }
+
+     public async Task<IActionResult> ProcessFileToKML(   Guid Id, 
+                                                        Guid? templateId, 
+                                                        string table, 
+                                                        string sheet,
+                                                        Guid? tablemapId, 
+                                                        string options = "",
+                                                        string format = "view", 
+                                                        Boolean save = false ) { 
+        Boolean save_file = true;
+        Boolean save_kml = save;
+        if (options==null) options = "";
+        
+        if (options.Contains("background")) {
+            
+            if (save==true && !options.Contains("save_kml")){
+                options += ",save_kml";
+            }
+
+          //  return await ProcessFileBackground (Id, 
+          //                                      templateId, 
+          //                                      table, 
+          //                                     sheet,
+          //                                      tablemapId, 
+          //                                      agstables, 
+          //                                      options);
+        
+        }
+
+        if (options.Contains("read_file_only")) {
+            save_file = false;    
+        }
+        
+        var calc_resp = await ReadFile (Id,templateId.Value,table, sheet, "", save_file);
+
+        var okResult = calc_resp as OkObjectResult;
     
+        if (okResult == null) {
+                
+                var vwResult  = calc_resp as ViewResult;
+                
+                if (vwResult == null) {
+                return Json(calc_resp);
+                }
+                
+                return calc_resp;
+                // return View ("OperationRequest",calc_resp);
+            
+        }
+
+        ge_data_table _dt_file  = okResult.Value as ge_data_table;
+     
+        if (options.Contains("view_file")) {
+            if (format == "view") {
+            return View ("ReadData", _dt_file);
+            }
+            
+            if (format=="json") {
+             return Json(_dt_file);
+            }
+        
+            return Ok (_dt_file);
+        } 
+    
+        if (save_file == false) {
+            ITableFileKMLService _tableFileKMLService = new TableFileKMLService();
+            ge_table_map _tm = await _dataTableFileService.GetFileAsClass<ge_table_map>(tablemapId.Value);
+            
+            if (_tm == null) {
+                return Json($"table map for field not found for id={tablemapId.Value}");
+            }
+
+            KMLDoc _kml = _tableFileKMLService.CreateKML(_dt_file,_tm, options);
+            
+            if (save_kml == true) {
+                var _data = await _dataTableFileService.GetDataByIdWithAll(Id);
+                var _tablemap = await _dataTableFileService.GetDataByIdWithAll(tablemapId.Value);
+                var _user = await GetUserAsync();
+                await _dataKMLService.CreateData(_data.projectId, 
+                                                _user.Id, 
+                                                _kml,
+                                                _data.FileNameNoExtention() + ".kml",
+                                                $"KML Conversion from data table {_data.filename} using table map {_tablemap.filename}",
+                                                "ags");
+                  }
+            
+            if (format=="view") {
+            return View (_kml);
+            }
+            
+            if (format=="json") {
+             return Json(_kml);
+            }
+            
+            return Ok(_kml);
+        // return await View  (mond, format);
+        }  
+
+        return await CreateKML (Id, tablemapId.Value, options, format, save_kml);
+
+    }
+
+    public async Task<IActionResult> CreateKML (Guid Id, 
+                                                    Guid tablemapId, 
+                                                    string options,
+                                                    string format = "view", 
+                                                    Boolean save = false) {
+
+            if (Id == Guid.Empty || tablemapId == Guid.Empty) {
+                return NotFound();
+            }
+
+            var _data = await _dataTableFileService.GetDataByIdWithAll(Id);
+            var _tablemapId = await _dataTableFileService.GetDataByIdWithAll(tablemapId);
+            var _user = await GetUserAsync();
+
+            if (_data == null || _tablemapId == null) {
+                return NotFound();
+            }
+                                             
+            ITableFileKMLService _tableFileKMLService = new TableFileKMLService();
+            
+            KMLDoc _kml = await _tableFileKMLService.CreateKML(Id,tablemapId,options,_dataTableFileService);
+            
+            if (save==true) {
+                await _dataKMLService.CreateData(_data.projectId, 
+                                                _user.Id, 
+                                                _kml, 
+                                                _data.FileNameNoExtention() + ".kml",
+                                                $"KML Conversion from data table {_data.filename} using table map {_tablemapId.filename}",
+                                                "kml");
+            }
+
+            if (format=="view") {
+            return View (_kml);
+            }
+
+            return Ok(_kml);
+    
+    }
+
     public async Task<IActionResult> CreateAGS(   Guid Id, 
                                                     Guid tablemapId, 
                                                     string[] agstables, 
