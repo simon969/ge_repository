@@ -44,7 +44,12 @@ namespace ge_repository.Controllers
            map_hole_id.Add ("BH2316-D","BH2316");
            map_mong_id.Add ("BH2316-SPipe 1","Pipe 2");
            map_mong_id.Add ("BH2316-DPipe 1","Pipe 1");
-           
+
+           map_hole_id.Add ("OH04002-Standpipe","OH04002");
+           map_hole_id.Add ("OH04002-VWP","OH04002");
+           map_mong_id.Add ("OH04002-StandpipePipe 1","Pipe 1");
+           map_mong_id.Add ("OH04002-VWPPipe 1","VWP Serial Number 346759");
+
            // LTM Package NGGE
            map_hole_id.Add ("005-BH001 (S)","005-BH001");
            map_hole_id.Add ("005-BH002 (S)","005-BH002");
@@ -59,6 +64,24 @@ namespace ge_repository.Controllers
           
           // LTM Package Phase 1A Phase1B
            map_mong_id_gintrecid.Add ("BH2612Pipe 1",295);
+
+          // LTM Package SU
+           map_mong_id.Add ("CG-BH10Shallow","2");
+           map_mong_id.Add ("CG-BH10Deep","1");
+
+           map_mong_id.Add ("CG-BH15Shallow","2");
+           map_mong_id.Add ("CG-BH15Deep","1");
+
+           map_mong_id.Add ("CG-BH17Shallow","2");
+           map_mong_id.Add ("CG-BH17Deep","1");
+
+           map_mong_id.Add ("CG-BH18Shallow","2");
+           map_mong_id.Add ("CG-BH18Deep","1");
+
+           map_mong_id.Add ("CG-BH38Shallow","2");
+           map_mong_id.Add ("CG-BH38Deep","1");
+
+
         }
 
 public async Task<IActionResult> ViewSurvey123 (Guid projectId,
