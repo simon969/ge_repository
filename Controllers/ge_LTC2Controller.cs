@@ -66,20 +66,36 @@ namespace ge_repository.Controllers
            map_mong_id_gintrecid.Add ("BH2612Pipe 1",295);
 
           // LTM Package SU
-           map_mong_id.Add ("CG-BH10Shallow","2");
-           map_mong_id.Add ("CG-BH10Deep","1");
-
-           map_mong_id.Add ("CG-BH15Shallow","2");
-           map_mong_id.Add ("CG-BH15Deep","1");
-
-           map_mong_id.Add ("CG-BH17Shallow","2");
-           map_mong_id.Add ("CG-BH17Deep","1");
-
-           map_mong_id.Add ("CG-BH18Shallow","2");
-           map_mong_id.Add ("CG-BH18Deep","1");
-
-           map_mong_id.Add ("CG-BH38Shallow","2");
-           map_mong_id.Add ("CG-BH38Deep","1");
+           map_hole_id.Add ("CG-BH10-S","CG-BH10");
+           map_hole_id.Add ("CG-BH10-D","CG-BH10"); 
+           map_mong_id.Add ("CG-BH10-SShallow","2");
+           map_mong_id.Add ("CG-BH10-DDeep","1");
+           
+           map_hole_id.Add ("CG-BH13-S","CG-BH13");
+           map_hole_id.Add ("CG-BH13-D","CG-BH13"); 
+           map_mong_id.Add ("CG-BH13-SShallow","2");
+           map_mong_id.Add ("CG-BH13-DDeep","1");
+           
+           map_hole_id.Add ("CG-BH15-S","CG-BH15");
+           map_hole_id.Add ("CG-BH15-D","CG-BH15"); 
+           map_mong_id.Add ("CG-BH15-SShallow","2");
+           map_mong_id.Add ("CG-BH15-DDeep","1");
+           
+           map_hole_id.Add ("CG-BH17-S","CG-BH17");
+           map_hole_id.Add ("CG-BH17-D","CG-BH17"); 
+           map_mong_id.Add ("CG-BH17-SShallow","2");
+           map_mong_id.Add ("CG-BH17-DDeep","1");
+           
+           map_hole_id.Add ("CG-BH18-S","CG-BH18");
+           map_hole_id.Add ("CG-BH18-D","CG-BH18"); 
+           map_mong_id.Add ("CG-BH18-SShallow","2");
+           map_mong_id.Add ("CG-BH18-DDeep","1");
+           
+           map_hole_id.Add ("CG-BH38-S","CG-BH38");
+           map_hole_id.Add ("CG-BH38-D","CG-BH38"); 
+           map_mong_id.Add ("CG-BH38-SShallow","2");
+           map_mong_id.Add ("CG-BH38-DDeep","1");
+           
 
 
         }
