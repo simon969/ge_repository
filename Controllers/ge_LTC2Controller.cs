@@ -1293,10 +1293,16 @@ private async Task<int> AddSurveyData(ge_project project) {
                continue; 
             }
             
-            string point_id = survey.hole_id;
+            string hole_id = "";
+            
+            if (!string.IsNullOrEmpty(survey.hole_id)) {
+                hole_id = survey.hole_id.Trim();
+            }
 
-            if (map_hole_id.ContainsKey(survey.hole_id)) {
-                point_id = map_hole_id[survey.hole_id];
+            string point_id = hole_id;
+
+            if (map_hole_id.ContainsKey(hole_id)) {
+                point_id = map_hole_id[hole_id];
             } 
 
             POINT pt = POINT.Find(p=>p.PointID==point_id);
@@ -1319,19 +1325,23 @@ private async Task<int> AddSurveyData(ge_project project) {
                 continue;
             }
             
-            string mong_id  = survey.mong_ID;
+            string mong_id  = "";
+            
+            if (!string.IsNullOrEmpty(survey.mong_ID)) {
+                mong_id = survey.mong_ID.Trim();
+            }
 
             MONG mg = null;
             MONG mg_topo =  null;
 
-            if (map_mong_id.ContainsKey(survey.hole_id + survey.mong_ID)) {
-                mong_id = map_mong_id[survey.hole_id + survey.mong_ID];
+            if (map_mong_id.ContainsKey(hole_id + mong_id)) {
+                mong_id = map_mong_id[hole_id + mong_id];
             } 
             
             mg =   pt_mg.Find(m=>m.ItemKey == mong_id);
             
-            if (map_mong_id_gintrecid.ContainsKey(survey.hole_id + survey.mong_ID)) {
-                int mong_gintrecid = map_mong_id_gintrecid[survey.hole_id + survey.mong_ID];
+            if (map_mong_id_gintrecid.ContainsKey(hole_id + mong_id)) {
+                int mong_gintrecid = map_mong_id_gintrecid[hole_id + mong_id];
                 mg = pt_mg.Find(m=>m.GintRecID == mong_gintrecid);
             } 
 
@@ -1601,7 +1611,21 @@ private int AddDip(MONG mg, LTM_Survey_Data2 survey) {
                 }
                 MOND.Add(md);
             }
-            
+
+            // if (survey.dip_water_or_dry == "dry_hole") {
+            //     MOND md = NewMOND(mg, survey); 
+            //     md.MOND_TYPE = "WDEP";
+            //     md.MOND_RDNG = "Dry";
+            //     md.MOND_UNIT = "m";
+            //     md.MOND_INST = "Dipmeter: " + IfOther(survey.dip_instr, survey.dip_instr_other);
+            //     md.MOND_REM = survey.dip_com;
+            //     if (survey.dip_time!=null) {
+            //     md.DateTime  = gINTDateTime(survey.dip_time_getDT()).Value;
+            //     }
+            //     MOND.Add(md);
+
+            // } 
+
             // Water depth below gl (m)
             if (survey.depth_gwl_bgl == null && survey.dip_req == "yes" && survey.dip_datum_offset!=null && survey.dip_or_pressure != "PressureGauge") {
                 MOND md = NewMOND(mg, survey); 

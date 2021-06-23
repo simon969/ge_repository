@@ -1329,6 +1329,10 @@ private async Task<int> AddSurveyData(ge_project project) {
             }
             
             string mong_id  = survey.mong_ID;
+            
+            if (mong_id != null) {
+                mong_id = mong_id.Trim ();
+            }
 
             MONG mg = null;
             MONG mg_topo =  null;
