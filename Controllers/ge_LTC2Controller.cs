@@ -1787,7 +1787,7 @@ private int AddGas(MONG mg, LTM_Survey_Data2 survey) {
                 MOND.Add(md);
             }
             
-            // Ambient Carbon Dioxide concentration 
+            // Photo Ionisation Detector concentration 
             if (survey.PID_t != null) {
             MOND md = NewMOND(mg, survey); 
                 md.MOND_TYPE = "VOC";
@@ -1800,7 +1800,7 @@ private int AddGas(MONG mg, LTM_Survey_Data2 survey) {
                 }
                 MOND.Add(md);
             }
-
+           
             // Atmosperic Temperature (°C)
             if (survey.atmo_temp != null ) {
                MOND md = NewMOND(mg, survey);  
@@ -1930,6 +1930,17 @@ private int AddGas(MONG mg, LTM_Survey_Data2 survey) {
                     MOND.Add(md);  
                 }
 
+                // Volatile Organic Compounds from Gas Analyser 
+                if (survey2.voc_t != null) {
+                    MOND md = NewMOND(mg, survey, survey2); 
+                    md.MOND_TYPE = "VOC";
+                    md.MOND_RDNG = Convert.ToString(survey2.voc_t);
+                    md.MOND_NAME = "Volatile organic compounds";
+                    md.MOND_UNIT = "ppm";
+                    md.MOND_INST = IfOther(survey.gas_instr, survey.gas_instr_other);
+                    md.DateTime  = dt;
+                    MOND.Add(md);
+                }
 
             }
 
